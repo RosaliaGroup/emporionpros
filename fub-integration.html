@@ -406,7 +406,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fub-av').textContent = initials;
   document.getElementById('fub-name').textContent = user.name;
   fubConnected = !!EP.store.get('ep_fub_key');
-  if (fubConnected) showConnected();
+  if (fubConnected) {
+    showConnected();
+    syncFUBLeads(); // Auto-sync on page load
+  }
 });
 
 function showTab(name, btn) {
@@ -452,7 +455,8 @@ function disconnectFUB() {
 }
 
 function renderLeads() {
-  const leads = fubConnected ? SAMPLE_FUB_LEADS : [];
+  const stored = EP.store.get('ep_fub_leads') || [];
+  const leads = fubConnected ? stored : [];
   document.getElementById('stat-total').textContent = leads.length;
   document.getElementById('stat-new').textContent = leads.filter(l => l.aiStatus.includes('Pending')).length;
   document.getElementById('stat-called').textContent = leads.filter(l => l.aiStatus.includes('Called') || l.aiStatus.includes('Texted')).length;
@@ -524,9 +528,25 @@ function closeCallModal() {
   document.getElementById('call-modal').classList.remove('open');
 }
 
-function syncFUBLeads() {
+async function syncFUBLeads() {
   EP.notify('🔄 Syncing with Follow Up Boss...', 'info');
-  setTimeout(() => { EP.notify('✅ Leads synced! No new leads.', 'success'); }, 1500);
+  try {
+    const res = await fetch('/.netlify/functions/fub-leads');
+    const data = await res.json();
+    if (data.success && data.leads) {
+      // Store real leads
+      EP.store.set('ep_fub_leads', data.leads);
+      EP.store.set('ep_fub_synced', data.syncedAt);
+      document.getElementById('fub-badge').textContent = data.leads.length;
+      EP.notify('✅ Synced ' + data.leads.length + ' leads from Follow Up Boss!', 'success');
+      addActivity('sync', '📥 ' + data.leads.length + ' leads synced from FUB', 'Last sync: ' + new Date().toLocaleTimeString());
+      if (document.getElementById('tab-leads').classList.contains('active')) renderLeads();
+    } else {
+      EP.notify('❌ Sync error: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch(err) {
+    EP.notify('❌ Could not connect to FUB: ' + err.message, 'error');
+  }
 }
 
 function callAllNew() {
