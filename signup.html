@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign Up — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+body{background:linear-gradient(135deg,#1e3a8a,#1a56db);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{background:white;border-radius:20px;padding:40px;width:100%;max-width:480px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
+.auth-logo{font-size:24px;font-weight:800;color:#1a56db;margin-bottom:6px}.auth-logo span{color:#f97316}
+.auth-title{font-size:26px;font-weight:800;margin-bottom:6px}
+.auth-sub{color:#6b7280;font-size:14px;margin-bottom:28px}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.role-card{border:2px solid #e5e7eb;border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;transition:.2s}
+.role-card:hover{border-color:#1a56db}
+.role-card.selected{border-color:#1a56db;background:#eff6ff}
+.role-icon{font-size:28px;margin-bottom:6px}
+.role-name{font-size:12px;font-weight:700}
+.divider{text-align:center;color:#9ca3af;font-size:13px;margin:16px 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#e5e7eb}
+.divider::before{left:0}.divider::after{right:0}
+.auth-switch{text-align:center;font-size:13px;margin-top:20px;color:#6b7280}
+.auth-switch a{color:#1a56db;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="auth-box">
+  <div class="auth-logo">Emporion<span>Pros</span></div>
+  <div class="auth-title">Create your account</div>
+  <div class="auth-sub">Join thousands of real estate professionals</div>
+
+  <div class="role-grid" id="role-grid">
+    <div class="role-card selected" onclick="selectRole('buyer',this)"><div class="role-icon">🏠</div><div class="role-name">Buyer / Renter</div></div>
+    <div class="role-card" onclick="selectRole('agent',this)"><div class="role-icon">🤝</div><div class="role-name">Agent</div></div>
+    <div class="role-card" onclick="selectRole('vendor',this)"><div class="role-icon">🔧</div><div class="role-name">Vendor</div></div>
+  </div>
+
+  <form onsubmit="doSignup(event)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <input class="ep-input" name="firstName" placeholder="First Name" required>
+      <input class="ep-input" name="lastName" placeholder="Last Name" required>
+    </div>
+    <div class="ep-form-group"><input class="ep-input" name="email" type="email" placeholder="Email Address" required></div>
+    <div class="ep-form-group"><input class="ep-input" name="phone" type="tel" placeholder="Phone Number" required></div>
+    <div class="ep-form-group"><input class="ep-input" name="password" type="password" placeholder="Create Password" required></div>
+    <div id="agent-fields" style="display:none">
+      <div class="ep-form-group"><input class="ep-input" name="license" placeholder="License Number (Agents)"></div>
+    </div>
+    <div id="vendor-fields" style="display:none">
+      <div class="ep-form-group"><input class="ep-input" name="bizName" placeholder="Business Name"></div>
+      <div class="ep-form-group"><select class="ep-select" name="category"><option>Plumbing</option><option>HVAC</option><option>Electrical</option><option>Mortgage</option><option>Insurance</option><option>Title</option><option>Inspection</option><option>Real Estate Attorney</option><option>General Contractor</option></select></div>
+    </div>
+    <button type="submit" class="ep-btn ep-btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:8px">Create Account →</button>
+  </form>
+  <div class="auth-switch">Already have an account? <a href="login.html">Sign in</a></div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  EP.injectStyles();
+  const params = new URLSearchParams(window.location.search);
+  const role = params.get('role');
+  if (role) { const btn = document.querySelector(`.role-card:nth-child(${role==='agent'?2:role==='vendor'?3:1})`); if(btn) selectRole(role, btn); }
+});
+
+let selectedRole = 'buyer';
+function selectRole(role, card) {
+  selectedRole = role;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('agent-fields').style.display = role === 'agent' ? 'block' : 'none';
+  document.getElementById('vendor-fields').style.display = role === 'vendor' ? 'block' : 'none';
+}
+
+function doSignup(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const email = fd.get('email').trim().toLowerCase();
+  const password = fd.get('password');
+  const name = `${fd.get('firstName')} ${fd.get('lastName')}`;
+
+  // Check if email already exists
+  const users = EP.store.get('ep_users') || [];
+  if (users.find(u => u.email.toLowerCase() === email)) {
+    alert('An account with this email already exists. Please sign in instead.');
+    return;
+  }
+
+  // Save user to persistent storage (with password for login)
+  const newUser = { name, email, phone: fd.get('phone'), password, role: selectedRole, createdAt: new Date().toISOString() };
+  users.push(newUser);
+  EP.store.set('ep_users', users);
+
+  // Log them in (without storing password in session)
+  EP.auth.login({ name, email, role: selectedRole, loggedIn: true });
+  EP.notify('Account created! Welcome to Emporion Pros 🎉', 'success');
+  setTimeout(() => { window.location.href = selectedRole === 'agent' ? 'agent-dashboard.html' : selectedRole === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; }, 1000);
+}
+</script>
+</body>
+</html>

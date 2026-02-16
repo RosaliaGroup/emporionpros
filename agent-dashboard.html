@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Dashboard — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+.sidebar-user{padding:16px 20px 20px;border-bottom:1px solid #e5e7eb;margin-bottom:8px}
+.sidebar-av{width:52px;height:52px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin-bottom:8px}
+.sidebar-name{font-weight:700;font-size:15px}
+.sidebar-role{font-size:12px;color:#6b7280}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.15s;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+.nav-item:hover,.nav-item.active{background:#eff6ff;color:#1a56db}
+.nav-section{padding:8px 20px 4px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-top:8px}
+.dash-main{padding:28px;background:#f9fafb;overflow-y:auto}
+.tab-content{display:none}.tab-content.active{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-box{background:white;padding:20px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.stat-box-val{font-size:28px;font-weight:800;color:#1a56db}
+.stat-box-label{font-size:12px;color:#6b7280;margin-top:2px}
+.stat-box-delta{font-size:12px;color:#10b981;margin-top:4px}
+.section-card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:20px}
+.section-card h2{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.lead-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.lead-av{width:38px;height:38px;border-radius:50%;background:#eff6ff;color:#1a56db;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.lead-info{flex:1}
+.lead-name{font-weight:600;font-size:14px}
+.lead-meta{font-size:12px;color:#6b7280}
+.status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-new{background:#eff6ff;color:#1a56db}
+.status-contacted{background:#f0fdf4;color:#15803d}
+.status-closed{background:#f9fafb;color:#6b7280}
+.ai-dash-panel{background:linear-gradient(135deg,#1e3a8a,#1a56db);border-radius:12px;padding:24px;color:white;margin-bottom:20px}
+.ai-dash-panel h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.ai-chat-area{background:rgba(255,255,255,.1);border-radius:10px;padding:16px;margin:16px 0;min-height:180px;max-height:260px;overflow-y:auto}
+.ai-msg-d{padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.5}
+.ai-msg-d.user{background:rgba(255,255,255,.2);text-align:right}
+.ai-msg-d.assistant{background:rgba(0,0,0,.2)}
+.ai-input-row-d{display:flex;gap:8px}
+.ai-input-d{flex:1;padding:10px 14px;border:none;border-radius:8px;font-family:inherit;font-size:13px;background:rgba(255,255,255,.15);color:white}
+.ai-input-d::placeholder{color:rgba(255,255,255,.6)}
+.ai-input-d:focus{outline:none;background:rgba(255,255,255,.25)}
+.ai-send-d{padding:10px 16px;background:white;color:#1a56db;border:none;border-radius:8px;cursor:pointer;font-weight:700}
+.listing-row{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.listing-thumb{width:60px;height:45px;object-fit:cover;border-radius:6px}
+.appt-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f3f4f6;font-size:14px}
+@media(max-width:900px){.dash{grid-template-columns:1fr}.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+<div class="dash">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-av">CR</div>
+      <div class="sidebar-name">Carlos Rivera</div>
+      <div class="sidebar-role">Senior Agent · License NJ-RE-001234</div>
+    </div>
+    <button class="nav-item active" onclick="showTab('overview',this)">📊 Overview</button>
+    <button class="nav-item" onclick="showTab('leads',this)">📥 Leads <span style="background:#e02424;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px" id="lead-badge">0</span></button>
+    <button class="nav-item" onclick="showTab('listings',this)">🏠 My Listings</button>
+    <button class="nav-item" onclick="showTab('appointments',this)">📅 Appointments</button>
+    <button class="nav-item" onclick="showTab('ai',this)">🤖 AI Assistant</button>
+    <div class="nav-section">Integrations</div>
+    <a href="fub-integration.html" class="nav-item" style="background:#fff7ed;color:#c2410c;font-weight:700">🔗 FUB AI Calling <span style="background:#ef4444;color:white;border-radius:8px;padding:1px 6px;font-size:10px;margin-left:2px">NEW</span></a>
+    <div class="nav-section">Account</div>
+    <button class="nav-item" onclick="showTab('profile',this)">👤 My Profile</button>
+    <a href="index.html" class="nav-item">🏠 Back to Site</a>
+    <button class="nav-item" onclick="EP.auth.logout()">🚪 Sign Out</button>
+  </aside>
+
+  <main class="dash-main">
+    <!-- OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Welcome back, Carlos 👋</h1>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-val" id="ov-leads">0</div><div class="stat-box-label">Total Leads</div><div class="stat-box-delta">↑ Live counter</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="ov-new">0</div><div class="stat-box-label">New Leads</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="ov-appts">0</div><div class="stat-box-label">Appointments</div></div>
+        <div class="stat-box"><div class="stat-box-val">3</div><div class="stat-box-label">Active Listings</div></div>
+        <div class="stat-box"><div class="stat-box-val">$897</div><div class="stat-box-label">Revenue (MTD)</div><div class="stat-box-delta">3 transactions</div></div>
+      </div>
+      <div class="section-card">
+        <h2>Recent Leads <button class="ep-btn ep-btn-primary" style="font-size:12px;padding:6px 14px" onclick="showTab('leads',document.querySelector('.nav-item:nth-child(3)'))">View All</button></h2>
+        <div id="recent-leads-list">No leads yet</div>
+      </div>
+      <div class="section-card">
+        <h2>Upcoming Appointments</h2>
+        <div id="upcoming-appts">No appointments yet</div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="tab-content" id="tab-leads">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Lead Management</h1>
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('all')">All</button>
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('new')">🔵 New</button>
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('contacted')">🟢 Contacted</button>
+      </div>
+      <div class="section-card" id="leads-container">
+        <div id="leads-list">No leads yet. Share your profile to start generating leads!</div>
+      </div>
+    </div>
+
+    <!-- LISTINGS -->
+    <div class="tab-content" id="tab-listings">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h1 style="font-size:24px;font-weight:800">My Listings</h1>
+        <a href="post-property.html" class="ep-btn ep-btn-primary">+ Add Listing</a>
+      </div>
+      <div class="section-card">
+        ${EP.properties.filter(p => p.agentId === 1).map(p => `
+          <div class="listing-row">
+            <img src="${p.img}" class="listing-thumb">
+            <div>
+              <div style="font-weight:600;font-size:14px">${p.title}</div>
+              <div style="font-size:12px;color:#6b7280">${p.address} · $${p.price.toLocaleString()} · ${p.daysListed}d listed</div>
+              <span class="ep-tag ep-tag-green">Active</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="ep-btn ep-btn-outline" style="font-size:12px;padding:6px 12px" onclick="window.open('property-details.html?id=${p.id}')">View</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="tab-content" id="tab-appointments">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Appointments</h1>
+      <div class="section-card">
+        <div id="appt-list">No appointments yet.</div>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="tab-content" id="tab-ai">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">AI Assistant — Aria</h1>
+      <div class="ai-dash-panel">
+        <h2>🤖 Aria is your 24/7 assistant</h2>
+        <p style="opacity:.85;font-size:14px;margin-bottom:4px">She auto-responds to leads, books showings, calls clients, and drafts messages.</p>
+        <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('Draft a follow-up message for my latest lead')">✉️ Draft Follow-up</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('What are my leads today?')">📥 Today\'s Leads</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.simulatePhoneCall()">📞 Call a Lead</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
+        </div>
+        <div class="ai-chat-area" id="ai-dash-msgs"></div>
+        <div class="ai-input-row-d">
+          <input class="ai-input-d" id="ai-dash-input" placeholder="Ask Aria to do anything..." onkeydown="if(event.key==='Enter')sendDashAI()">
+          <button class="ai-send-d" onclick="sendDashAI()">Send</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <h2>AI Auto-Responder Settings</h2>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Auto-respond to new leads <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Auto-schedule showings <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            AI calls leads within 5 minutes <input type="checkbox" style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Send weekly performance reports <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="tab-content" id="tab-profile">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">My Agent Profile</h1>
+      <div class="section-card">
+        <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
+          <div style="width:80px;height:80px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">CR</div>
+          <div><h2 style="font-size:22px;font-weight:700;margin:0">Carlos Rivera</h2><p style="color:#6b7280">Senior Listing Agent</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="ep-form-group"><label class="ep-label">First Name</label><input class="ep-input" value="Carlos"></div>
+          <div class="ep-form-group"><label class="ep-label">Last Name</label><input class="ep-input" value="Rivera"></div>
+          <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" value="(973) 555-0101"></div>
+          <div class="ep-form-group"><label class="ep-label">License #</label><input class="ep-input" value="NJ-RE-001234"></div>
+          <div class="ep-form-group" style="grid-column:1/-1"><label class="ep-label">Bio</label><textarea class="ep-textarea">12+ years helping buyers and sellers in Essex County. Specializes in investment properties and first-time buyers.</textarea></div>
+        </div>
+        <button class="ep-btn ep-btn-primary" onclick="EP.notify('Profile updated!','success')">Save Changes</button>
+      </div>
+      <div class="section-card">
+        <h2>Your Public Profile Link</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input class="ep-input" value="emporionpros.com/agent/carlos-rivera" readonly style="flex:1">
+          <button class="ep-btn ep-btn-outline" onclick="EP.notify('Link copied!','success')">Copy</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="ai-mount"></div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Role guard
+  const user = EP.auth.user();
+  if (!user) { window.location.href = 'login.html'; return; }
+  if (user.role !== 'agent') { window.location.href = user.role === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; return; }
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+  // Role guard — redirect vendors/buyers away
+  const _u = EP.auth.user();
+  if (_u && _u.role === 'vendor') { window.location.href = 'vendor-dashboard.html'; return; }
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  // Update name in sidebar
+  const uName = user.name || 'Agent';
+  const uInitials = uName.split(' ').map(n=>n[0]).join('').toUpperCase();
+  document.querySelector('.sidebar-av').textContent = uInitials;
+  document.querySelector('.sidebar-name').textContent = uName;
+  refreshDashboard();
+  setInterval(refreshDashboard, 5000);
+  addDashMsg('assistant', 'Hi Carlos! I\'m Aria. I\'m monitoring your leads and ready to help. You have ' + (EP.leads.getForAgent(1).length) + ' leads so far.');
+});
+
+function refreshDashboard() {
+  const allLeads = EP.leads.getAll();
+  const myLeads = allLeads.filter(l => l.agentId === 1 || !l.vendorId);
+  const newLeads = myLeads.filter(l => l.status === 'new');
+  const appts = EP.appointments.getAll();
+
+  document.getElementById('ov-leads').textContent = myLeads.length;
+  document.getElementById('ov-new').textContent = newLeads.length;
+  document.getElementById('ov-appts').textContent = appts.length;
+  document.getElementById('lead-badge').textContent = newLeads.length;
+
+  // Recent leads overview
+  const rl = document.getElementById('recent-leads-list');
+  if (myLeads.length) {
+    rl.innerHTML = myLeads.slice(0,5).map(l => `<div class="lead-row">
+      <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+      <div class="lead-info"><div class="lead-name">${l.name||'Unknown'}</div><div class="lead-meta">${l.email||''} · ${l.source||''} · ${new Date(l.date).toLocaleDateString()}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="status-badge ${l.status==='new'?'status-new':l.status==='contacted'?'status-contacted':'status-closed'}">${l.status}</span>
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 10px" onclick="EP.leads.updateStatus(${l.id},'contacted');refreshDashboard()">Mark Contacted</button>
+      </div>
+    </div>`).join('');
+  }
+
+  // Leads tab
+  const ll = document.getElementById('leads-list');
+  ll.innerHTML = myLeads.length ? myLeads.map(l => `<div class="lead-row">
+    <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+    <div class="lead-info"><div class="lead-name">${l.name||'Unknown'}</div><div class="lead-meta">${l.email||''} · ${l.phone||''} · ${l.source||''}</div><div style="font-size:12px;color:#374151;margin-top:2px">${l.message||''}</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+      <span class="status-badge ${l.status==='new'?'status-new':'status-contacted'}">${l.status}</span>
+      <div style="display:flex;gap:4px">
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 8px" onclick="EP.leads.updateStatus(${l.id},'contacted');refreshDashboard()">Contacted</button>
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 8px" onclick="EP.ai.simulatePhoneCall()">📞</button>
+      </div>
+    </div>
+  </div>`).join('') : '<p style="color:#6b7280;padding:20px">No leads yet.</p>';
+
+  // Appointments
+  const ua = document.getElementById('upcoming-appts');
+  const al = document.getElementById('appt-list');
+  const apptHtml = appts.length ? appts.map(a => `<div class="appt-row">
+    <div><div style="font-weight:600">${a.name}</div><div style="font-size:12px;color:#6b7280">${a.type}</div></div>
+    <div style="text-align:right"><div style="font-weight:600">${a.date}</div><div style="font-size:12px;color:#6b7280">${a.time}</div></div>
+    <span class="status-badge status-new">${a.status}</span>
+  </div>`).join('') : '<p style="color:#6b7280">No appointments.</p>';
+  if (ua) ua.innerHTML = apptHtml;
+  if (al) al.innerHTML = apptHtml;
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function filterLeads(status) {
+  const all = EP.leads.getAll().filter(l => l.agentId === 1 || !l.vendorId);
+  const filtered = status === 'all' ? all : all.filter(l => l.status === status);
+  document.getElementById('leads-list').innerHTML = filtered.length ? filtered.map(l => `<div class="lead-row">
+    <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+    <div class="lead-info"><div class="lead-name">${l.name}</div><div class="lead-meta">${l.email} · ${l.source}</div></div>
+    <span class="status-badge status-${l.status}">${l.status}</span>
+  </div>`).join('') : `<p style="color:#6b7280;padding:20px">No ${status} leads.</p>`;
+}
+
+function addDashMsg(role, msg) {
+  const c = document.getElementById('ai-dash-msgs');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = `ai-msg-d ${role}`;
+  d.innerHTML = msg.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+async function sendDashAI() {
+  const inp = document.getElementById('ai-dash-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addDashMsg('user', msg);
+  const reply = await EP.ai.respond(msg);
+  addDashMsg('assistant', reply);
+}
+
+function dashAI(msg) {
+  document.getElementById('ai-dash-input').value = msg;
+  sendDashAI();
+}
+</script>
+</body>
+</html>

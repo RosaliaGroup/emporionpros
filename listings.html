@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Browse Properties — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.search-hero{background:linear-gradient(135deg,#1e3a8a,#1a56db);padding:36px 0}
+.search-hero-inner{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.search-hero input{flex:1;min-width:200px;padding:13px 16px;border:none;border-radius:8px;font-size:15px;font-family:inherit}
+.search-hero input:focus{outline:2px solid #fbbf24}
+.search-hero button{padding:13px 28px;background:#fbbf24;color:#1e3a8a;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit}
+.tabs-bar{display:flex;gap:4px;margin-bottom:0;background:white;padding:0 0 0 24px;border-bottom:1px solid #e5e7eb}
+.tab-pill{padding:14px 20px;background:transparent;border:none;font-weight:600;font-size:14px;cursor:pointer;color:#6b7280;border-bottom:3px solid transparent;font-family:inherit;transition:.2s}
+.tab-pill.active{color:#1a56db;border-bottom-color:#1a56db}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:calc(100vh - 180px)}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:24px;overflow-y:auto}
+.sidebar h3{font-size:13px;font-weight:700;text-transform:uppercase;color:#6b7280;letter-spacing:.5px;margin:20px 0 10px}
+.sidebar h3:first-child{margin-top:0}
+.filter-item{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.filter-item label{font-size:13px;font-weight:600;color:#374151}
+.results-area{padding:24px}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.results-count{font-size:18px;font-weight:700}
+.sort-row{display:flex;gap:10px;align-items:center}
+.props-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.no-results{text-align:center;padding:80px 20px;color:#6b7280}
+.source-tag{font-size:10px;background:#f3f4f6;color:#6b7280;padding:2px 7px;border-radius:10px;margin-left:6px}
+.price-range{display:flex;gap:8px;align-items:center}
+.price-range input{flex:1;padding:9px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;font-family:inherit}
+.check-group{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.check-item input{cursor:pointer}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<div class="search-hero">
+  <div class="ep-container">
+    <div class="search-hero-inner">
+      <input type="text" id="main-search" placeholder="City, address, neighborhood, ZIP..." value="Newark, NJ">
+      <button onclick="applyFilters()">🔍 Search</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab-pill active" onclick="setTypeFilter('all',this)">All</button>
+  <button class="tab-pill" onclick="setTypeFilter('sale',this)">For Sale</button>
+  <button class="tab-pill" onclick="setTypeFilter('rent',this)">For Rent</button>
+  <button class="tab-pill" onclick="setTypeFilter('commercial',this)">Commercial</button>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>Price</h3>
+    <div class="price-range">
+      <input type="number" id="min-price" placeholder="Min $">
+      <span>–</span>
+      <input type="number" id="max-price" placeholder="Max $">
+    </div>
+
+    <h3>Property Type</h3>
+    <div class="check-group" id="prop-type-filters">
+      <label class="check-item"><input type="checkbox" value="Single Family" onchange="applyFilters()"> Single Family</label>
+      <label class="check-item"><input type="checkbox" value="Condo" onchange="applyFilters()"> Condo</label>
+      <label class="check-item"><input type="checkbox" value="Townhouse" onchange="applyFilters()"> Townhouse</label>
+      <label class="check-item"><input type="checkbox" value="Multi-Family" onchange="applyFilters()"> Multi-Family</label>
+      <label class="check-item"><input type="checkbox" value="Commercial" onchange="applyFilters()"> Commercial</label>
+      <label class="check-item"><input type="checkbox" value="Studio" onchange="applyFilters()"> Studio / Apartment</label>
+    </div>
+
+    <h3>Bedrooms</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="bed-filters">
+      <button class="ep-btn ep-btn-outline" style="padding:6px 14px;font-size:13px" onclick="setBeds(0,this)">Any</button>
+      <button class="ep-btn ep-btn-outline" style="padding:6px 14px;font-size:13px" onclick="setBeds(1,this)">1+</button>
+      <button class="ep-btn ep-btn-outline" style="padding:6px 14px;font-size:13px" onclick="setBeds(2,this)">2+</button>
+      <button class="ep-btn ep-btn-outline" style="padding:6px 14px;font-size:13px" onclick="setBeds(3,this)">3+</button>
+      <button class="ep-btn ep-btn-outline" style="padding:6px 14px;font-size:13px" onclick="setBeds(4,this)">4+</button>
+    </div>
+
+    <h3>Bathrooms</h3>
+    <select class="ep-select" id="bath-filter" onchange="applyFilters()" style="width:100%">
+      <option value="0">Any</option>
+      <option value="1">1+</option>
+      <option value="2">2+</option>
+      <option value="3">3+</option>
+    </select>
+
+    <h3>Min Sq Ft</h3>
+    <select class="ep-select" id="sqft-filter" onchange="applyFilters()" style="width:100%">
+      <option value="0">Any</option>
+      <option value="500">500+</option>
+      <option value="1000">1,000+</option>
+      <option value="1500">1,500+</option>
+      <option value="2000">2,000+</option>
+      <option value="3000">3,000+</option>
+    </select>
+
+    <div style="margin-top:20px">
+      <button class="ep-btn ep-btn-primary" style="width:100%" onclick="applyFilters()">Apply Filters</button>
+      <button class="ep-btn ep-btn-outline" style="width:100%;margin-top:8px" onclick="clearFilters()">Clear All</button>
+    </div>
+  </aside>
+
+  <main class="results-area">
+    <div class="results-header">
+      <div class="results-count" id="results-count">Loading...</div>
+      <div class="sort-row">
+        <select class="ep-select" id="sort-by" onchange="applyFilters()">
+          <option value="newest">Newest First</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="beds">Most Bedrooms</option>
+          <option value="sqft">Largest</option>
+        </select>
+      </div>
+    </div>
+    <div class="props-grid" id="props-grid"></div>
+  </main>
+</div>
+
+<div id="ai-mount"></div>
+
+<script>
+let currentType = 'all';
+let currentBeds = 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('listings');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+
+  // Read URL params
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('type')) { currentType = p.get('type'); document.querySelectorAll('.tab-pill').forEach(t => { t.classList.remove('active'); if ((t.textContent.toLowerCase().includes(currentType)) || (currentType==='all' && t.textContent==='All')) t.classList.add('active'); }); }
+  if (p.get('loc')) document.getElementById('main-search').value = p.get('loc');
+  if (p.get('beds')) { currentBeds = parseInt(p.get('beds')) || 0; }
+
+  applyFilters();
+});
+
+function applyFilters() {
+  const searchVal = document.getElementById('main-search').value.toLowerCase();
+  const minP = parseInt(document.getElementById('min-price').value) || 0;
+  const maxP = parseInt(document.getElementById('max-price').value) || 999999999;
+  const checkedTypes = [...document.querySelectorAll('#prop-type-filters input:checked')].map(c => c.value);
+  const baths = parseFloat(document.getElementById('bath-filter').value) || 0;
+  const sqft = parseInt(document.getElementById('sqft-filter').value) || 0;
+  const sort = document.getElementById('sort-by').value;
+
+  let results = EP.properties.filter(p => {
+    if (currentType === 'sale' && p.type !== 'sale') return false;
+    if (currentType === 'rent' && p.type !== 'rent') return false;
+    if (currentType === 'commercial' && p.propType !== 'Commercial') return false;
+    if (searchVal && !p.city.toLowerCase().includes(searchVal) && !p.address.toLowerCase().includes(searchVal) && !p.zip.includes(searchVal)) return false;
+    if (p.price < minP || p.price > maxP) return false;
+    if (checkedTypes.length && !checkedTypes.includes(p.propType)) return false;
+    if (currentBeds && p.beds < currentBeds) return false;
+    if (baths && p.baths < baths) return false;
+    if (sqft && p.sqft < sqft) return false;
+    return true;
+  });
+
+  results.sort((a, b) => sort === 'price-asc' ? a.price - b.price : sort === 'price-desc' ? b.price - a.price : sort === 'beds' ? b.beds - a.beds : sort === 'sqft' ? b.sqft - a.sqft : a.daysListed - b.daysListed);
+
+  document.getElementById('results-count').textContent = `${results.length} properties found`;
+  const grid = document.getElementById('props-grid');
+
+  if (!results.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><div style="font-size:48px;margin-bottom:16px">🏠</div><h3>No properties match your search</h3><p>Try adjusting your filters or search a different area</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = results.map(p => `
+    <div class="ep-card" onclick="window.location='property-details.html?id=${p.id}'">
+      <div class="prop-img-wrap">
+        <img src="${p.img}" class="prop-img" alt="${p.title}" loading="lazy">
+        <span class="prop-badge ${p.type==='rent'?'rent':''}">${p.type==='sale'?'For Sale':'For Rent'}</span>
+        <button class="prop-heart" onclick="event.stopPropagation();this.textContent=EP.saved.toggle(${p.id})?'❤️':'♡'">${EP.saved.isSaved(p.id)?'❤️':'♡'}</button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-price">$${p.price.toLocaleString()}${p.type==='rent'?'<small>/mo</small>':''}</div>
+        <div class="prop-addr">${p.city}, ${p.state} <span class="source-tag">${p.source}</span></div>
+        <div class="prop-stats">
+          <span class="prop-stat">🛏 ${p.beds}</span>
+          <span class="prop-stat">🛁 ${p.baths}</span>
+          <span class="prop-stat">📐 ${p.sqft.toLocaleString()} ft²</span>
+        </div>
+        <div class="prop-footer">
+          <span class="ep-tag ep-tag-blue">${p.propType}</span>
+          <span>${p.daysListed}d ago</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function setTypeFilter(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function setBeds(n, btn) {
+  currentBeds = n;
+  document.querySelectorAll('#bed-filters .ep-btn').forEach(b => { b.classList.remove('ep-btn-primary'); b.classList.add('ep-btn-outline'); });
+  btn.classList.remove('ep-btn-outline');
+  btn.classList.add('ep-btn-primary');
+  applyFilters();
+}
+
+function clearFilters() {
+  document.getElementById('min-price').value = '';
+  document.getElementById('max-price').value = '';
+  document.getElementById('bath-filter').value = '0';
+  document.getElementById('sqft-filter').value = '0';
+  document.querySelectorAll('#prop-type-filters input').forEach(c => c.checked = false);
+  currentBeds = 0; currentType = 'all';
+  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-pill').classList.add('active');
+  setBeds(0, document.querySelector('#bed-filters .ep-btn'));
+  applyFilters();
+}
+</script>
+</body>
+</html>

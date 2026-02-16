@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vendor Dashboard — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+.sidebar-user{padding:16px 20px 20px;border-bottom:1px solid #e5e7eb;margin-bottom:8px}
+.sidebar-av{width:52px;height:52px;border-radius:50%;background:#065f46;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin-bottom:8px}
+.sidebar-name{font-weight:700;font-size:15px}
+.sidebar-role{font-size:12px;color:#6b7280}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.15s;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+.nav-item:hover,.nav-item.active{background:#f0fdf4;color:#065f46}
+.dash-main{padding:28px;background:#f9fafb;overflow-y:auto}
+.tab-content{display:none}.tab-content.active{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-box{background:white;padding:20px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.stat-box-val{font-size:28px;font-weight:800;color:#065f46}
+.stat-box-label{font-size:12px;color:#6b7280;margin-top:2px}
+.section-card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:20px}
+.lead-row{display:flex;align-items:start;gap:12px;padding:14px 0;border-bottom:1px solid #f3f4f6}
+.lead-av{width:40px;height:40px;border-radius:50%;background:#f0fdf4;color:#065f46;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+.status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
+.status-new{background:#eff6ff;color:#1a56db}
+.status-quoted{background:#fffbeb;color:#b45309}
+.status-booked{background:#f0fdf4;color:#15803d}
+.ai-dash-panel{background:linear-gradient(135deg,#064e3b,#065f46);border-radius:12px;padding:24px;color:white;margin-bottom:20px}
+.ai-chat-area{background:rgba(255,255,255,.1);border-radius:10px;padding:16px;margin:16px 0;min-height:180px;max-height:260px;overflow-y:auto}
+.ai-msg-d{padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.5}
+.ai-msg-d.user{background:rgba(255,255,255,.2);text-align:right}
+.ai-msg-d.assistant{background:rgba(0,0,0,.2)}
+.ai-input-row-d{display:flex;gap:8px}
+.ai-input-d{flex:1;padding:10px 14px;border:none;border-radius:8px;font-family:inherit;font-size:13px;background:rgba(255,255,255,.15);color:white}
+.ai-input-d::placeholder{color:rgba(255,255,255,.6)}
+.ai-input-d:focus{outline:none;background:rgba(255,255,255,.25)}
+.ai-send-d{padding:10px 16px;background:white;color:#065f46;border:none;border-radius:8px;cursor:pointer;font-weight:700}
+.revenue-bar{background:#f0fdf4;border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+@media(max-width:900px){.dash{grid-template-columns:1fr}.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+<div class="dash">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-av">PP</div>
+      <div class="sidebar-name">ProPlumb NJ</div>
+      <div class="sidebar-role">Plumbing · Premium Vendor</div>
+    </div>
+    <button class="nav-item active" onclick="showTab('overview',this)">📊 Overview</button>
+    <button class="nav-item" onclick="showTab('leads',this)">📥 Quote Requests <span style="background:#e02424;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px" id="vlead-badge">0</span></button>
+    <button class="nav-item" onclick="showTab('jobs',this)">🔧 Active Jobs</button>
+    <button class="nav-item" onclick="showTab('ai',this)">🤖 AI Assistant</button>
+    <button class="nav-item" onclick="showTab('revenue',this)">💰 Revenue</button>
+    <button class="nav-item" onclick="showTab('profile',this)">👤 My Profile</button>
+    <a href="index.html" class="nav-item">🏠 Back to Site</a>
+    <button class="nav-item" onclick="EP.auth.logout()">🚪 Sign Out</button>
+  </aside>
+
+  <main class="dash-main">
+    <!-- OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Vendor Dashboard 🔧</h1>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-val" id="vov-leads">0</div><div class="stat-box-label">Quote Requests</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="vov-new">0</div><div class="stat-box-label">New Today</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="vov-jobs">3</div><div class="stat-box-label">Active Jobs</div></div>
+        <div class="stat-box"><div class="stat-box-val">$4,200</div><div class="stat-box-label">Revenue (MTD)</div></div>
+        <div class="stat-box"><div class="stat-box-val">4.8 ⭐</div><div class="stat-box-label">Rating</div></div>
+      </div>
+      <div class="section-card">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">Recent Quote Requests</h2>
+        <div id="vrecent-leads">No leads yet.</div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="tab-content" id="tab-leads">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Quote Requests</h1>
+      <div class="section-card">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="filterVLeads('all')">All</button>
+          <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="filterVLeads('new')">🔵 New</button>
+          <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="filterVLeads('quoted')">🟡 Quoted</button>
+          <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="filterVLeads('booked')">🟢 Booked</button>
+        </div>
+        <div id="vleads-list">Loading...</div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div class="tab-content" id="tab-jobs">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Active Jobs</h1>
+      <div class="section-card">
+        ${[
+          { client:'Maria Santos', service:'Water Heater Replacement', addr:'127 Roseville Ave, Newark', date:'Feb 18', status:'Scheduled', amount:'$850' },
+          { client:'David Kim', service:'Emergency Drain Cleaning', addr:'456 Oak Ave, Newark', date:'Feb 16', status:'In Progress', amount:'$220' },
+          { client:'Rosa Jimenez', service:'Bathroom Remodel Plumbing', addr:'789 Elm Dr, Newark', date:'Feb 20', status:'Quoted', amount:'$3,400' }
+        ].map(j => `
+          <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:start">
+              <div>
+                <div style="font-weight:700">${j.client}</div>
+                <div style="font-size:13px;color:#6b7280">${j.service}</div>
+                <div style="font-size:13px;margin-top:4px">📍 ${j.addr}</div>
+                <div style="font-size:13px">📅 ${j.date}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:20px;font-weight:800;color:#065f46">${j.amount}</div>
+                <span class="status-badge ${j.status==='In Progress'?'status-booked':j.status==='Quoted'?'status-quoted':'status-new'}">${j.status}</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="EP.ai.simulatePhoneCall()">📞 Call Client</button>
+              <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="EP.notify('Invoice sent!','success')">📄 Send Invoice</button>
+              <button class="ep-btn ep-btn-primary" style="font-size:12px" onclick="EP.notify('Job marked complete!','success')">✓ Complete</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="tab-content" id="tab-ai">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">AI Assistant — Aria</h1>
+      <div class="ai-dash-panel">
+        <h2>🤖 Aria handles your business 24/7</h2>
+        <p style="opacity:.85;font-size:14px;margin-bottom:4px">Auto-responds to quote requests, books jobs, follows up, and calls clients on your behalf.</p>
+        <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="vendorAI('Draft a quote response for my latest lead')">📝 Draft Quote</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.simulatePhoneCall()">📞 Call Client</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="vendorAI('What jobs do I have this week?')">📅 This Week</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="vendorAI('Help me follow up with unresponded leads')">🔄 Follow-ups</button>
+        </div>
+        <div class="ai-chat-area" id="vai-msgs"></div>
+        <div class="ai-input-row-d">
+          <input class="ai-input-d" id="vai-input" placeholder="Ask Aria anything about your business..." onkeydown="if(event.key==='Enter')sendVAI()">
+          <button class="ai-send-d" onclick="sendVAI()">Send</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">AI Auto-Settings</h2>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;justify-content:space-between;font-size:14px">Auto-respond to quote requests <input type="checkbox" checked style="transform:scale(1.3)"></label>
+          <label style="display:flex;justify-content:space-between;font-size:14px">Auto-send quote within 1 hour <input type="checkbox" checked style="transform:scale(1.3)"></label>
+          <label style="display:flex;justify-content:space-between;font-size:14px">Call new leads within 5 minutes <input type="checkbox" style="transform:scale(1.3)"></label>
+          <label style="display:flex;justify-content:space-between;font-size:14px">Follow up if no response in 24h <input type="checkbox" checked style="transform:scale(1.3)"></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="tab-content" id="tab-revenue">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Revenue & Payments</h1>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-val">$4,200</div><div class="stat-box-label">This Month</div></div>
+        <div class="stat-box"><div class="stat-box-val">$38,400</div><div class="stat-box-label">This Year</div></div>
+        <div class="stat-box"><div class="stat-box-val">47</div><div class="stat-box-label">Jobs Completed</div></div>
+        <div class="stat-box"><div class="stat-box-val">$817</div><div class="stat-box-label">Avg Job Value</div></div>
+      </div>
+      <div class="section-card">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">Recent Payments</h2>
+        ${[
+          {client:'John Martinez',service:'Water Heater',amount:'$850',date:'Feb 14',paid:true},
+          {client:'Sarah Williams',service:'Pipe Repair',amount:'$320',date:'Feb 12',paid:true},
+          {client:'David Kim',service:'Drain Cleaning',amount:'$220',date:'Feb 16',paid:false},
+        ].map(p => `
+          <div class="revenue-bar">
+            <div><div style="font-weight:600">${p.client}</div><div style="font-size:13px;color:#6b7280">${p.service} · ${p.date}</div></div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:18px;font-weight:800;color:#065f46">${p.amount}</span>
+              <span class="status-badge ${p.paid?'status-booked':'status-quoted'}">${p.paid?'Paid':'Pending'}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="tab-content" id="tab-profile">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Business Profile</h1>
+      <div class="section-card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="ep-form-group"><label class="ep-label">Business Name</label><input class="ep-input" value="ProPlumb NJ"></div>
+          <div class="ep-form-group"><label class="ep-label">Category</label><select class="ep-select"><option selected>Plumbing</option><option>HVAC</option><option>Electrical</option></select></div>
+          <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" value="(973) 555-1001"></div>
+          <div class="ep-form-group"><label class="ep-label">License #</label><input class="ep-input" value="NJ-PL-98765"></div>
+          <div class="ep-form-group" style="grid-column:1/-1"><label class="ep-label">Description</label><textarea class="ep-textarea">Full-service plumbing for residential and commercial. Emergency service 24/7. Free estimates.</textarea></div>
+        </div>
+        <button class="ep-btn ep-btn-primary" onclick="EP.notify('Profile updated!','success')">Save Changes</button>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="ai-mount"></div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Role guard
+  const user = EP.auth.user();
+  if (!user) { window.location.href = 'login.html'; return; }
+  if (user.role !== 'vendor') { window.location.href = user.role === 'agent' ? 'agent-dashboard.html' : 'listings.html'; return; }
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+  const _vu = EP.auth.user();
+  if (_vu && _vu.role === 'agent') { window.location.href = 'agent-dashboard.html'; return; }
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  refreshVDash();
+  setInterval(refreshVDash, 5000);
+  addVMsg('assistant', "Hi! I'm Aria, your vendor AI. I'm monitoring incoming quote requests and ready to auto-respond. You have " + EP.leads.getForVendor(1).length + " leads so far.");
+});
+
+function refreshVDash() {
+  const all = EP.leads.getAll().filter(l => l.vendorId);
+  const newLeads = all.filter(l => l.status === 'new');
+  document.getElementById('vov-leads').textContent = all.length;
+  document.getElementById('vov-new').textContent = newLeads.length;
+  document.getElementById('vlead-badge').textContent = newLeads.length;
+
+  const html = all.length ? all.map(l => `
+    <div class="lead-row">
+      <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${l.name||'Unknown'}</div>
+        <div style="font-size:12px;color:#6b7280">${l.email||''} · ${l.phone||''}</div>
+        <div style="font-size:13px;color:#374151;margin-top:3px">Service: <strong>${l.service||'General'}</strong> · ${l.urgency||'Routine'}</div>
+        <div style="font-size:12px;color:#6b7280">${l.address||''} · ${new Date(l.date).toLocaleDateString()}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <span class="status-badge status-${l.status}">${l.status}</span>
+        <div style="display:flex;gap:4px">
+          <button class="ep-btn ep-btn-primary" style="font-size:11px;padding:4px 8px" onclick="sendQuote(${l.id})">Send Quote</button>
+          <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 8px" onclick="EP.ai.simulatePhoneCall()">📞</button>
+        </div>
+      </div>
+    </div>`).join('') : '<p style="color:#6b7280;padding:20px">No leads yet. Your profile is live on the platform!</p>';
+  document.getElementById('vrecent-leads').innerHTML = html;
+  document.getElementById('vleads-list').innerHTML = html;
+}
+
+function filterVLeads(status) {
+  const all = EP.leads.getAll().filter(l => l.vendorId);
+  const filtered = status === 'all' ? all : all.filter(l => l.status === status);
+  document.getElementById('vleads-list').innerHTML = filtered.length ? filtered.map(l => `
+    <div class="lead-row">
+      <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1"><div style="font-weight:600">${l.name}</div><div style="font-size:12px;color:#6b7280">${l.service||'General'}</div></div>
+      <span class="status-badge status-${l.status}">${l.status}</span>
+    </div>`).join('') : `<p style="color:#6b7280;padding:20px">No ${status} leads.</p>`;
+}
+
+function sendQuote(id) {
+  EP.leads.updateStatus(id, 'quoted');
+  EP.notify('Quote sent to client!', 'success');
+  refreshVDash();
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function addVMsg(role, msg) {
+  const c = document.getElementById('vai-msgs');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = `ai-msg-d ${role}`;
+  d.innerHTML = msg.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+
+async function sendVAI() {
+  const inp = document.getElementById('vai-input');
+  const msg = inp.value.trim(); if (!msg) return;
+  inp.value = ''; addVMsg('user', msg);
+  const reply = await EP.ai.respond(msg);
+  addVMsg('assistant', reply);
+}
+
+function vendorAI(msg) { document.getElementById('vai-input').value = msg; sendVAI(); }
+</script>
+</body>
+</html>

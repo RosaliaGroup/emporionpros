@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>List Your Property — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.post-hero{background:linear-gradient(135deg,#1e3a8a,#1a56db);color:white;padding:60px 0;text-align:center}
+.post-hero h1{font-size:42px;font-weight:800;margin-bottom:10px}
+.form-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;max-width:1200px;margin:40px auto;padding:0 24px}
+.form-card{background:white;border-radius:14px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px}
+.form-card h2{font-size:20px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e5e7eb}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+.type-toggle{display:flex;gap:12px;margin-bottom:8px}
+.type-btn{flex:1;padding:14px;border:2px solid #e5e7eb;border-radius:10px;background:white;font-weight:700;font-size:15px;cursor:pointer;transition:.2s;font-family:inherit}
+.type-btn.active{border-color:#1a56db;background:#eff6ff;color:#1a56db}
+.upload-zone{border:2px dashed #d1d5db;border-radius:12px;padding:48px 20px;text-align:center;cursor:pointer;transition:.2s}
+.upload-zone:hover{border-color:#1a56db;background:#f0f7ff}
+.tier-card{border:2px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:12px;cursor:pointer;transition:.2s}
+.tier-card.selected{border-color:#1a56db;background:#eff6ff}
+.tier-card h3{font-size:18px;font-weight:800;color:#1a56db}
+.tier-price{font-size:28px;font-weight:800;margin:6px 0}
+.tier-features{font-size:13px;color:#6b7280;line-height:1.7;margin-top:8px}
+.sticky-sidebar{position:sticky;top:88px}
+.summary-card{background:white;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.summary-line{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid #f3f4f6}
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.photo-thumb{height:80px;border-radius:6px;object-fit:cover}
+@media(max-width:900px){.form-layout{grid-template-columns:1fr}.sticky-sidebar{position:static}.form-grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<div class="post-hero">
+  <div class="ep-container">
+    <h1>List Your Property</h1>
+    <p style="font-size:18px;opacity:.9">Reach thousands of buyers and renters. Flat fee. No commission.</p>
+  </div>
+</div>
+
+<div class="form-layout">
+  <div>
+    <form id="listing-form" onsubmit="submitListing(event)">
+
+      <div class="form-card">
+        <h2>Listing Type</h2>
+        <div class="type-toggle">
+          <button type="button" class="type-btn active" onclick="setType('sale',this)">🏠 For Sale</button>
+          <button type="button" class="type-btn" onclick="setType('rent',this)">🔑 For Rent</button>
+          <button type="button" class="type-btn" onclick="setType('shortterm',this)">📅 Short-Term</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2>Property Details</h2>
+        <div class="form-grid-2">
+          <div class="ep-form-group full"><label class="ep-label">Property Title <span style="color:red">*</span></label><input class="ep-input" name="title" placeholder="e.g. Beautiful 3-Bedroom Colonial" required></div>
+          <div class="ep-form-group"><label class="ep-label">Property Type <span style="color:red">*</span></label>
+            <select class="ep-select" name="propType" required>
+              <option value="">Select type</option>
+              <option>Single Family</option><option>Condo</option><option>Townhouse</option><option>Multi-Family</option><option>Apartment</option><option>Commercial</option><option>Land</option>
+            </select>
+          </div>
+          <div class="ep-form-group"><label class="ep-label">Price <span style="color:red">*</span></label><input class="ep-input" name="price" type="number" placeholder="425000" required></div>
+          <div class="ep-form-group"><label class="ep-label">Bedrooms</label><input class="ep-input" name="beds" type="number" placeholder="3"></div>
+          <div class="ep-form-group"><label class="ep-label">Bathrooms</label><input class="ep-input" name="baths" type="number" step="0.5" placeholder="2.5"></div>
+          <div class="ep-form-group"><label class="ep-label">Square Feet</label><input class="ep-input" name="sqft" type="number" placeholder="2100"></div>
+          <div class="ep-form-group"><label class="ep-label">Year Built</label><input class="ep-input" name="yearBuilt" type="number" placeholder="1990"></div>
+          <div class="ep-form-group"><label class="ep-label">Lot Size (sq ft)</label><input class="ep-input" name="lotSize" type="number" placeholder="5000"></div>
+          <div class="ep-form-group full"><label class="ep-label">Description <span style="color:red">*</span></label><textarea class="ep-textarea" name="description" style="min-height:120px" placeholder="Describe your property in detail — upgrades, features, neighborhood, what makes it special..." required></textarea></div>
+          <div class="ep-form-group full"><label class="ep-label">Key Features (comma separated)</label><input class="ep-input" name="features" placeholder="Pool, Garage, Updated Kitchen, Hardwood Floors, New Roof"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2>Location</h2>
+        <div class="form-grid-2">
+          <div class="ep-form-group full"><label class="ep-label">Street Address <span style="color:red">*</span></label><input class="ep-input" name="address" required></div>
+          <div class="ep-form-group"><label class="ep-label">City <span style="color:red">*</span></label><input class="ep-input" name="city" required></div>
+          <div class="ep-form-group"><label class="ep-label">State</label><input class="ep-input" name="state" value="NJ"></div>
+          <div class="ep-form-group"><label class="ep-label">ZIP Code</label><input class="ep-input" name="zip"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2>Photos</h2>
+        <div class="upload-zone" onclick="document.getElementById('photo-input').click()">
+          <div style="font-size:48px;margin-bottom:12px">📷</div>
+          <div style="font-weight:700;font-size:16px">Click to upload photos</div>
+          <div style="color:#6b7280;font-size:13px;margin-top:6px">JPG, PNG up to 10MB each · First photo will be the main image</div>
+          <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(event)">
+        </div>
+        <div class="photos-grid" id="photos-preview"></div>
+      </div>
+
+      <div class="form-card">
+        <h2>Your Contact Info</h2>
+        <div class="form-grid-2">
+          <div class="ep-form-group"><label class="ep-label">Full Name <span style="color:red">*</span></label><input class="ep-input" name="contactName" required></div>
+          <div class="ep-form-group"><label class="ep-label">Phone <span style="color:red">*</span></label><input class="ep-input" name="contactPhone" type="tel" required></div>
+          <div class="ep-form-group full"><label class="ep-label">Email <span style="color:red">*</span></label><input class="ep-input" name="contactEmail" type="email" required></div>
+          <div class="ep-form-group full"><label class="ep-label">I am a</label>
+            <select class="ep-select" name="listerType"><option>Property Owner</option><option>Real Estate Agent</option><option>Property Manager</option><option>Builder / Developer</option></select>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="sticky-sidebar">
+    <div style="font-size:13px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Choose a Plan</div>
+    <div class="tier-card selected" onclick="selectTier(this,'basic',299)">
+      <h3>Basic</h3>
+      <div class="tier-price">$299</div>
+      <div class="tier-features">✓ 30-day listing<br>✓ Up to 10 photos<br>✓ Contact form<br>✓ AI lead capture</div>
+    </div>
+    <div class="tier-card" onclick="selectTier(this,'standard',449)">
+      <h3>Standard ⭐</h3>
+      <div class="tier-price">$449</div>
+      <div class="tier-features">✓ 60-day listing<br>✓ Up to 20 photos<br>✓ Featured placement<br>✓ Agent matching<br>✓ Open house tools</div>
+    </div>
+    <div class="tier-card" onclick="selectTier(this,'premium',799)">
+      <h3>Premium 🔥</h3>
+      <div class="tier-price">$799</div>
+      <div class="tier-features">✓ 90-day listing<br>✓ Unlimited photos<br>✓ #1 placement<br>✓ Pro photography<br>✓ Video walkthrough<br>✓ Dedicated agent</div>
+    </div>
+    <div class="summary-card" style="margin-top:16px">
+      <div style="font-weight:700;font-size:16px;margin-bottom:12px">Order Summary</div>
+      <div class="summary-line"><span>Plan</span><span id="sum-plan">Basic</span></div>
+      <div class="summary-line"><span>Duration</span><span id="sum-dur">30 days</span></div>
+      <div class="summary-line" style="font-weight:700;font-size:16px;border:none;margin-top:8px"><span>Total</span><span id="sum-price">$299</span></div>
+      <button class="ep-btn ep-btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:16px" onclick="document.getElementById('listing-form').dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))">Submit Listing →</button>
+      <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:10px">No commission. Flat fee only.</p>
+    </div>
+  </div>
+</div>
+
+<div id="ai-mount"></div>
+<script>
+let selectedTier = { name:'basic', price:299 };
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('post');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+});
+
+function setType(type, btn) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function selectTier(card, name, price) {
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedTier = { name, price };
+  document.getElementById('sum-plan').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('sum-dur').textContent = name==='basic'?'30 days':name==='standard'?'60 days':'90 days';
+  document.getElementById('sum-price').textContent = '$' + price;
+}
+
+function handlePhotos(e) {
+  const preview = document.getElementById('photos-preview');
+  [...e.target.files].slice(0,9).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.className = 'photo-thumb';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function submitListing(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const newListing = {
+    id: Date.now(), title: fd.get('title'), price: parseInt(fd.get('price')), address: fd.get('address'),
+    city: fd.get('city'), state: fd.get('state'), propType: fd.get('propType'),
+    beds: parseInt(fd.get('beds')||0), baths: parseFloat(fd.get('baths')||0),
+    sqft: parseInt(fd.get('sqft')||0), desc: fd.get('description'), source: 'Owner Listed',
+    daysListed: 0, img: EP.properties[0].img, imgs: [EP.properties[0].img], agentId:1, type:'sale'
+  };
+  const existing = EP.store.get('ep_user_listings') || [];
+  existing.push(newListing);
+  EP.store.set('ep_user_listings', existing);
+  EP.notify('Listing submitted! We\'ll review and publish within 24 hours. 🎉', 'success');
+  setTimeout(() => window.location.href = 'listings.html', 2000);
+}
+</script>
+</body>
+</html>

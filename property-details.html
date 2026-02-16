@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Property — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.detail-grid{display:grid;grid-template-columns:1fr 360px;gap:28px;max-width:1400px;margin:32px auto;padding:0 24px}
+.gallery{border-radius:12px;overflow:hidden;margin-bottom:20px}
+.gallery-main{width:100%;height:460px;object-fit:cover;cursor:pointer}
+.gallery-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px;background:#f9fafb}
+.gallery-thumb{height:80px;object-fit:cover;border-radius:6px;cursor:pointer;opacity:.7;transition:.2s}
+.gallery-thumb:hover,.gallery-thumb.active{opacity:1;outline:2px solid #1a56db}
+.info-card{background:white;border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.prop-title{font-size:30px;font-weight:800;margin-bottom:6px}
+.prop-location{font-size:16px;color:#6b7280;margin-bottom:16px}
+.big-price{font-size:38px;font-weight:800;color:#1a56db}
+.features-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.pill{padding:6px 14px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:13px;font-weight:500}
+.section-h{font-size:20px;font-weight:700;margin-bottom:16px}
+.lead-sticky{position:sticky;top:88px}
+.lead-card{background:white;border-radius:14px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1);border:1px solid #e5e7eb}
+.lead-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.agent-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:16px;background:#f9fafb;border-radius:10px}
+.agent-av{width:52px;height:52px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.agent-meta{font-size:13px}
+.agent-meta strong{display:block;font-size:15px;margin-bottom:2px}
+.cta-row{display:flex;gap:10px;margin-top:12px}
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.lead-sticky{position:static}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+<div class="detail-grid" id="detail-root">Loading...</div>
+<div id="ai-mount"></div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('listings');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  const id = parseInt(new URLSearchParams(window.location.search).get('id')) || 1;
+  const p = EP.properties.find(x => x.id === id);
+  if (!p) { document.getElementById('detail-root').innerHTML = '<p style="padding:40px">Property not found. <a href="listings.html">← Back</a></p>'; return; }
+  document.title = `${p.title} — Emporion Pros`;
+  const agent = EP.agents.find(a => a.id === p.agentId);
+  document.getElementById('detail-root').innerHTML = `
+    <div>
+      <div class="gallery">
+        <img id="gallery-main" src="${p.imgs[0]}" class="gallery-main" alt="${p.title}">
+        <div class="gallery-thumbs">
+          ${p.imgs.map((img,i) => `<img src="${img}" class="gallery-thumb ${i===0?'active':''}" onclick="setImg('${img}',this)" loading="lazy">`).join('')}
+        </div>
+      </div>
+      <div class="info-card">
+        <h1 class="prop-title">${p.title}</h1>
+        <div class="prop-location">📍 ${p.city}, ${p.state} ${p.zip} &nbsp;<span style="font-size:12px;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:12px;font-weight:600">📬 Full address shared after inquiry</span></div>
+        <div class="big-price">$${p.price.toLocaleString()}${p.type==='rent'?'<span style="font-size:18px;font-weight:400;color:#6b7280"> /month</span>':''}</div>
+        <div style="display:flex;gap:24px;margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb">
+          <div><div style="font-size:24px;font-weight:800">${p.beds}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Beds</div></div>
+          <div><div style="font-size:24px;font-weight:800">${p.baths}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Baths</div></div>
+          <div><div style="font-size:24px;font-weight:800">${p.sqft.toLocaleString()}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Sq Ft</div></div>
+          <div><div style="font-size:24px;font-weight:800">${p.yearBuilt}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Year Built</div></div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h2 class="section-h">About This Property</h2>
+        <p style="color:#374151;line-height:1.8">${p.desc}</p>
+        <div class="features-pills">${p.features.map(f => `<span class="pill">✓ ${f}</span>`).join('')}</div>
+      </div>
+      <div class="info-card">
+        <h2 class="section-h">Property Details</h2>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Property Type</div><div style="font-weight:600">${p.propType}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Listing Type</div><div style="font-weight:600">${p.type === 'sale' ? 'For Sale' : 'For Rent'}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Year Built</div><div style="font-weight:600">${p.yearBuilt}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Data Source</div><div style="font-weight:600">${p.source}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Days Listed</div><div style="font-weight:600">${p.daysListed} days</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">City</div><div style="font-weight:600">${p.city}, ${p.state}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="lead-sticky">
+      <div class="lead-card">
+        <h3>Contact Agent</h3>
+        <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Schedule a showing or ask a question</p>
+        ${agent ? `<div class="agent-row">
+          <div class="agent-av">${agent.photo}</div>
+          <div class="agent-meta"><strong>${agent.name}</strong>${agent.title}<br><span style="color:#1a56db">${agent.phone}</span></div>
+        </div>` : ''}
+        <form onsubmit="submitLead(event, ${p.id}, ${p.agentId})">
+          <div class="ep-form-group"><input class="ep-input" name="name" placeholder="Your Full Name" required></div>
+          <div class="ep-form-group"><input class="ep-input" name="email" type="email" placeholder="Email Address" required></div>
+          <div class="ep-form-group"><input class="ep-input" name="phone" type="tel" placeholder="Phone Number" required></div>
+          <div class="ep-form-group"><textarea class="ep-textarea" name="message" style="min-height:80px">I'm interested in this property. Please contact me.</textarea></div>
+          <button type="submit" class="ep-btn ep-btn-primary" style="width:100%">Send Message</button>
+        </form>
+        <div class="cta-row">
+          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
+          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.simulatePhoneCall()">📞 Call Agent</button>
+        </div>
+      </div>
+      <div style="background:white;border-radius:12px;padding:20px;margin-top:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:14px">Need Services?</h3>
+        ${EP.vendors.slice(0,4).map(v => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6">
+          <div><div style="font-weight:600;font-size:13px">${v.name}</div><div style="font-size:12px;color:#6b7280">${v.category}</div></div>
+          <a href="vendors.html" class="ep-btn ep-btn-outline" style="padding:5px 12px;font-size:12px">Connect</a>
+        </div>`).join('')}
+      </div>
+    </div>`;
+});
+
+function setImg(src, thumb) {
+  document.getElementById('gallery-main').src = src;
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+function submitLead(e, propId, agentId) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  EP.leads.capture({ name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'), message: fd.get('message'), propertyId: propId, agentId, source: 'Property Detail Page' });
+  e.target.innerHTML = '<div style="text-align:center;padding:20px;color:#0e9f6e"><div style="font-size:32px">✅</div><div style="font-weight:700;margin-top:8px">Message Sent!</div><p style="font-size:13px;margin-top:4px">The agent will contact you shortly.</p></div>';
+}
+</script>
+</body>
+</html>

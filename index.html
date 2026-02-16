@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emporion Pros — Real Estate Reimagined</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 60%,#1e40af 100%);color:white;padding:90px 0 100px}
+.hero h1{font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.15;margin-bottom:18px}
+.hero h1 em{color:#fbbf24;font-style:normal}
+.hero p{font-size:20px;opacity:.9;max-width:580px;margin-bottom:40px;line-height:1.7}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.search-bar{background:white;border-radius:14px;padding:20px 24px;margin-top:50px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.search-tabs{display:flex;gap:4px;margin-bottom:18px}
+.stab{padding:8px 20px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;border:none;background:transparent;color:#6b7280;font-family:inherit;transition:.2s}
+.stab.active{background:#1a56db;color:white}
+.search-row{display:flex;gap:12px;flex-wrap:wrap}
+.search-row input,.search-row select{padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;flex:1;min-width:150px}
+.search-row input:focus,.search-row select:focus{outline:none;border-color:#1a56db}
+.search-btn{padding:12px 32px;background:#1a56db;color:white;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.search-btn:hover{background:#1e3a8a}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);background:#f9fafb;padding:32px 0;border-bottom:1px solid #e5e7eb}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;margin-top:48px}
+.why-card{padding:32px;border-radius:14px;border:1px solid #e5e7eb;background:white;transition:.3s}
+.why-card:hover{box-shadow:0 8px 30px rgba(0,0,0,.08);transform:translateY(-4px)}
+.why-icon{font-size:44px;margin-bottom:16px}
+.why-card h3{font-size:20px;font-weight:700;margin-bottom:10px}
+.why-card p{color:#6b7280;line-height:1.7}
+.section-label{display:inline-block;background:#eff6ff;color:#1a56db;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:24px;margin-top:40px}
+.cta-band{background:linear-gradient(135deg,#1e3a8a,#1a56db);color:white;padding:80px 0;text-align:center;margin:80px 0 0}
+.cta-band h2{font-size:clamp(28px,4vw,44px);font-weight:800;margin-bottom:16px}
+.cta-band p{font-size:18px;opacity:.9;margin-bottom:36px}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.footer{background:#111827;color:white;padding:60px 0 30px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-brand h3{font-size:22px;font-weight:800;margin-bottom:10px;color:#f97316}
+.footer-brand p{color:rgba(255,255,255,.6);font-size:14px;line-height:1.7}
+.footer h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;color:rgba(255,255,255,.5)}
+.footer ul{list-style:none}
+.footer li{margin-bottom:10px}
+.footer a{color:rgba(255,255,255,.7);text-decoration:none;font-size:14px;transition:.2s}
+.footer a:hover{color:white}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:24px;text-align:center;color:rgba(255,255,255,.4);font-size:13px}
+@media(max-width:768px){.search-row{flex-direction:column}.footer-grid{grid-template-columns:1fr;gap:24px}.stats-strip{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<section class="hero">
+  <div class="ep-container">
+    <div style="max-width:680px">
+      <h1>Real Estate.<br><em>Reimagined</em> for Everyone.</h1>
+      <p>Buy, sell, rent, manage — connect with agents, vendors, and services. All in one platform. Flat fees. No surprises.</p>
+      <div class="hero-cta">
+        <a href="listings.html" class="ep-btn ep-btn-primary ep-btn-lg" style="background:white;color:#1a56db">Browse Properties</a>
+        <a href="signup.html" class="ep-btn ep-btn-lg" style="border:2px solid rgba(255,255,255,.5);color:white;background:transparent">List Free Today</a>
+      </div>
+    </div>
+    <div class="search-bar">
+      <div class="search-tabs">
+        <button class="stab active" onclick="setTab(this,'sale')">Buy</button>
+        <button class="stab" onclick="setTab(this,'rent')">Rent</button>
+        <button class="stab" onclick="setTab(this,'commercial')">Commercial</button>
+        <button class="stab" onclick="setTab(this,'sold')">Recently Sold</button>
+      </div>
+      <div class="search-row">
+        <input type="text" id="hero-location" placeholder="City, Address, or ZIP Code" value="">
+        <select id="hero-beds">
+          <option value="">Beds</option>
+          <option>Studio</option><option>1+</option><option>2+</option><option>3+</option><option>4+</option>
+        </select>
+        <select id="hero-price">
+          <option value="">Max Price</option>
+          <option value="200000">$200k</option><option value="400000">$400k</option>
+          <option value="600000">$600k</option><option value="1000000">$1M+</option>
+        </select>
+        <button class="search-btn" onclick="doSearch()">🔍 Search</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="ep-container" style="grid-column:1/-1">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin:0 auto;text-align:center">
+      <div><div class="ep-stat-num">12,000+</div><div class="ep-stat-label">Properties Listed</div></div>
+      <div><div class="ep-stat-num">$299</div><div class="ep-stat-label">Flat Transaction Fee</div></div>
+      <div><div class="ep-stat-num">1,400+</div><div class="ep-stat-label">Verified Agents</div></div>
+      <div><div class="ep-stat-num">900+</div><div class="ep-stat-label">Service Vendors</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="ep-section">
+  <div class="ep-container">
+    <span class="section-label">Featured Listings</span>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px">
+      <h2 class="ep-section-title">New on Emporion Pros</h2>
+      <a href="listings.html" class="ep-btn ep-btn-outline">View All →</a>
+    </div>
+    <div class="featured-grid" id="featured-grid">Loading...</div>
+  </div>
+</section>
+
+<section style="background:white;padding:80px 0">
+  <div class="ep-container">
+    <div style="text-align:center;margin-bottom:56px">
+      <span class="section-label">Why Emporion Pros</span>
+      <h2 class="ep-section-title" style="text-align:center">Everything Real Estate Under One Roof</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon">🏠</div><h3>Nationwide Listings</h3><p>For sale, rent, short-term, and commercial. Updated daily with public records data. Manual and IDX-connected listings.</p></div>
+      <div class="why-card"><div class="why-icon">💰</div><h3>Flat Fee Brokerage</h3><p>$299, $449, or $799 flat fee per transaction. Zero commission splits. Keep more of your money — always.</p></div>
+      <div class="why-card"><div class="why-icon">🤖</div><h3>AI Virtual Assistant</h3><p>Aria works 24/7 — answers questions, books showings, calls agents, responds to leads, and manages your calendar.</p></div>
+      <div class="why-card"><div class="why-icon">🔧</div><h3>Vendor Marketplace</h3><p>Find plumbers, HVAC, electricians, mortgage brokers, attorneys, inspectors and more. Get quotes, book, and pay — all here.</p></div>
+      <div class="why-card"><div class="why-icon">📊</div><h3>Agent & Vendor Dashboards</h3><p>Manage leads, listings, appointments, and revenue. See who viewed your listings and follow up instantly.</p></div>
+      <div class="why-card"><div class="why-icon">📝</div><h3>E-Signature & Docs</h3><p>Create, sign, and store leases, contracts, and disclosures — built right in. No separate tool needed.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="ep-container">
+    <h2>Agents & Vendors — Grow Your Business</h2>
+    <p>Get leads, manage clients, and close deals faster with AI-powered tools built for real estate professionals.</p>
+    <div class="cta-btns">
+      <a href="signup.html?role=agent" class="ep-btn ep-btn-lg" style="background:white;color:#1a56db">Join as Agent</a>
+      <a href="signup.html?role=vendor" class="ep-btn ep-btn-lg" style="border:2px solid rgba(255,255,255,.5);color:white;background:transparent">Join as Vendor</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="ep-container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>Emporion Pros</h3>
+        <p>The complete real estate ecosystem. Connecting buyers, sellers, agents, vendors, and service providers — nationwide.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="listings.html">Browse Properties</a></li>
+          <li><a href="agents.html">Find Agents</a></li>
+          <li><a href="vendors.html">Find Services</a></li>
+          <li><a href="post-property.html">List Property</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Professionals</h4>
+        <ul>
+          <li><a href="signup.html?role=agent">Agent Portal</a></li>
+          <li><a href="signup.html?role=vendor">Vendor Portal</a></li>
+          <li><a href="agent-dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Emporion Pros. All rights reserved.</div>
+  </div>
+</footer>
+
+<div id="ai-mount"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('home');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+
+  // Render featured properties
+  const grid = document.getElementById('featured-grid');
+  const featured = EP.properties.slice(0, 6);
+  grid.innerHTML = featured.map(p => buildPropCard(p)).join('');
+});
+
+function buildPropCard(p) {
+  const saved = EP.saved.isSaved(p.id);
+  return `<div class="ep-card" onclick="window.location='property-details.html?id=${p.id}'">
+    <div class="prop-img-wrap">
+      <img src="${p.img}" class="prop-img" alt="${p.title}" loading="lazy">
+      <span class="prop-badge ${p.type==='rent'?'rent':''}">${p.type==='sale'?'For Sale':'For Rent'}</span>
+      <button class="prop-heart" onclick="event.stopPropagation();toggleSave(${p.id},this)">${saved?'❤️':'♡'}</button>
+    </div>
+    <div class="prop-body">
+      <div class="prop-price">$${p.price.toLocaleString()}${p.type==='rent'?'<small>/mo</small>':''}</div>
+      <div class="prop-addr">${p.city}, ${p.state}</div>
+      <div class="prop-stats">
+        <span class="prop-stat">🛏 ${p.beds} bed</span>
+        <span class="prop-stat">🛁 ${p.baths} bath</span>
+        <span class="prop-stat">📐 ${p.sqft.toLocaleString()} sqft</span>
+      </div>
+      <div class="prop-footer">
+        <span>${p.propType}</span>
+        <span>${p.daysListed}d ago</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleSave(id, btn) {
+  const isSaved = EP.saved.toggle(id);
+  btn.textContent = isSaved ? '❤️' : '♡';
+}
+
+function setTab(btn, type) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function doSearch() {
+  const loc = document.getElementById('hero-location').value;
+  const beds = document.getElementById('hero-beds').value;
+  const price = document.getElementById('hero-price').value;
+  const type = document.querySelector('.stab.active').textContent === 'Buy' ? 'sale' : 'rent';
+  window.location.href = `listings.html?type=${type}&loc=${encodeURIComponent(loc)}&beds=${beds}&maxPrice=${price}`;
+}
+</script>
+</body>
+</html>

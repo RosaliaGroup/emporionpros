@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Learning Center — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.learn-hero{background:linear-gradient(135deg,#1e1b4b,#4338ca);color:white;padding:70px 0;text-align:center}
+.learn-hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;margin-bottom:12px}
+.learn-hero p{font-size:18px;opacity:.9;max-width:600px;margin:0 auto 32px}
+.hero-stats{display:flex;justify-content:center;gap:48px;margin-top:40px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:32px;font-weight:800;color:#a5b4fc}
+.hero-stat-label{font-size:13px;opacity:.8;margin-top:2px}
+
+/* Category tabs */
+.cat-bar{background:white;border-bottom:1px solid #e5e7eb;padding:0;position:sticky;top:68px;z-index:100}
+.cat-bar-inner{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.cat-bar-inner::-webkit-scrollbar{display:none}
+.cat-tab{padding:16px 22px;font-size:14px;font-weight:600;color:#6b7280;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit;transition:.2s}
+.cat-tab:hover{color:#4338ca}
+.cat-tab.active{color:#4338ca;border-bottom-color:#4338ca}
+
+/* Progress bar */
+.progress-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4338ca,#818cf8);border-radius:3px;transition:.5s}
+
+/* Course card */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;margin-top:32px}
+.course-card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);border:2px solid transparent;transition:.3s;cursor:pointer}
+.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.12);border-color:#4338ca}
+.course-thumb{height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;position:relative}
+.course-level{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
+.level-beginner{background:#d1fae5;color:#065f46}
+.level-intermediate{background:#dbeafe;color:#1e3a8a}
+.level-advanced{background:#ede9fe;color:#4c1d95}
+.course-body{padding:20px}
+.course-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#4338ca;margin-bottom:6px}
+.course-title{font-size:17px;font-weight:700;margin-bottom:8px;line-height:1.4}
+.course-desc{font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:14px}
+.course-meta{display:flex;gap:16px;font-size:12px;color:#6b7280;margin-bottom:14px;flex-wrap:wrap}
+.course-meta span{display:flex;align-items:center;gap:4px}
+.course-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #f3f4f6}
+.course-price{font-size:18px;font-weight:800;color:#4338ca}
+.ceu-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#ede9fe;color:#4c1d95;border-radius:12px;font-size:11px;font-weight:700}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:white;border-radius:20px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-header{background:linear-gradient(135deg,#1e1b4b,#4338ca);color:white;padding:32px;border-radius:20px 20px 0 0}
+.modal-body{padding:32px}
+.module-list{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.module-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f9fafb;border-radius:10px;font-size:14px}
+.module-num{width:28px;height:28px;border-radius:50%;background:#4338ca;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.module-done{background:#10b981}
+.quiz-section{background:#f0fdf4;border-radius:12px;padding:20px;margin-top:20px}
+.quiz-q{font-weight:700;margin-bottom:14px;font-size:15px}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:14px;transition:.2s;background:white;text-align:left;font-family:inherit}
+.quiz-opt:hover{border-color:#4338ca;background:#ede9fe}
+.quiz-opt.correct{border-color:#10b981;background:#d1fae5;color:#065f46}
+.quiz-opt.wrong{border-color:#e02424;background:#fee2e2;color:#9b1c1c}
+
+/* My Learning */
+.my-learning-card{background:white;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;gap:16px;align-items:center;margin-bottom:12px}
+.cert-card{background:linear-gradient(135deg,#1e1b4b,#4338ca);color:white;border-radius:12px;padding:24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+
+/* Search */
+.learn-search{display:flex;gap:12px;max-width:600px;margin:0 auto}
+.learn-search input{flex:1;padding:14px 20px;border:none;border-radius:10px;font-size:15px;font-family:inherit}
+.learn-search input:focus{outline:2px solid #a5b4fc}
+.learn-search button{padding:14px 24px;background:#4338ca;color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit}
+
+@media(max-width:640px){.course-grid{grid-template-columns:1fr}.hero-stats{gap:24px}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<div class="learn-hero">
+  <div class="ep-container">
+    <div style="display:inline-block;background:rgba(255,255,255,.15);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:16px">🎓 Emporion Pros Learning Center</div>
+    <h1>Grow Your Skills.<br>Earn Your Credentials.</h1>
+    <p>Continuing education for real estate professionals, vendors, and contractors. CEU credits, certifications, and license renewal courses — all in one place.</p>
+    <div class="learn-search">
+      <input type="text" id="course-search" placeholder="Search courses, certifications, topics..." oninput="filterCourses()">
+      <button onclick="filterCourses()">Search</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">120+</div><div class="hero-stat-label">Courses Available</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">18</div><div class="hero-stat-label">Certifications</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4,200+</div><div class="hero-stat-label">Professionals Enrolled</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">CEU</div><div class="hero-stat-label">Credits Accepted</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="cat-bar">
+  <div class="ep-container">
+    <div class="cat-bar-inner">
+      <button class="cat-tab active" onclick="setCategory('all',this)">📚 All Courses</button>
+      <button class="cat-tab" onclick="setCategory('real-estate',this)">🏠 Real Estate</button>
+      <button class="cat-tab" onclick="setCategory('osha',this)">⛑️ OSHA & Safety</button>
+      <button class="cat-tab" onclick="setCategory('contractor',this)">🔧 Contractor Skills</button>
+      <button class="cat-tab" onclick="setCategory('mortgage',this)">🏦 Mortgage & Finance</button>
+      <button class="cat-tab" onclick="setCategory('legal',this)">⚖️ Legal & Compliance</button>
+      <button class="cat-tab" onclick="setCategory('technology',this)">💻 PropTech</button>
+      <button class="cat-tab" onclick="setCategory('my-learning',this)">🎯 My Learning</button>
+    </div>
+  </div>
+</div>
+
+<section style="padding:40px 0 80px;background:#f9fafb">
+  <div class="ep-container">
+    <div id="my-learning-section" style="display:none;margin-bottom:32px">
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:20px">My Certificates</h2>
+      <div id="cert-list"></div>
+      <h2 style="font-size:22px;font-weight:800;margin:28px 0 16px">In Progress</h2>
+      <div id="progress-list"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div id="results-label" style="font-size:18px;font-weight:700"></div>
+      <select class="ep-select" id="sort-courses" onchange="filterCourses()" style="width:auto">
+        <option value="popular">Most Popular</option>
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="free">Free Only</option>
+      </select>
+    </div>
+    <div class="course-grid" id="course-grid"></div>
+  </div>
+</section>
+
+<!-- Course Modal -->
+<div class="modal-overlay" id="course-modal">
+  <div class="modal-box">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div id="ai-mount"></div>
+
+<script>
+const COURSES = [
+  // REAL ESTATE
+  { id:1, cat:'real-estate', title:'Real Estate License Renewal — NJ', desc:'Complete your 12-hour NJ real estate continuing education requirement. Covers ethics, fair housing, agency law, and contract law.', icon:'🏠', color:'#dbeafe', level:'intermediate', hours:12, ceu:12, price:89, free:false, popular:true, modules:['Ethics in Real Estate','Fair Housing Laws','Agency Relationships','NJ Contract Law','Recent Legal Changes','Final Exam'], quiz: { q:'Under NJ fair housing law, which of the following is a protected class?', opts:['Income level','Familial status','Credit score','Education'], correct:1 } },
+  { id:2, cat:'real-estate', title:'First-Time Homebuyer Counseling Certification', desc:'Become a certified homebuyer counselor. Learn how to guide first-time buyers through the purchase process, financing, and budgeting.', icon:'🔑', color:'#d1fae5', level:'beginner', hours:8, ceu:8, price:65, free:false, popular:true, modules:['Homebuyer Education Basics','Credit & Financing','The Purchase Process','Budgeting for Homeownership','Post-Purchase Counseling','Certification Exam'], quiz: { q:'What is the minimum recommended down payment for an FHA loan?', opts:['1%','3%','3.5%','5%'], correct:2 } },
+  { id:3, cat:'real-estate', title:'Property Management Fundamentals', desc:'Master tenant screening, lease agreements, maintenance coordination, and NJ landlord-tenant law for residential and commercial properties.', icon:'📋', color:'#fef3c7', level:'beginner', hours:6, ceu:6, price:0, free:true, popular:true, modules:['Landlord-Tenant Law NJ','Tenant Screening','Lease Agreements','Handling Maintenance','Security Deposits','Eviction Process'], quiz: { q:'In NJ, how many days does a landlord have to return a security deposit?', opts:['15 days','30 days','45 days','60 days'], correct:2 } },
+  { id:4, cat:'real-estate', title:'Real Estate Investment Analysis', desc:'Learn to analyze cash flow, cap rates, ROI, and market trends. Covers multi-family, commercial, and fix-and-flip investment strategies.', icon:'📊', color:'#ede9fe', level:'advanced', hours:10, ceu:10, price:129, free:false, popular:false, modules:['Cap Rate & Cash Flow','Market Analysis','Financing Strategies','Fix & Flip Math','1031 Exchange Basics','Building Your Portfolio'], quiz: { q:'What does "cap rate" measure in real estate?', opts:['Monthly rent','Annual return on investment','Property tax rate','Loan interest'], correct:1 } },
+  { id:5, cat:'real-estate', title:'Commercial Real Estate Essentials', desc:'Introduction to commercial leasing, NNN leases, zoning, and working with business tenants. Great for agents expanding into commercial.', icon:'🏢', color:'#fee2e2', level:'intermediate', hours:8, ceu:8, price:99, free:false, popular:false, modules:['Types of Commercial Leases','NNN vs Gross Leases','Zoning Basics','Working with Tenants','CAM Charges','Commercial Contracts'], quiz: { q:'What does NNN stand for in a commercial lease?', opts:['Net Net Net','No New Negotiation','National Notary Network','None of the above'], correct:0 } },
+
+  // OSHA
+  { id:6, cat:'osha', title:'OSHA 10-Hour Construction Safety', desc:'The industry-standard OSHA 10 card for construction workers. Covers fall protection, electrical safety, PPE, hazard communication, and more.', icon:'⛑️', color:'#fef3c7', level:'beginner', hours:10, ceu:10, price:79, free:false, popular:true, modules:['Introduction to OSHA','Fall Protection','Electrical Hazards','PPE Requirements','Scaffolding Safety','Hazard Communication','Struck-By Hazards','Final Assessment'], quiz: { q:'What is the leading cause of construction worker fatalities?', opts:['Electrical accidents','Falls','Being struck by objects','Caught-in/between'], correct:1 } },
+  { id:7, cat:'osha', title:'OSHA 30-Hour Construction Safety', desc:'Comprehensive OSHA 30 certification for supervisors and safety officers. Deep dive into all major construction hazards and OSHA standards.', icon:'🦺', color:'#fee2e2', level:'advanced', hours:30, ceu:30, price:179, free:false, popular:true, modules:['OSHA Standards Overview','Excavation & Trenching','Crane & Rigging Safety','Confined Spaces','Respiratory Protection','Emergency Action Plans','Safety Program Management','Certification Exam'], quiz: { q:'Who is responsible for conducting toolbox talks on a job site?', opts:['OSHA inspector','Project owner','Competent person/supervisor','Subcontractor only'], correct:2 } },
+  { id:8, cat:'osha', title:'Lead Paint Safety (RRP Certification)', desc:'EPA-required Renovation, Repair and Painting certification for contractors working in pre-1978 homes. Covers lead testing, containment, and disposal.', icon:'🎨', color:'#d1fae5', level:'intermediate', hours:8, ceu:8, price:149, free:false, popular:true, modules:['Lead Paint Regulations','Health Effects of Lead','Testing & Identification','Containment Setup','Safe Work Practices','Waste Disposal','Documentation & Records','RRP Certification Exam'], quiz: { q:'When is RRP certification required?', opts:['All renovation work','Work in pre-1978 homes that disturbs painted surfaces','Only for painting projects','Commercial properties only'], correct:1 } },
+  { id:9, cat:'osha', title:'Asbestos Awareness Training', desc:'Required awareness training for workers who may encounter asbestos-containing materials. Covers identification, health risks, and proper reporting.', icon:'⚠️', color:'#ede9fe', level:'beginner', hours:2, ceu:2, price:0, free:true, popular:false, modules:['What is Asbestos?','Where is Asbestos Found?','Health Risks','Do Not Disturb Rule','Proper Reporting','Emergency Procedures'], quiz: { q:'What should you do if you suspect you\'ve encountered asbestos?', opts:['Remove it immediately','Continue working carefully','Stop work and notify supervisor','Wet it down and continue'], correct:1 } },
+  { id:10, cat:'osha', title:'Electrical Safety for Contractors', desc:'NFPA 70E electrical safety standards for contractors. Arc flash, lockout/tagout, qualified worker requirements, and energized work permits.', icon:'⚡', color:'#dbeafe', level:'intermediate', hours:4, ceu:4, price:49, free:false, popular:false, modules:['NFPA 70E Overview','Arc Flash Hazards','Lockout/Tagout Procedures','PPE for Electrical Work','Energized Work Permits','Incident Investigation'], quiz: { q:'What is the purpose of Lockout/Tagout procedures?', opts:['Speed up maintenance','Prevent unexpected energization','Save electricity','Document work done'], correct:1 } },
+
+  // CONTRACTOR
+  { id:11, cat:'contractor', title:'Plumbing Code — NJ UPC Fundamentals', desc:'Master the Uniform Plumbing Code as adopted in New Jersey. Covers water supply, drainage, venting, and inspection requirements for licensed plumbers.', icon:'🔧', color:'#d1fae5', level:'intermediate', hours:8, ceu:8, price:89, free:false, popular:true, modules:['NJ Plumbing Code Overview','Water Supply Systems','Drainage & Waste','Venting Requirements','Fixture Installation','Inspection Checklist','Code Changes 2024'], quiz: { q:'What is the minimum slope for horizontal drain pipes?', opts:['1/8" per foot','1/4" per foot','1/2" per foot','1" per foot'], correct:1 } },
+  { id:12, cat:'contractor', title:'HVAC System Design & Efficiency', desc:'Advanced HVAC training covering Manual J load calculations, ductwork design, refrigerant handling (608 cert prep), and energy efficiency standards.', icon:'❄️', color:'#dbeafe', level:'advanced', hours:12, ceu:12, price:119, free:false, popular:true, modules:['Manual J Load Calculations','Ductwork Design','Refrigerant Regulations','Heat Pump Technology','Energy Star Standards','608 Certification Prep','System Commissioning'], quiz: { q:'What is Manual J used to calculate?', opts:['Equipment efficiency','Heating and cooling loads','Duct leakage','Refrigerant charge'], correct:1 } },
+  { id:13, cat:'contractor', title:'NEC Electrical Code — Residential Wiring', desc:'National Electrical Code for residential contractors. Covers panels, circuits, GFCI/AFCI requirements, EV charger installations, and 2023 NEC updates.', icon:'💡', color:'#fef3c7', level:'intermediate', hours:10, ceu:10, price:99, free:false, popular:false, modules:['NEC 2023 Overview','Panel & Service Entrance','Branch Circuit Requirements','GFCI & AFCI Protection','EV Charger Installation','Permits & Inspections','Code Violations & Fixes'], quiz: { q:'GFCI protection is required in which location?', opts:['Bedrooms','Bathrooms and kitchens','Living rooms','All indoor outlets'], correct:1 } },
+  { id:14, cat:'contractor', title:'General Contractor Business Essentials', desc:'Run a profitable contracting business. Covers job costing, bidding, contracts, insurance requirements, employee vs subcontractor rules, and NJ licensing.', icon:'📝', color:'#fee2e2', level:'beginner', hours:6, ceu:6, price:0, free:true, popular:true, modules:['NJ Contractor Licensing','Job Costing & Bidding','Contracts & Change Orders','Insurance Requirements','Employee vs Sub Rules','Collecting Payment','Business Growth'], quiz: { q:'In NJ, home improvement contractors must register with which agency?', opts:['OSHA','Division of Consumer Affairs','Board of Realtors','Department of Labor'], correct:1 } },
+  { id:15, cat:'contractor', title:'Mold Remediation Certification', desc:'EPA and IICRC standards for mold assessment and remediation. Required for contractors performing mold work in NJ residential properties.', icon:'🌿', color:'#d1fae5', level:'advanced', hours:16, ceu:16, price:199, free:false, popular:false, modules:['Mold Biology & Health Effects','Assessment Procedures','Containment Strategies','Remediation Techniques','Air Sampling','Documentation','NJ Mold Law Compliance','Certification Exam'], quiz: { q:'What relative humidity level promotes mold growth?', opts:['Above 30%','Above 50%','Above 60%','Above 80%'], correct:1 } },
+
+  // MORTGAGE
+  { id:16, cat:'mortgage', title:'Mortgage Loan Originator — SAFE Act CE', desc:'8-hour SAFE Act annual continuing education for licensed MLOs. Covers federal law, ethics, non-traditional mortgages, and lending standards.', icon:'🏦', color:'#dbeafe', level:'intermediate', hours:8, ceu:8, price:99, free:false, popular:true, modules:['Federal Mortgage Laws','Ethics for MLOs','Non-Traditional Mortgages','Fair Lending Standards','TRID Requirements','Recent Regulatory Changes','Annual CE Exam'], quiz: { q:'What does TRID stand for?', opts:['Truth in Real estate Integrated Disclosure','TILA-RESPA Integrated Disclosure','Total Real estate Investment Data','Title Research & Insurance Documentation'], correct:1 } },
+  { id:17, cat:'mortgage', title:'FHA & VA Loan Fundamentals', desc:'Everything you need to know about government-backed loans. FHA underwriting guidelines, VA eligibility, entitlement, and the appraisal process.', icon:'🇺🇸', color:'#fee2e2', level:'beginner', hours:4, ceu:4, price:0, free:true, popular:true, modules:['FHA Program Overview','FHA Underwriting Guidelines','VA Loan Eligibility','VA Entitlement & COE','Government Appraisal Process','Common Pitfalls'], quiz: { q:'What is the minimum FHA loan down payment for a 580+ credit score?', opts:['1%','2%','3.5%','5%'], correct:2 } },
+
+  // LEGAL
+  { id:18, cat:'legal', title:'Fair Housing Act — Deep Dive', desc:'Comprehensive fair housing training for real estate professionals. Covers all protected classes, steering, redlining, advertising rules, and complaint procedures.', icon:'⚖️', color:'#ede9fe', level:'intermediate', hours:3, ceu:3, price:39, free:false, popular:true, modules:['History of Fair Housing','7 Protected Classes','Steering & Redlining','Advertising Compliance','Disability Accommodations','Filing Complaints','Recent Cases'], quiz: { q:'How many protected classes does the federal Fair Housing Act cover?', opts:['5','6','7','8'], correct:2 } },
+  { id:19, cat:'legal', title:'NJ Landlord-Tenant Law Certification', desc:'Complete guide to NJ landlord-tenant rights and responsibilities. Covers leases, security deposits, rent control, habitability standards, and eviction procedures.', icon:'📜', color:'#d1fae5', level:'intermediate', hours:5, ceu:5, price:59, free:false, popular:false, modules:['NJ Tenant Rights Overview','Lease Requirements','Security Deposit Rules','Anti-Eviction Act','Habitability Standards','Rent Control Municipalities','Eviction Process Step-by-Step','Certification Exam'], quiz: { q:'Under NJ law, what is the maximum security deposit a landlord can charge?', opts:['1 month rent','1.5 months rent','2 months rent','3 months rent'], correct:1 } },
+  { id:20, cat:'legal', title:'Real Estate Contract Law — NJ', desc:'Understand purchase agreements, contingencies, disclosures, and dispute resolution under New Jersey contract law. Great for agents and investors.', icon:'✍️', color:'#fef3c7', level:'advanced', hours:6, ceu:6, price:79, free:false, popular:false, modules:['Elements of a Valid Contract','NJ Purchase Agreement','Contingencies & Conditions','Seller Disclosures','Contract Disputes','Breach & Remedies','Closing Requirements'], quiz: { q:'Which contingency allows a buyer to back out if they cannot secure financing?', opts:['Inspection contingency','Mortgage contingency','Title contingency','Appraisal contingency'], correct:1 } },
+
+  // TECHNOLOGY
+  { id:21, cat:'technology', title:'AI Tools for Real Estate Professionals', desc:'Harness AI to grow your real estate business. Covers ChatGPT for listings, AI-powered lead generation, automated follow-ups, and market analysis tools.', icon:'🤖', color:'#ede9fe', level:'beginner', hours:3, ceu:0, price:0, free:true, popular:true, modules:['AI in Real Estate Overview','Writing Listings with AI','AI Lead Generation','Automated Follow-Up Systems','Market Analysis Tools','AI for Social Media','Future of PropTech'], quiz: { q:'What is the primary benefit of AI-powered lead follow-up?', opts:['Replaces agents entirely','24/7 instant response to leads','Reduces listing prices','Eliminates need for marketing'], correct:1 } },
+  { id:22, cat:'technology', title:'Digital Marketing for Contractors', desc:'Grow your contracting business online. Google Business Profile, review management, social media, paid ads, and building a referral network on platforms like Emporion Pros.', icon:'📱', color:'#dbeafe', level:'beginner', hours:4, ceu:0, price:0, free:true, popular:true, modules:['Google Business Profile Setup','Getting & Managing Reviews','Social Media for Contractors','Google Local Ads','Building Your Referral Network','Emporion Pros Platform Tips'], quiz: { q:'What is the most important factor for ranking in Google local search?', opts:['Website design','Number of 5-star reviews','Social media followers','Years in business'], correct:1 } },
+];
+
+let currentCat = 'all';
+let enrolledCourses = [];
+let completedCourses = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  enrolledCourses = EP.store.get('ep_enrolled') || [];
+  completedCourses = EP.store.get('ep_completed') || [];
+  filterCourses();
+  document.getElementById('course-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+});
+
+function setCategory(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('my-learning-section').style.display = cat === 'my-learning' ? 'block' : 'none';
+  if (cat === 'my-learning') renderMyLearning();
+  filterCourses();
+}
+
+function filterCourses() {
+  const q = (document.getElementById('course-search').value || '').toLowerCase();
+  const sort = document.getElementById('sort-courses').value;
+
+  let filtered = COURSES.filter(c => {
+    if (currentCat === 'my-learning') return enrolledCourses.includes(c.id) || completedCourses.includes(c.id);
+    if (currentCat !== 'all' && c.cat !== currentCat) return false;
+    if (q && !c.title.toLowerCase().includes(q) && !c.desc.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (sort === 'popular') filtered.sort((a,b) => b.popular - a.popular);
+  else if (sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
+  else if (sort === 'free') filtered = filtered.filter(c => c.free);
+
+  document.getElementById('results-label').textContent = `${filtered.length} course${filtered.length !== 1 ? 's' : ''} found`;
+
+  document.getElementById('course-grid').innerHTML = filtered.length ? filtered.map(c => {
+    const enrolled = enrolledCourses.includes(c.id);
+    const completed = completedCourses.includes(c.id);
+    return `<div class="course-card" onclick="openCourse(${c.id})">
+      <div class="course-thumb" style="background:${c.color}">
+        <span>${c.icon}</span>
+        <span class="course-level level-${c.level}">${c.level}</span>
+        ${completed ? '<span style="position:absolute;top:12px;right:12px;background:#10b981;color:white;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700">✓ Completed</span>' : enrolled ? '<span style="position:absolute;top:12px;right:12px;background:#f59e0b;color:white;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700">In Progress</span>' : ''}
+      </div>
+      <div class="course-body">
+        <div class="course-cat">${c.cat.replace('-',' ').toUpperCase()}</div>
+        <div class="course-title">${c.title}</div>
+        <div class="course-desc">${c.desc.substring(0,100)}...</div>
+        <div class="course-meta">
+          <span>⏱️ ${c.hours} hours</span>
+          ${c.ceu ? `<span><span class="ceu-badge">🎓 ${c.ceu} CEU</span></span>` : ''}
+          <span>📚 ${c.modules.length} modules</span>
+        </div>
+        <div class="course-footer">
+          <div class="course-price">${c.free ? '<span style="color:#10b981">FREE</span>' : '$' + c.price}</div>
+          <button class="ep-btn ${completed ? 'ep-btn-outline' : enrolled ? 'ep-btn-primary' : c.free ? 'ep-btn-success' : 'ep-btn-primary'}" style="font-size:13px;padding:8px 16px" onclick="event.stopPropagation();openCourse(${c.id})">
+            ${completed ? '📜 View Certificate' : enrolled ? '▶ Continue' : c.free ? 'Enroll Free' : 'Enroll $' + c.price}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') : '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#6b7280"><div style="font-size:48px;margin-bottom:16px">🎓</div><h3>No courses found</h3><p>Try a different search or category</p></div>';
+}
+
+function openCourse(id) {
+  const c = COURSES.find(x => x.id === id);
+  const enrolled = enrolledCourses.includes(id);
+  const completed = completedCourses.includes(id);
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-header">
+      <div style="font-size:48px;margin-bottom:12px">${c.icon}</div>
+      <div style="font-size:11px;font-weight:700;opacity:.7;text-transform:uppercase;margin-bottom:6px">${c.cat.replace('-',' ').toUpperCase()}</div>
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">${c.title}</h2>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;opacity:.85">
+        <span>⏱️ ${c.hours} hours</span>
+        ${c.ceu ? `<span>🎓 ${c.ceu} CEU Credits</span>` : ''}
+        <span>📚 ${c.modules.length} Modules</span>
+        <span>📊 ${c.level.charAt(0).toUpperCase()+c.level.slice(1)}</span>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p style="color:#374151;line-height:1.7;margin-bottom:20px">${c.desc}</p>
+      
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:4px">Course Modules</h3>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Complete all modules to earn your certificate</p>
+      <div class="module-list">
+        ${c.modules.map((m,i) => `
+          <div class="module-item">
+            <div class="module-num ${completed || (enrolled && i < 2) ? 'module-done' : ''}">${completed || (enrolled && i < 2) ? '✓' : i+1}</div>
+            <div style="flex:1">
+              <div style="font-weight:600">${m}</div>
+              <div style="font-size:12px;color:#6b7280">${completed || (enrolled && i < 2) ? 'Completed' : i === 0 && enrolled ? 'In Progress' : 'Locked'}</div>
+            </div>
+            <div style="font-size:12px;color:#6b7280">${Math.floor(Math.random()*20+10)} min</div>
+          </div>`).join('')}
+      </div>
+
+      ${enrolled && !completed ? `
+      <div class="quiz-section">
+        <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:10px">📝 Module Quiz</div>
+        <div class="quiz-q">${c.quiz.q}</div>
+        <div class="quiz-options">
+          ${c.quiz.opts.map((o,i) => `<button class="quiz-opt" onclick="checkAnswer(this,${i},${c.quiz.correct},${id})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+        </div>
+        <div id="quiz-result-${id}" style="margin-top:12px;font-weight:700;display:none"></div>
+      </div>` : ''}
+
+      ${completed ? `
+      <div style="background:#d1fae5;border-radius:12px;padding:24px;text-align:center;margin-top:16px">
+        <div style="font-size:40px;margin-bottom:8px">🎓</div>
+        <div style="font-weight:800;font-size:18px;color:#065f46">Course Completed!</div>
+        <div style="color:#065f46;font-size:14px;margin-top:4px">Your certificate has been added to your profile</div>
+        <button class="ep-btn ep-btn-success" style="margin-top:16px" onclick="downloadCert('${c.title}')">📄 Download Certificate</button>
+      </div>` : ''}
+
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+        ${!enrolled && !completed ? `<button class="ep-btn ep-btn-primary ep-btn-lg" style="flex:1" onclick="enrollCourse(${id})">${c.free ? '✅ Enroll Free' : '💳 Enroll for $' + c.price}</button>` : ''}
+        ${enrolled && !completed ? `<button class="ep-btn ep-btn-primary ep-btn-lg" style="flex:1" onclick="completeCourse(${id})">Mark as Complete ✓</button>` : ''}
+        <button class="ep-btn ep-btn-outline ep-btn-lg" onclick="closeModal()">Close</button>
+      </div>
+    </div>`;
+  document.getElementById('course-modal').classList.add('open');
+}
+
+function enrollCourse(id) {
+  if (!enrolledCourses.includes(id)) {
+    enrolledCourses.push(id);
+    EP.store.set('ep_enrolled', enrolledCourses);
+  }
+  EP.notify('🎓 Enrolled! Course started.', 'success');
+  closeModal();
+  filterCourses();
+  openCourse(id);
+}
+
+function completeCourse(id) {
+  if (!completedCourses.includes(id)) {
+    completedCourses.push(id);
+    EP.store.set('ep_completed', completedCourses);
+  }
+  enrolledCourses = enrolledCourses.filter(x => x !== id);
+  EP.store.set('ep_enrolled', enrolledCourses);
+  EP.notify('🏆 Course completed! Certificate earned!', 'success');
+  closeModal();
+  filterCourses();
+  openCourse(id);
+}
+
+function checkAnswer(btn, selected, correct, courseId) {
+  document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+  const result = document.getElementById(`quiz-result-${courseId}`);
+  if (selected === correct) {
+    btn.classList.add('correct');
+    result.style.display = 'block';
+    result.style.color = '#065f46';
+    result.textContent = '✅ Correct! Great job!';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
+    result.style.display = 'block';
+    result.style.color = '#b91c1c';
+    result.textContent = '❌ Not quite — review the module and try again.';
+  }
+}
+
+function downloadCert(title) {
+  EP.notify('📄 Certificate downloading...', 'success');
+}
+
+function renderMyLearning() {
+  const certHtml = completedCourses.length ? completedCourses.map(id => {
+    const c = COURSES.find(x => x.id === id);
+    if (!c) return '';
+    return `<div class="cert-card">
+      <div><div style="font-size:22px;font-weight:800">${c.icon} ${c.title}</div>
+      <div style="opacity:.8;font-size:13px;margin-top:4px">${c.ceu ? c.ceu + ' CEU Credits · ' : ''}Completed ${new Date().toLocaleDateString()}</div></div>
+      <button class="ep-btn" style="background:white;color:#4338ca;font-weight:700" onclick="downloadCert('${c.title}')">📄 Certificate</button>
+    </div>`;
+  }).join('') : '<p style="color:#6b7280;padding:20px 0">No certificates yet. Complete a course to earn one!</p>';
+
+  const progressHtml = enrolledCourses.length ? enrolledCourses.map(id => {
+    const c = COURSES.find(x => x.id === id);
+    if (!c) return '';
+    return `<div class="my-learning-card">
+      <div style="font-size:36px">${c.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700">${c.title}</div>
+        <div style="font-size:13px;color:#6b7280">${c.hours} hours · ${c.modules.length} modules</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+        <div style="font-size:12px;color:#6b7280;margin-top:4px">20% complete</div>
+      </div>
+      <button class="ep-btn ep-btn-primary" style="font-size:13px" onclick="openCourse(${id})">Continue ▶</button>
+    </div>`;
+  }).join('') : '<p style="color:#6b7280;padding:20px 0">No courses in progress. Browse courses to get started!</p>';
+
+  document.getElementById('cert-list').innerHTML = certHtml;
+  document.getElementById('progress-list').innerHTML = progressHtml;
+}
+
+function closeModal() { document.getElementById('course-modal').classList.remove('open'); }
+</script>
+</body>
+</html>

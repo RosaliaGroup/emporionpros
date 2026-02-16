@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Services & Vendors — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.page-hero{background:linear-gradient(135deg,#064e3b,#065f46);color:white;padding:60px 0;text-align:center}
+.page-hero h1{font-size:42px;font-weight:800;margin-bottom:10px}
+.cat-strip{display:flex;gap:10px;flex-wrap:wrap;margin:32px 0}
+.cat-btn{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:30px;background:white;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
+.cat-btn:hover,.cat-btn.active{background:#065f46;color:white;border-color:#065f46}
+.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+.vendor-card{background:white;border-radius:14px;padding:26px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:2px solid transparent;transition:.3s}
+.vendor-card:hover{border-color:#065f46;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.vendor-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px}
+.vendor-name{font-size:18px;font-weight:700}
+.vendor-cat{display:inline-block;padding:4px 12px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:12px;font-weight:600;margin-top:4px}
+.vendor-price{font-size:22px;font-weight:800;color:#065f46}
+.badges{display:flex;gap:6px;margin:12px 0}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-licensed{background:#eff6ff;color:#1a56db}
+.badge-insured{background:#f0fdf4;color:#15803d}
+.badge-premium{background:#fffbeb;color:#b45309}
+.services-list{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.service-pill{padding:4px 10px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;font-size:12px;color:#374151}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-inner{background:white;border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<div class="page-hero">
+  <div class="ep-container">
+    <h1>Find Trusted Service Providers</h1>
+    <p>Licensed, insured, and vetted professionals for every real estate need</p>
+  </div>
+</div>
+
+<section class="ep-section">
+  <div class="ep-container">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+      <input class="ep-input" id="vendor-search" placeholder="Search vendors..." oninput="renderVendors()" style="flex:1">
+    </div>
+    <div class="cat-strip" id="cat-strip">
+      <button class="cat-btn active" onclick="setCategory('',this)">All Services</button>
+      <button class="cat-btn" onclick="setCategory('Plumbing',this)">🔧 Plumbing</button>
+      <button class="cat-btn" onclick="setCategory('HVAC',this)">❄️ HVAC</button>
+      <button class="cat-btn" onclick="setCategory('Electrical',this)">⚡ Electrical</button>
+      <button class="cat-btn" onclick="setCategory('Mortgage',this)">🏦 Mortgage</button>
+      <button class="cat-btn" onclick="setCategory('Insurance',this)">🛡️ Insurance</button>
+      <button class="cat-btn" onclick="setCategory('Title',this)">📋 Title</button>
+      <button class="cat-btn" onclick="setCategory('Inspection',this)">🔍 Inspection</button>
+      <button class="cat-btn" onclick="setCategory('Real Estate Attorney',this)">⚖️ Attorney</button>
+      <button class="cat-btn" onclick="setCategory('General Contractor',this)">🏗️ Contractor</button>
+    </div>
+    <div class="vendor-grid" id="vendor-grid"></div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="vendor-modal">
+  <div class="modal-inner"><div id="vendor-modal-content"></div></div>
+</div>
+<div id="ai-mount"></div>
+
+<script>
+let currentCat = '';
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('vendors');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  renderVendors();
+  document.getElementById('vendor-modal').addEventListener('click', function(e) { if (e.target === this) closeVModal(); });
+});
+
+function setCategory(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVendors();
+}
+
+function renderVendors() {
+  const q = document.getElementById('vendor-search').value.toLowerCase();
+  const filtered = EP.vendors.filter(v =>
+    (!currentCat || v.category === currentCat) &&
+    (!q || v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.services.some(s => s.toLowerCase().includes(q)))
+  );
+  document.getElementById('vendor-grid').innerHTML = filtered.length ? filtered.map(v => `
+    <div class="vendor-card">
+      <div class="vendor-top">
+        <div>
+          <div class="vendor-name">${v.name}</div>
+          <div class="vendor-cat">${v.category}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ep-stars">★★★★★</div>
+          <div style="font-size:13px;font-weight:600">${v.rating} <span style="color:#6b7280;font-weight:400">(${v.reviews})</span></div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">${v.description}</p>
+      <div class="badges">
+        ${v.licensed ? '<span class="badge badge-licensed">✓ Licensed</span>' : ''}
+        ${v.insured ? '<span class="badge badge-insured">✓ Insured</span>' : ''}
+        ${v.tier === 'premium' ? '<span class="badge badge-premium">⭐ Premium</span>' : ''}
+      </div>
+      <div class="services-list">${v.services.map(s => `<span class="service-pill">${s}</span>`).join('')}</div>
+      <div style="font-size:13px;color:#6b7280;margin-bottom:16px">📍 ${v.areas.join(' · ')}</div>
+      <div style="display:flex;gap:10px">
+        <button class="ep-btn ep-btn-primary" style="flex:1" onclick="openVendorModal(${v.id})">Get Quote / Connect</button>
+        <button class="ep-btn ep-btn-outline" onclick="EP.ai.simulatePhoneCall()">📞</button>
+      </div>
+    </div>`).join('') : '<p style="color:#6b7280;padding:40px;grid-column:1/-1">No vendors match your search.</p>';
+}
+
+function openVendorModal(vId) {
+  const v = EP.vendors.find(x => x.id === vId);
+  document.getElementById('vendor-modal-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
+      <div><h2 style="font-size:22px;font-weight:700">${v.name}</h2><div class="vendor-cat" style="display:inline-block;padding:4px 12px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:12px;font-weight:600;margin-top:4px">${v.category}</div></div>
+      <button onclick="closeVModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">✕</button>
+    </div>
+    <p style="color:#6b7280;font-size:13px;margin-bottom:20px">${v.description}</p>
+    <form onsubmit="submitVendorLead(event,${vId})">
+      <div class="ep-form-group"><label class="ep-label">Your Name</label><input class="ep-input" name="name" required></div>
+      <div class="ep-form-group"><label class="ep-label">Email</label><input class="ep-input" name="email" type="email" required></div>
+      <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" name="phone" type="tel" required></div>
+      <div class="ep-form-group"><label class="ep-label">Property Address</label><input class="ep-input" name="address"></div>
+      <div class="ep-form-group"><label class="ep-label">Service Needed</label>
+        <select class="ep-select" name="service">${v.services.map(s => `<option>${s}</option>`).join('')}</select>
+      </div>
+      <div class="ep-form-group"><label class="ep-label">Urgency</label>
+        <select class="ep-select" name="urgency"><option>Routine</option><option>Urgent (within a week)</option><option>Emergency (24 hours)</option></select>
+      </div>
+      <div class="ep-form-group"><label class="ep-label">Additional Details</label><textarea class="ep-textarea" name="message"></textarea></div>
+      <button type="submit" class="ep-btn ep-btn-primary" style="width:100%;padding:14px">Request Quote</button>
+    </form>`;
+  document.getElementById('vendor-modal').classList.add('open');
+}
+
+function submitVendorLead(e, vId) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  EP.leads.capture({ name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'), address: fd.get('address'), service: fd.get('service'), urgency: fd.get('urgency'), message: fd.get('message'), vendorId: vId, source: 'Vendor Page' });
+  document.getElementById('vendor-modal-content').innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px">✅</div><h3 style="margin-top:16px;font-size:22px">Quote Request Sent!</h3><p style="color:#6b7280;margin-top:8px">The vendor will contact you within 2 hours.</p><button onclick="closeVModal()" class="ep-btn ep-btn-primary" style="margin-top:20px">Close</button></div>';
+}
+
+function closeVModal() { document.getElementById('vendor-modal').classList.remove('open'); }
+</script>
+</body>
+</html>
