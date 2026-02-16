@@ -54,9 +54,9 @@
 <div class="dash">
   <aside class="sidebar">
     <div class="sidebar-user">
-      <div class="sidebar-av">CR</div>
-      <div class="sidebar-name">Carlos Rivera</div>
-      <div class="sidebar-role">Senior Agent · License NJ-RE-001234</div>
+      <div class="sidebar-av" id="sidebar-av">??</div>
+      <div class="sidebar-name" id="sidebar-name">Loading...</div>
+      <div class="sidebar-role" id="sidebar-role">Agent · License NJ-RE-001234</div>
     </div>
     <button class="nav-item active" onclick="showTab('overview',this)">📊 Overview</button>
     <button class="nav-item" onclick="showTab('leads',this)">📥 Leads <span style="background:#e02424;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px" id="lead-badge">0</span></button>
@@ -74,7 +74,7 @@
   <main class="dash-main">
     <!-- OVERVIEW -->
     <div class="tab-content active" id="tab-overview">
-      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Welcome back, Carlos 👋</h1>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px" id="welcome-heading">Welcome back 👋</h1>
       <div class="stats-row">
         <div class="stat-box"><div class="stat-box-val" id="ov-leads">0</div><div class="stat-box-label">Total Leads</div><div class="stat-box-delta">↑ Live counter</div></div>
         <div class="stat-box"><div class="stat-box-val" id="ov-new">0</div><div class="stat-box-label">New Leads</div></div>
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.sidebar-name').textContent = uName;
   refreshDashboard();
   setInterval(refreshDashboard, 5000);
-  addDashMsg('assistant', 'Hi Carlos! I\'m Aria. I\'m monitoring your leads and ready to help. You have ' + (EP.leads.getForAgent(1).length) + ' leads so far.');
+  addDashMsg('assistant', 'Hi ${uName.split(" ")[0]}! I\'m Aria. I\'m monitoring your leads and ready to help. You have ' + (EP.leads.getForAgent(1).length) + ' leads so far.');
 });
 
 function refreshDashboard() {
