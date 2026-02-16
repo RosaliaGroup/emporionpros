@@ -89,9 +89,9 @@
 <div class="dash">
   <aside class="sidebar">
     <div style="padding:16px 20px 20px;border-bottom:1px solid #e5e7eb;margin-bottom:8px">
-      <div class="sidebar-av">CR</div>
-      <div style="font-weight:700;font-size:15px">Carlos Rivera</div>
-      <div style="font-size:12px;color:#6b7280">Agent · FUB Integration</div>
+      <div class="sidebar-av" id="fub-av">?</div>
+      <div style="font-weight:700;font-size:15px" id="fub-name">Loading...</div>
+      <div style="font-size:12px;color:#6b7280" id="fub-role">Agent · FUB Integration</div>
     </div>
     <button class="nav-item active" onclick="showTab('connect',this)">🔗 Connect FUB</button>
     <button class="nav-item" onclick="showTab('leads',this)">📥 FUB Leads <span id="fub-badge" style="background:#ef4444;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
@@ -390,20 +390,21 @@
 
 <div id="ai-mount"></div>
 <script>
-const SAMPLE_FUB_LEADS = [
-  { id:1, name:'Maria Santos', phone:'(973) 555-2341', email:'maria@email.com', source:'Zillow', interest:'3BR in Newark', stage:'New', score:'hot', aiStatus:'Pending Call' },
-  { id:2, name:'James Williams', phone:'(973) 555-8821', email:'james@email.com', source:'Realtor.com', interest:'Investment Property', stage:'Attempted Contact', score:'warm', aiStatus:'Called — No Answer' },
-  { id:3, name:'Rosa Jimenez', phone:'(973) 555-4492', email:'rosa@email.com', source:'FUB Website', interest:'2BR Condo under $300k', stage:'New', score:'hot', aiStatus:'Pending Call' },
-  { id:4, name:'David Chen', phone:'(973) 555-7734', email:'david@email.com', source:'Referral', interest:'Single Family Weequahic', stage:'Active', score:'warm', aiStatus:'Texted — Responded' },
-  { id:5, name:'Keisha Brown', phone:'(973) 555-1198', email:'keisha@email.com', source:'Google Ads', interest:'First-time buyer under $400k', stage:'New', score:'hot', aiStatus:'Appointment Booked ✅' },
-];
+const SAMPLE_FUB_LEADS = []; // Real leads load from FUB API after backend is connected
 
 let fubConnected = false;
 let activityLog = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+  const user = EP.auth.user();
+  if (!user) { window.location.href = 'login.html'; return; }
+  if (user.role !== 'agent') { window.location.href = user.role === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; return; }
   document.getElementById('header-mount').innerHTML = EP.renderHeader('');
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  // Show real user name
+  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase();
+  document.getElementById('fub-av').textContent = initials;
+  document.getElementById('fub-name').textContent = user.name;
   fubConnected = !!EP.store.get('ep_fub_key');
   if (fubConnected) showConnected();
 });
