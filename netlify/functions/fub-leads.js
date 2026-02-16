@@ -20,7 +20,8 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const response = await fetch('https://api.followupboss.com/v1/people?limit=100&sort=created&direction=desc', {
+    // Fetch ALL leads from Follow Up Boss - increased limit and sorted by most recent
+    const response = await fetch('https://api.followupboss.com/v1/people?limit=500&sort=updated&direction=desc', {
       headers: {
         'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
         'Content-Type': 'application/json',
@@ -43,15 +44,16 @@ exports.handler = async function(event, context) {
 
     const leads = people.map(p => ({
       id: p.id,
-      name: [p.firstName, p.lastName].filter(Boolean).join(' ') || 'Unknown',
+      name: [p.firstName, p.lastName].filter(Boolean).join(' ') || 'No name',
       email: (p.emails && p.emails[0]) ? p.emails[0].value : '',
       phone: (p.phones && p.phones[0]) ? p.phones[0].value : '',
       source: p.source || 'Follow Up Boss',
       stage: p.stage || 'New',
-      interest: p.price ? `Up to $${Number(p.price).toLocaleString()}` : (p.type || 'General Inquiry'),
+      interest: p.price ? `Up to $${Number(p.price).toLocaleString()}` : (p.type || 'Buyer'),
       score: p.temperature === 'Hot' ? 'hot' : p.temperature === 'Warm' ? 'warm' : 'cold',
       aiStatus: 'Pending Call',
       created: p.created,
+      updated: p.updated,
       assignedTo: p.assignedTo ? p.assignedTo.name : '',
       tags: p.tags || [],
       lastActivity: p.lastActivityDate || p.updated
