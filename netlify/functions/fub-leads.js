@@ -20,29 +20,43 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    // Fetch ALL leads from Follow Up Boss - increased limit and sorted by most recent
-    const response = await fetch('https://api.followupboss.com/v1/people?limit=500&sort=updated&direction=desc', {
-      headers: {
-        'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
-        'Content-Type': 'application/json',
-        'X-System': 'EmporionPros',
-        'X-System-Key': 'emporionpros2026'
-      }
-    });
+    let allPeople = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return {
-        statusCode: response.status,
-        headers,
-        body: JSON.stringify({ error: 'FUB API error: ' + errText })
-      };
+    // Paginate through ALL leads in Follow Up Boss
+    while (hasMore && offset < 3000) {
+      const response = await fetch(`https://api.followupboss.com/v1/people?limit=${limit}&offset=${offset}&sort=updated&direction=desc`, {
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
+          'Content-Type': 'application/json',
+          'X-System': 'EmporionPros',
+          'X-System-Key': 'emporionpros2026'
+        }
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        return {
+          statusCode: response.status,
+          headers,
+          body: JSON.stringify({ error: 'FUB API error: ' + errText })
+        };
+      }
+
+      const data = await response.json();
+      const people = data.people || [];
+      
+      if (people.length === 0) {
+        hasMore = false;
+      } else {
+        allPeople = allPeople.concat(people);
+        offset += limit;
+      }
     }
 
-    const data = await response.json();
-    const people = data.people || [];
-
-    const leads = people.map(p => ({
+    const leads = allPeople.map(p => ({
       id: p.id,
       name: [p.firstName, p.lastName].filter(Boolean).join(' ') || 'No name',
       email: (p.emails && p.emails[0]) ? p.emails[0].value : '',
