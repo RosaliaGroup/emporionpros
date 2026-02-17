@@ -95,6 +95,7 @@
     </div>
     <button class="nav-item active" onclick="showTab('connect',this)">🔗 Connect FUB</button>
     <button class="nav-item" onclick="showTab('leads',this)">📥 FUB Leads <span id="fub-badge" style="background:#ef4444;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
+    <button class="nav-item" onclick="showTab('hot-leads',this)">🔥 Hot Leads <span id="hot-badge" style="background:#ef4444;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
     <button class="nav-item" onclick="showTab('ai-actions',this)">🤖 AI Actions</button>
     <button class="nav-item" onclick="showTab('activity',this)">📋 Activity Log</button>
     <button class="nav-item" onclick="showTab('upgrade',this)">⚡ Upgrade Plan</button>
@@ -225,6 +226,40 @@
           </thead>
           <tbody id="fub-leads-body">
             <tr><td colspan="8" style="text-align:center;padding:40px;color:#6b7280">Connect FUB to see your leads here</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- HOT LEADS TAB -->
+    <div class="tab-content" id="tab-hot-leads">
+      <div style="background:#fff7ed;border:2px solid #f97316;border-radius:12px;padding:20px;margin-bottom:24px">
+        <h2 style="font-size:20px;font-weight:800;color:#c2410c;margin-bottom:8px">🔥 Hot Leads — Priority Calling</h2>
+        <p style="color:#9a3412;font-size:14px;margin-bottom:12px">These leads are less than 24 hours old or marked HOT in FUB. Call them ASAP!</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="ep-btn ep-btn-primary" onclick="callAllHot()">📞 Call All Hot Leads</button>
+          <div style="font-size:13px;color:#9a3412;display:flex;align-items:center;gap:6px">
+            <span style="font-weight:700">Business Hours:</span> M-F 9am-6pm, Sat-Sun 10am-5pm EST
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:white;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+        <table class="leads-table" id="hot-leads-table">
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Source</th>
+              <th>Age</th>
+              <th>FUB Stage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="hot-leads-body">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No hot leads right now</td></tr>
           </tbody>
         </table>
       </div>
@@ -412,12 +447,62 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+function renderHotLeads() {
+  const allLeads = scoreLeads();
+  const hotLeads = allLeads.filter(l => l.score === 'hot');
+  document.getElementById('hot-badge').textContent = hotLeads.length;
+  
+  const tbody = document.getElementById('hot-leads-body');
+  if (hotLeads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No hot leads right now</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = hotLeads.map(l => {
+    const age = l.ageText || 'Unknown';
+    return `<tr>
+      <td><div class="lead-score score-hot">🔥</div></td>
+      <td><strong>${l.name}</strong><br><small style="color:#6b7280">${l.email || 'No email'}</small></td>
+      <td>${l.phone || 'No phone'}</td>
+      <td>${l.source}</td>
+      <td><span style="color:#ef4444;font-weight:600">${age}</span></td>
+      <td>${l.stage}</td>
+      <td>
+        <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
+        <button class="ai-action-btn btn-text" onclick="sendText(${l.id})">💬 Text</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function callAllHot() {
+  if (!isBusinessHours()) {
+    EP.notify('⏰ Outside business hours. Calls will be scheduled for tomorrow.', 'info');
+    return;
+  }
+  
+  const hotLeads = scoreLeads().filter(l => l.score === 'hot' && l.phone);
+  if (hotLeads.length === 0) {
+    EP.notify('No hot leads with phone numbers to call', 'info');
+    return;
+  }
+  
+  EP.notify(`📞 Calling ${hotLeads.length} hot leads...`, 'info');
+  
+  for (let i = 0; i < hotLeads.length; i++) {
+    await makeCall(hotLeads[i].id);
+    await new Promise(r => setTimeout(r, 30000)); // 30 sec between calls
+  }
+}
+
 function showTab(name, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
   if (name === 'leads' && fubConnected) renderLeads();
+  if (name === 'hot-leads' && fubConnected) renderHotLeads();
 }
 
 function connectFUB() {
@@ -454,9 +539,68 @@ function disconnectFUB() {
   EP.notify('FUB disconnected', 'info');
 }
 
+
+function scoreLeads() {
+  const leads = EP.store.get('ep_fub_leads') || [];
+  const now = new Date();
+  
+  return leads.map(lead => {
+    // Use created date for scoring
+    const createdDate = new Date(lead.created);
+    const hoursSince = (now - createdDate) / (1000 * 60 * 60);
+    
+    let score = 'cold';
+    let priority = 3;
+    
+    // Hot = created in last 24 hours
+    if (hoursSince < 24) {
+      score = 'hot';
+      priority = 1;
+    }
+    // Warm = created in last 7 days  
+    else if (hoursSince < 168) {
+      score = 'warm';
+      priority = 2;
+    }
+    
+    // Override with FUB temperature if hotter
+    if (lead.score === 'hot') {
+      score = 'hot';
+      priority = 1;
+    }
+    
+    // Calculate age text
+    let ageText;
+    if (hoursSince < 1) {
+      ageText = 'Just now';
+    } else if (hoursSince < 24) {
+      ageText = Math.round(hoursSince) + 'h ago';
+    } else {
+      ageText = Math.round(hoursSince / 24) + 'd ago';
+    }
+    
+    return { ...lead, score, priority, hoursSince, ageText };
+  }).sort((a, b) => a.priority - b.priority || a.hoursSince - b.hoursSince);
+}
+
+function isBusinessHours() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 6=Sat
+  const hour = now.getHours();
+  
+  // Monday-Friday 9am-6pm
+  if (day >= 1 && day <= 5) {
+    return hour >= 9 && hour < 18;
+  }
+  // Saturday-Sunday 10am-5pm
+  if (day === 0 || day === 6) {
+    return hour >= 10 && hour < 17;
+  }
+  return false;
+}
+
 function renderLeads() {
-  const stored = EP.store.get('ep_fub_leads') || [];
-  const leads = fubConnected ? stored : [];
+  const leads = fubConnected ? scoreLeads() : [];
   document.getElementById('stat-total').textContent = leads.length;
   document.getElementById('stat-new').textContent = leads.filter(l => l.aiStatus.includes('Pending')).length;
   document.getElementById('stat-called').textContent = leads.filter(l => l.aiStatus.includes('Called') || l.aiStatus.includes('Texted')).length;
@@ -541,6 +685,7 @@ async function syncFUBLeads() {
       EP.notify('✅ Synced ' + data.leads.length + ' leads from Follow Up Boss!', 'success');
       addActivity('sync', '📥 ' + data.leads.length + ' leads synced from FUB', 'Last sync: ' + new Date().toLocaleTimeString());
       if (document.getElementById('tab-leads').classList.contains('active')) renderLeads();
+      renderHotLeads(); // Always update hot leads count
     } else {
       EP.notify('❌ Sync error: ' + (data.error || 'Unknown error'), 'error');
     }
