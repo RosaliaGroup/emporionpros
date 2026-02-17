@@ -82,7 +82,7 @@ Keep responses under 30 words. Be natural and conversational.`
         },
         voice: {
           provider: "deepgram",
-          voiceId: "aura-asteria-en"
+          voiceId: "asteria"
         },
         firstMessage: `Hi ${leadName}, this is Aria from Iron 65 in Newark. You reached out about our luxury apartments - do you have 2 minutes to chat?`,
         endCallMessage: "Perfect! You'll get a confirmation text. Looking forward to showing you Iron 65!",
@@ -112,20 +112,3 @@ Keep responses under 30 words. Be natural and conversational.`
     
     return {
       statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        callId: vapiData.id,
-        status: vapiData.status,
-        message: `Aria is calling ${leadName}...`
-      })
-    };
-    
-  } catch (err) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message })
-    };
-  }
-};
