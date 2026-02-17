@@ -20,8 +20,12 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    // Fetch recent leads sorted by creation date
-    const response = await fetch('https://api.followupboss.com/v1/people?limit=200&sort=created&direction=desc', {
+    // Get leads from last 30 days using afterDate filter
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const afterDate = Math.floor(thirtyDaysAgo.getTime() / 1000);
+    
+    const response = await fetch(`https://api.followupboss.com/v1/people?limit=500&afterDate=${afterDate}`, {
       headers: {
         'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
         'Content-Type': 'application/json',
@@ -57,7 +61,9 @@ exports.handler = async function(event, context) {
       assignedTo: p.assignedTo ? p.assignedTo.name : '',
       tags: p.tags || [],
       lastActivity: p.lastActivityDate || p.updated
-    }));
+    }))
+    // Sort by created date in JavaScript since FUB API sort doesn't work reliably
+    .sort((a, b) => new Date(b.created) - new Date(a.created));
 
     return {
       statusCode: 200,
