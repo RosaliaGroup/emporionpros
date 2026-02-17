@@ -34,7 +34,7 @@ exports.handler = async function(event, context) {
       }
     }
     
-    // Simplified Vapi call with Azure voice
+    // Vapi call with Deepgram voice
     const callPayload = {
       phoneNumberId: VAPI_PHONE_NUMBER,
       customer: {
@@ -80,7 +80,10 @@ Keep responses under 30 words. Be natural and conversational.`
             }
           ]
         },
-        voice: "en-US-JennyNeural",
+        voice: {
+          provider: "deepgram",
+          voiceId: "aura-asteria-en"
+        },
         firstMessage: `Hi ${leadName}, this is Aria from Iron 65 in Newark. You reached out about our luxury apartments - do you have 2 minutes to chat?`,
         endCallMessage: "Perfect! You'll get a confirmation text. Looking forward to showing you Iron 65!",
         serverUrl: "https://startling-beijinho-6bd2e5.netlify.app/.netlify/functions/vapi-webhook"
