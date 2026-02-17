@@ -20,8 +20,8 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    // Fetch only most recent 200 leads to avoid timeout
-    const response = await fetch('https://api.followupboss.com/v1/people?limit=200&sort=updated&direction=desc', {
+    // Fetch recent leads sorted by creation date
+    const response = await fetch('https://api.followupboss.com/v1/people?limit=200&sort=created&direction=desc', {
       headers: {
         'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
         'Content-Type': 'application/json',
