@@ -12,7 +12,6 @@ exports.handler = async function(event, context) {
   const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
   const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
   const TWILIO_PHONE = process.env.TWILIO_PHONE;
-  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE) {
     return {
@@ -26,13 +25,9 @@ exports.handler = async function(event, context) {
     const body = JSON.parse(event.body || '{}');
     const { leadName, leadPhone, agentName } = body;
 
-    if (!leadPhone) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Lead phone number required' })
-      };
-    }
+    // TEST MODE - Call Ana instead of the lead
+    const testPhone = '+18624239396';
+    const actualPhone = testPhone; // Use Ana's number for testing
 
     // Initiate call via Twilio
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls.json`;
@@ -42,16 +37,12 @@ exports.handler = async function(event, context) {
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="Polly.Joanna">
-    Hi, is this ${leadName}? This is Aria calling on behalf of ${agentName} from Emporion Pros. I saw you were recently looking at homes in the Newark area. I wanted to reach out personally to see if you had any questions or if you'd like to schedule a time to tour some properties. Do you have 2 minutes to chat?
+    Hi Ana, this is Aria, your AI assistant from Emporion Pros. This is a test call to demonstrate the AI calling feature. I would normally be calling ${leadName} right now to follow up on their property inquiry. The system is working perfectly! You can now call real leads by clicking the call button on any lead in your Follow Up Boss dashboard. Have a great day!
   </Say>
-  <Gather input="speech" timeout="5" action="https://${event.headers.host}/.netlify/functions/call-response">
-    <Say voice="Polly.Joanna">Please say yes or no after the beep.</Say>
-  </Gather>
-  <Say voice="Polly.Joanna">I didn't hear a response. I'll send you a text with my contact info. Have a great day!</Say>
 </Response>`;
 
     const callParams = new URLSearchParams({
-      To: leadPhone,
+      To: actualPhone,
       From: TWILIO_PHONE,
       Twiml: twiml,
       Record: 'true',
@@ -85,7 +76,7 @@ exports.handler = async function(event, context) {
         success: true,
         callSid: callData.sid,
         status: callData.status,
-        message: `Calling ${leadName} at ${leadPhone}...`
+        message: `TEST CALL: Calling Ana at ${actualPhone} to demonstrate the system...`
       })
     };
 
