@@ -456,12 +456,15 @@ async function makeCall(leadId) {
   
   try {
     const user = EP.auth.user();
-    const res = await fetch('/.netlify/functions/make-call', {
+    const res = await fetch('/.netlify/functions/ai-call-iron65', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        leadId: lead.id,
         leadName: lead.name,
         leadPhone: lead.phone,
+        leadEmail: lead.email,
+        leadSource: lead.source,
         agentName: user.name
       })
     });
