@@ -456,7 +456,7 @@ async function makeCall(leadId) {
   
   try {
     const user = EP.auth.user();
-    const res = await fetch('/.netlify/functions/ai-call-iron65', {
+    const res = await fetch('/.netlify/functions/vapi-call-iron65', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
