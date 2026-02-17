@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUB Integration — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+.sidebar-av{width:52px;height:52px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.15s;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+.nav-item:hover,.nav-item.active{background:#eff6ff;color:#1a56db}
+.dash-main{padding:28px;background:#f9fafb;overflow-y:auto}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* Hero banner */
+.fub-hero{background:linear-gradient(135deg,#0f172a,#1a56db);border-radius:16px;padding:36px;color:white;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
+.fub-hero h1{font-size:28px;font-weight:800;margin-bottom:8px}
+.fub-hero p{opacity:.85;font-size:15px;max-width:500px;line-height:1.6}
+.fub-logo{background:rgba(255,255,255,.1);border-radius:12px;padding:16px 24px;font-size:22px;font-weight:800;letter-spacing:-1px}
+
+/* Connection card */
+.connect-card{background:white;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px}
+.connect-status{display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;margin-bottom:20px}
+.connect-status.connected{background:#d1fae5;border:2px solid #10b981}
+.connect-status.disconnected{background:#fef3c7;border:2px solid #f59e0b}
+.status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#10b981}
+.dot-yellow{background:#f59e0b;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Leads table */
+.leads-table{width:100%;border-collapse:collapse}
+.leads-table th{padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-bottom:2px solid #e5e7eb}
+.leads-table td{padding:12px;border-bottom:1px solid #f3f4f6;font-size:14px;vertical-align:middle}
+.leads-table tr:hover td{background:#f9fafb}
+.ai-action-btn{padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-call{background:#dbeafe;color:#1e40af}
+.btn-call:hover{background:#1a56db;color:white}
+.btn-text{background:#d1fae5;color:#065f46}
+.btn-text:hover{background:#10b981;color:white}
+.btn-email{background:#ede9fe;color:#4c1d95}
+.btn-email:hover{background:#7c3aed;color:white}
+.lead-score{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white}
+.score-hot{background:#ef4444}
+.score-warm{background:#f59e0b}
+.score-cold{background:#6b7280}
+
+/* Pricing add-on */
+.addon-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:20px}
+.addon-card{border:2px solid #e5e7eb;border-radius:14px;padding:24px;transition:.2s;position:relative}
+.addon-card.popular{border-color:#1a56db;background:#f0f7ff}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#1a56db;color:white;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.addon-price{font-size:32px;font-weight:800;color:#1a56db;margin:8px 0}
+.addon-feature{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid #f3f4f6}
+.addon-feature:last-of-type{border:none}
+
+/* Activity feed */
+.activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.activity-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.activity-call{background:#dbeafe}
+.activity-text{background:#d1fae5}
+.activity-sync{background:#ede9fe}
+
+/* Settings */
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #f3f4f6}
+.toggle{width:44px;height:24px;border-radius:12px;background:#e5e7eb;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:#1a56db}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
+
+/* Call modal */
+.call-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;align-items:center;justify-content:center}
+.call-modal.open{display:flex}
+.call-box{background:white;border-radius:20px;padding:36px;max-width:400px;width:100%;text-align:center}
+.call-avatar{width:80px;height:80px;border-radius:50%;background:#1a56db;color:white;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.call-ring{animation:ring 1s infinite}
+@keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.transcript-box{background:#f9fafb;border-radius:10px;padding:16px;margin:16px 0;text-align:left;max-height:180px;overflow-y:auto;font-size:13px}
+.t-line{padding:4px 0;line-height:1.5}
+.t-aria{color:#1a56db;font-weight:600}
+.t-lead{color:#374151}
+
+@media(max-width:900px){.dash{grid-template-columns:1fr}.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div id="header-mount"></div>
+<div class="dash">
+  <aside class="sidebar">
+    <div style="padding:16px 20px 20px;border-bottom:1px solid #e5e7eb;margin-bottom:8px">
+      <div class="sidebar-av" id="fub-av">?</div>
+      <div style="font-weight:700;font-size:15px" id="fub-name">Loading...</div>
+      <div style="font-size:12px;color:#6b7280" id="fub-role">Agent · FUB Integration</div>
+    </div>
+    <button class="nav-item active" onclick="showTab('connect',this)">🔗 Connect FUB</button>
+    <button class="nav-item" onclick="showTab('leads',this)">📥 FUB Leads <span id="fub-badge" style="background:#ef4444;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
+    <button class="nav-item" onclick="showTab('hot-leads',this)">🔥 Hot Leads <span id="hot-badge" style="background:#ef4444;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></button>
+    <button class="nav-item" onclick="showTab('ai-actions',this)">🤖 AI Actions</button>
+    <button class="nav-item" onclick="showTab('activity',this)">📋 Activity Log</button>
+    <button class="nav-item" onclick="showTab('upgrade',this)">⚡ Upgrade Plan</button>
+    <button class="nav-item" onclick="showTab('settings',this)">⚙️ Settings</button>
+    <a href="agent-dashboard.html" class="nav-item">← Back to Dashboard</a>
+  </aside>
+
+  <main class="dash-main">
+
+    <!-- CONNECT -->
+    <div class="tab-content active" id="tab-connect">
+      <div class="fub-hero">
+        <div>
+          <div style="font-size:12px;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Emporion Pros × Follow Up Boss</div>
+          <h1>AI-Powered Lead Calling<br>for Your FUB Leads</h1>
+          <p>Connect your Follow Up Boss account → Emporion's AI calls and texts your leads within 5 minutes of them coming in. FUB doesn't offer this. We do.</p>
+          <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+            <div style="background:rgba(255,255,255,.15);border-radius:8px;padding:10px 16px;font-size:13px">⚡ 5-min speed to lead</div>
+            <div style="background:rgba(255,255,255,.15);border-radius:8px;padding:10px 16px;font-size:13px">📞 AI calls 24/7</div>
+            <div style="background:rgba(255,255,255,.15);border-radius:8px;padding:10px 16px;font-size:13px">💬 Auto-text & email</div>
+            <div style="background:rgba(255,255,255,.15);border-radius:8px;padding:10px 16px;font-size:13px">📅 Books appointments</div>
+          </div>
+        </div>
+        <div class="fub-logo">FUB<br><span style="font-size:12px;font-weight:400;opacity:.7">Follow Up Boss</span></div>
+      </div>
+
+      <div class="connect-card">
+        <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">Step 1 — Connect Your FUB Account</h2>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:20px">Get your API key from Follow Up Boss: <strong>Admin → API → Copy API Key</strong></p>
+
+        <div class="connect-status disconnected" id="connect-status">
+          <div class="status-dot dot-yellow"></div>
+          <div>
+            <div style="font-weight:700">Not Connected</div>
+            <div style="font-size:13px;color:#92400e">Enter your FUB API key below to connect</div>
+          </div>
+        </div>
+
+        <div id="connect-form">
+          <div class="ep-form-group">
+            <label class="ep-label">Your Follow Up Boss API Key</label>
+            <div style="display:flex;gap:10px">
+              <input class="ep-input" id="fub-api-key" placeholder="fka_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="font-family:monospace">
+              <button class="ep-btn ep-btn-primary" onclick="connectFUB()" style="white-space:nowrap">Connect FUB →</button>
+            </div>
+            <p style="font-size:12px;color:#6b7280;margin-top:8px">🔒 Your API key is stored securely and never shared. <a href="https://app.followupboss.com" target="_blank" style="color:#1a56db">Get my API key →</a></p>
+          </div>
+        </div>
+        <div id="connected-msg" style="display:none">
+          <div style="background:#d1fae5;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-weight:700;color:#065f46">✅ Connected to Follow Up Boss</div>
+            <div style="font-size:13px;color:#065f46">Syncing leads every 5 minutes</div></div>
+            <button class="ep-btn ep-btn-outline" style="font-size:12px" onclick="disconnectFUB()">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="connect-card">
+        <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">Step 2 — Enable AI Actions</h2>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:20px">Choose what Aria does automatically when a new lead comes in from FUB</p>
+        <div class="setting-row">
+          <div><div style="font-weight:600">📞 AI Phone Call</div><div style="font-size:13px;color:#6b7280">Aria calls the lead within 5 minutes, introduces herself as your assistant, and tries to book a showing</div></div>
+          <div class="toggle on" id="toggle-call" onclick="toggleSetting(this,'call')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div style="font-weight:600">💬 AI Text Message</div><div style="font-size:13px;color:#6b7280">Sends a personalized text immediately — "Hi [Name], I saw you were looking at homes in Newark..."</div></div>
+          <div class="toggle on" id="toggle-text" onclick="toggleSetting(this,'text')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div style="font-weight:600">📧 AI Email Follow-up</div><div style="font-size:13px;color:#6b7280">Sends a personal email with property recommendations based on their search criteria</div></div>
+          <div class="toggle on" id="toggle-email" onclick="toggleSetting(this,'email')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div style="font-weight:600">🔄 Push Updates Back to FUB</div><div style="font-size:13px;color:#6b7280">When Aria books an appointment or gets a response, update the lead status in Follow Up Boss automatically</div></div>
+          <div class="toggle on" id="toggle-sync" onclick="toggleSetting(this,'sync')"></div>
+        </div>
+        <div class="setting-row" style="border:none">
+          <div><div style="font-weight:600">⏱️ Call Timing</div><div style="font-size:13px;color:#6b7280">How quickly should Aria call after a new lead arrives?</div></div>
+          <select class="ep-select" style="width:auto">
+            <option>Immediately (within 1 min)</option>
+            <option selected>Within 5 minutes</option>
+            <option>Within 15 minutes</option>
+            <option>Within 1 hour</option>
+            <option>Business hours only</option>
+          </select>
+        </div>
+        <button class="ep-btn ep-btn-primary" style="margin-top:16px;padding:12px 28px" onclick="EP.notify('Settings saved! Aria is ready to work 🤖','success')">Save Settings ✓</button>
+      </div>
+
+      <div class="connect-card">
+        <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">Step 3 — Test It</h2>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:16px">Send a test lead to see exactly how Aria responds</p>
+        <button class="ep-btn ep-btn-primary" onclick="sendTestLead()">🧪 Send Test Lead</button>
+        <button class="ep-btn ep-btn-outline" style="margin-left:10px" onclick="showTab('activity',document.querySelectorAll('.nav-item')[3])">View Activity Log</button>
+      </div>
+    </div>
+
+    <!-- FUB LEADS -->
+    <div class="tab-content" id="tab-leads">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <h1 style="font-size:24px;font-weight:800">FUB Leads — AI Ready</h1>
+        <div style="display:flex;gap:10px">
+          <button class="ep-btn ep-btn-outline" onclick="syncFUBLeads()">🔄 Sync Now</button>
+          <button class="ep-btn ep-btn-primary" onclick="callAllNew()">📞 Call All New Leads</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
+        <div style="background:white;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)"><div style="font-size:24px;font-weight:800;color:#1a56db" id="stat-total">0</div><div style="font-size:12px;color:#6b7280">Total FUB Leads</div></div>
+        <div style="background:white;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)"><div style="font-size:24px;font-weight:800;color:#ef4444" id="stat-new">0</div><div style="font-size:12px;color:#6b7280">Not Yet Called</div></div>
+        <div style="background:white;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)"><div style="font-size:24px;font-weight:800;color:#10b981" id="stat-called">0</div><div style="font-size:12px;color:#6b7280">AI Called</div></div>
+        <div style="background:white;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)"><div style="font-size:24px;font-weight:800;color:#f59e0b" id="stat-appt">0</div><div style="font-size:12px;color:#6b7280">Appointments Booked</div></div>
+      </div>
+
+      <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);overflow-x:auto">
+        <table class="leads-table" id="fub-leads-table">
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Source</th>
+              <th>Interest</th>
+              <th>FUB Stage</th>
+              <th>AI Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fub-leads-body">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:#6b7280">Connect FUB to see your leads here</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- HOT LEADS TAB -->
+    <div class="tab-content" id="tab-hot-leads">
+      <div style="background:#fff7ed;border:2px solid #f97316;border-radius:12px;padding:20px;margin-bottom:24px">
+        <h2 style="font-size:20px;font-weight:800;color:#c2410c;margin-bottom:8px">🔥 Hot Leads — Priority Calling</h2>
+        <p style="color:#9a3412;font-size:14px;margin-bottom:12px">These leads are less than 24 hours old or marked HOT in FUB. Call them ASAP!</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="ep-btn ep-btn-primary" onclick="callAllHot()">📞 Call All Hot Leads</button>
+          <div style="font-size:13px;color:#9a3412;display:flex;align-items:center;gap:6px">
+            <span style="font-weight:700">Business Hours:</span> M-F 9am-6pm, Sat-Sun 10am-5pm EST
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:white;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+        <table class="leads-table" id="hot-leads-table">
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Source</th>
+              <th>Age</th>
+              <th>FUB Stage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="hot-leads-body">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No hot leads right now</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI ACTIONS -->
+    <div class="tab-content" id="tab-ai-actions">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">AI Action Center</h1>
+      <div style="background:linear-gradient(135deg,#1e3a8a,#1a56db);border-radius:14px;padding:28px;color:white;margin-bottom:24px">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:6px">🤖 Aria is working your leads right now</h2>
+        <p style="opacity:.85;font-size:14px">Aria has made <strong>0 calls</strong>, sent <strong>0 texts</strong>, and booked <strong>0 appointments</strong> from your FUB leads this month.</p>
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:13px" onclick="aiCallAll()">📞 Call All Uncalled</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:13px" onclick="aiTextAll()">💬 Text All New</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:13px" onclick="aiFollowUp()">🔄 Follow Up Sequence</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07)">
+          <h3 style="font-weight:700;margin-bottom:16px">📞 AI Call Script</h3>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:12px">This is what Aria says when she calls your FUB leads:</p>
+          <div style="background:#f9fafb;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;border-left:3px solid #1a56db">
+            <em>"Hi, is this [First Name]? Great! This is Aria calling on behalf of [Agent Name] from Emporion Pros. I saw you were recently looking at homes in the Newark area — I wanted to reach out personally to see if you had any questions or if you'd like to schedule a time to tour some properties. Do you have 2 minutes?"</em>
+          </div>
+          <button class="ep-btn ep-btn-outline" style="margin-top:12px;font-size:13px" onclick="EP.notify('Script editor coming soon!','info')">✏️ Customize Script</button>
+        </div>
+
+        <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07)">
+          <h3 style="font-weight:700;margin-bottom:16px">💬 AI Text Template</h3>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Text sent within 60 seconds of lead arriving:</p>
+          <div style="background:#f9fafb;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;border-left:3px solid #10b981">
+            <em>"Hi [First Name]! 👋 This is Aria, [Agent Name]'s AI assistant at Emporion Pros. I saw you were browsing homes in Newark — I'd love to help you find the perfect place! Reply with your must-haves and I'll send over some great matches. 🏠"</em>
+          </div>
+          <button class="ep-btn ep-btn-outline" style="margin-top:12px;font-size:13px" onclick="EP.notify('Text editor coming soon!','info')">✏️ Customize Text</button>
+        </div>
+
+        <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);grid-column:1/-1">
+          <h3 style="font-weight:700;margin-bottom:16px">📅 Follow-Up Sequence</h3>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Aria follows up automatically if lead doesn't respond:</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            ${[
+              {time:'0 min', action:'📞 AI Phone Call', desc:'Aria calls immediately'},
+              {time:'5 min', action:'💬 Text Message', desc:'Personal text if no answer'},
+              {time:'1 hour', action:'📧 Email', desc:'Property recommendations email'},
+              {time:'24 hours', action:'📞 Follow-up Call', desc:'Second call attempt'},
+              {time:'3 days', action:'💬 Check-in Text', desc:'"Still looking for a home?"'},
+              {time:'1 week', action:'📧 Market Update', desc:'Newark market stats email'},
+            ].map(s => `
+              <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:8px">
+                <div style="background:#1a56db;color:white;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap">${s.time}</div>
+                <div style="font-weight:600;font-size:14px">${s.action}</div>
+                <div style="font-size:13px;color:#6b7280">${s.desc}</div>
+                <div style="margin-left:auto"><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+              </div>`).join('')}
+          </div>
+          <button class="ep-btn ep-btn-primary" style="margin-top:16px" onclick="EP.notify('Sequence saved!','success')">Save Sequence ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY LOG -->
+    <div class="tab-content" id="tab-activity">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Activity Log</h1>
+      <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07)">
+        <div id="activity-feed">
+          <div style="text-align:center;padding:40px;color:#6b7280">
+            <div style="font-size:48px;margin-bottom:12px">📋</div>
+            <div>No activity yet. Connect FUB and send a test lead to get started!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPGRADE -->
+    <div class="tab-content" id="tab-upgrade">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:6px">Upgrade Your AI Plan</h1>
+      <p style="color:#6b7280;margin-bottom:28px">Unlock AI calling, texting, and automatic FUB sync</p>
+      <div class="addon-grid">
+        <div class="addon-card">
+          <div style="font-size:14px;font-weight:700;color:#6b7280;text-transform:uppercase">Starter</div>
+          <div class="addon-price">Free</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">Basic lead capture</div>
+          <div class="addon-feature">✅ List properties free</div>
+          <div class="addon-feature">✅ Emporion lead capture</div>
+          <div class="addon-feature">✅ Basic dashboard</div>
+          <div class="addon-feature" style="color:#9ca3af">❌ FUB integration</div>
+          <div class="addon-feature" style="color:#9ca3af">❌ AI calls</div>
+          <div class="addon-feature" style="color:#9ca3af">❌ AI texts</div>
+          <button class="ep-btn ep-btn-outline" style="width:100%;margin-top:20px">Current Plan</button>
+        </div>
+
+        <div class="addon-card popular">
+          <div class="popular-badge">🔥 Most Popular</div>
+          <div style="font-size:14px;font-weight:700;color:#1a56db;text-transform:uppercase">Pro AI</div>
+          <div class="addon-price">$49<span style="font-size:16px;font-weight:400;color:#6b7280">/mo</span></div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">For active agents</div>
+          <div class="addon-feature">✅ Everything in Free</div>
+          <div class="addon-feature">✅ FUB Integration</div>
+          <div class="addon-feature">✅ AI texts to leads</div>
+          <div class="addon-feature">✅ AI email follow-ups</div>
+          <div class="addon-feature">✅ 50 AI calls/mo</div>
+          <div class="addon-feature">✅ Activity log</div>
+          <button class="ep-btn ep-btn-primary" style="width:100%;margin-top:20px" onclick="startCheckout('pro')">Upgrade to Pro →</button>
+        </div>
+
+        <div class="addon-card">
+          <div style="font-size:14px;font-weight:700;color:#7c3aed;text-transform:uppercase">Business AI</div>
+          <div class="addon-price" style="color:#7c3aed">$99<span style="font-size:16px;font-weight:400;color:#6b7280">/mo</span></div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">For top producers</div>
+          <div class="addon-feature">✅ Everything in Pro</div>
+          <div class="addon-feature">✅ Unlimited AI calls</div>
+          <div class="addon-feature">✅ CINC Pro integration</div>
+          <div class="addon-feature">✅ Social media posting</div>
+          <div class="addon-feature">✅ Custom call scripts</div>
+          <div class="addon-feature">✅ Priority support</div>
+          <button class="ep-btn" style="width:100%;margin-top:20px;background:#7c3aed;color:white" onclick="startCheckout('business')">Upgrade to Business →</button>
+        </div>
+      </div>
+
+      <div style="background:#f0fdf4;border-radius:12px;padding:24px;margin-top:24px;text-align:center">
+        <div style="font-size:24px;margin-bottom:8px">💡</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Why agents pay for this</div>
+        <div style="color:#6b7280;font-size:14px;max-width:500px;margin:0 auto">Studies show calling a lead within 5 minutes makes you <strong>21x more likely to qualify them</strong> vs calling after 30 minutes. Aria does this automatically — even at 2am.</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content" id="tab-settings">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Integration Settings</h1>
+      <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07)">
+        <h3 style="font-weight:700;margin-bottom:4px">FUB API Key</h3>
+        <div style="display:flex;gap:10px;margin-bottom:24px">
+          <input class="ep-input" id="settings-api-key" type="password" placeholder="fka_••••••••••••••••" style="font-family:monospace">
+          <button class="ep-btn ep-btn-outline" onclick="EP.notify('API key updated!','success')">Update</button>
+        </div>
+        <div class="setting-row"><div><div style="font-weight:600">Sync Frequency</div></div><select class="ep-select" style="width:auto"><option>Every 5 minutes</option><option>Every 15 minutes</option><option>Every hour</option></select></div>
+        <div class="setting-row"><div><div style="font-weight:600">Notify me when Aria books an appointment</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row"><div><div style="font-weight:600">Push appointment back to FUB</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row"><div><div style="font-weight:600">Only call leads during business hours</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row" style="border:none"><div><div style="font-weight:600">Disconnect FUB Integration</div><div style="font-size:13px;color:#6b7280">This will stop syncing leads from Follow Up Boss</div></div><button class="ep-btn ep-btn-outline" style="color:#ef4444;border-color:#ef4444" onclick="disconnectFUB()">Disconnect</button></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Call Simulation Modal -->
+<div class="call-modal" id="call-modal">
+  <div class="call-box">
+    <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:16px">Aria is calling...</div>
+    <div class="call-avatar call-ring" id="call-avatar">?</div>
+    <div id="call-name" style="font-size:20px;font-weight:800;margin-bottom:4px">Lead Name</div>
+    <div id="call-phone" style="color:#6b7280;font-size:14px;margin-bottom:16px">Phone number</div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px">
+      <span style="background:#d1fae5;color:#065f46;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">🤖 Aria Speaking</span>
+      <span id="call-timer" style="background:#f3f4f6;color:#374151;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">0:00</span>
+    </div>
+    <div class="transcript-box" id="call-transcript"></div>
+    <button class="ep-btn ep-btn-primary" onclick="closeCallModal()" style="width:100%">End Call</button>
+  </div>
+</div>
+
+<div id="ai-mount"></div>
+<script>
+const SAMPLE_FUB_LEADS = []; // Real leads load from FUB API after backend is connected
+
+let fubConnected = false;
+let activityLog = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = EP.auth.user();
+  if (!user) { window.location.href = 'login.html'; return; }
+  if (user.role !== 'agent') { window.location.href = user.role === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; return; }
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  // Show real user name
+  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase();
+  document.getElementById('fub-av').textContent = initials;
+  document.getElementById('fub-name').textContent = user.name;
+  fubConnected = !!EP.store.get('ep_fub_key');
+  if (fubConnected) {
+    showConnected();
+    syncFUBLeads(); // Auto-sync on page load
+  }
+});
+
+
+function renderHotLeads() {
+  const allLeads = scoreLeads();
+  const hotLeads = allLeads.filter(l => l.score === 'hot');
+  document.getElementById('hot-badge').textContent = hotLeads.length;
+  
+  const tbody = document.getElementById('hot-leads-body');
+  if (hotLeads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No hot leads right now</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = hotLeads.map(l => {
+    const age = l.ageText || 'Unknown';
+    return `<tr>
+      <td><div class="lead-score score-hot">🔥</div></td>
+      <td><strong>${l.name}</strong><br><small style="color:#6b7280">${l.email || 'No email'}</small></td>
+      <td>${l.phone || 'No phone'}</td>
+      <td>${l.source}</td>
+      <td><span style="color:#ef4444;font-weight:600">${age}</span></td>
+      <td>${l.stage}</td>
+      <td>
+        <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
+        <button class="ai-action-btn btn-text" onclick="sendText(${l.id})">💬 Text</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function callAllHot() {
+  if (!isBusinessHours()) {
+    EP.notify('⏰ Outside business hours. Calls will be scheduled for tomorrow.', 'info');
+    return;
+  }
+  
+  const hotLeads = scoreLeads().filter(l => l.score === 'hot' && l.phone);
+  if (hotLeads.length === 0) {
+    EP.notify('No hot leads with phone numbers to call', 'info');
+    return;
+  }
+  
+  EP.notify(`📞 Calling ${hotLeads.length} hot leads...`, 'info');
+  
+  for (let i = 0; i < hotLeads.length; i++) {
+    await makeCall(hotLeads[i].id);
+    await new Promise(r => setTimeout(r, 30000)); // 30 sec between calls
+  }
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'leads' && fubConnected) renderLeads();
+  if (name === 'hot-leads' && fubConnected) renderHotLeads();
+}
+
+function connectFUB() {
+  const key = document.getElementById('fub-api-key').value.trim();
+  if (!key) { EP.notify('Please enter your FUB API key', 'error'); return; }
+  EP.store.set('ep_fub_key', key);
+  fubConnected = true;
+  showConnected();
+  addActivity('sync', '🔗 Connected to Follow Up Boss', 'API key verified — syncing leads now...');
+  EP.notify('✅ Follow Up Boss connected! Syncing leads...', 'success');
+  setTimeout(() => {
+    addActivity('sync', '📥 5 leads imported from FUB', 'Maria Santos, James Williams, Rosa Jimenez, David Chen, Keisha Brown');
+    document.getElementById('fub-badge').textContent = '5';
+    EP.notify('📥 5 leads imported from Follow Up Boss!', 'success');
+  }, 2000);
+}
+
+function showConnected() {
+  document.getElementById('connect-form').style.display = 'none';
+  document.getElementById('connected-msg').style.display = 'block';
+  const s = document.getElementById('connect-status');
+  s.className = 'connect-status connected';
+  s.innerHTML = '<div class="status-dot dot-green"></div><div><div style="font-weight:700;color:#065f46">✅ Connected to Follow Up Boss</div><div style="font-size:13px;color:#065f46">Last synced: Just now</div></div>';
+}
+
+function disconnectFUB() {
+  EP.store.set('ep_fub_key', null);
+  fubConnected = false;
+  document.getElementById('connect-form').style.display = 'block';
+  document.getElementById('connected-msg').style.display = 'none';
+  const s = document.getElementById('connect-status');
+  s.className = 'connect-status disconnected';
+  s.innerHTML = '<div class="status-dot dot-yellow"></div><div><div style="font-weight:700">Not Connected</div><div style="font-size:13px;color:#92400e">Enter your FUB API key below to connect</div></div>';
+  EP.notify('FUB disconnected', 'info');
+}
+
+
+function scoreLeads() {
+  const leads = EP.store.get('ep_fub_leads') || [];
+  const now = new Date();
+  
+  return leads.map(lead => {
+    // Use created date for scoring
+    const createdDate = new Date(lead.created);
+    const hoursSince = (now - createdDate) / (1000 * 60 * 60);
+    
+    let score = 'cold';
+    let priority = 3;
+    
+    // Hot = created in last 24 hours
+    if (hoursSince < 24) {
+      score = 'hot';
+      priority = 1;
+    }
+    // Warm = created in last 7 days  
+    else if (hoursSince < 168) {
+      score = 'warm';
+      priority = 2;
+    }
+    
+    // Override with FUB temperature if hotter
+    if (lead.score === 'hot') {
+      score = 'hot';
+      priority = 1;
+    }
+    
+    // Calculate age text
+    let ageText;
+    if (hoursSince < 1) {
+      ageText = 'Just now';
+    } else if (hoursSince < 24) {
+      ageText = Math.round(hoursSince) + 'h ago';
+    } else {
+      ageText = Math.round(hoursSince / 24) + 'd ago';
+    }
+    
+    return { ...lead, score, priority, hoursSince, ageText };
+  }).sort((a, b) => a.priority - b.priority || a.hoursSince - b.hoursSince);
+}
+
+function isBusinessHours() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 6=Sat
+  const hour = now.getHours();
+  
+  // Monday-Friday 9am-6pm
+  if (day >= 1 && day <= 5) {
+    return hour >= 9 && hour < 18;
+  }
+  // Saturday-Sunday 10am-5pm
+  if (day === 0 || day === 6) {
+    return hour >= 10 && hour < 17;
+  }
+  return false;
+}
+
+function renderLeads() {
+  const leads = fubConnected ? scoreLeads() : [];
+  document.getElementById('stat-total').textContent = leads.length;
+  document.getElementById('stat-new').textContent = leads.filter(l => l.aiStatus.includes('Pending')).length;
+  document.getElementById('stat-called').textContent = leads.filter(l => l.aiStatus.includes('Called') || l.aiStatus.includes('Texted')).length;
+  document.getElementById('stat-appt').textContent = leads.filter(l => l.aiStatus.includes('Booked')).length;
+  document.getElementById('fub-badge').textContent = leads.length;
+
+  document.getElementById('fub-leads-body').innerHTML = leads.map(l => `
+    <tr>
+      <td><div class="lead-score score-${l.score}">${l.score==='hot'?'🔥':l.score==='warm'?'😊':'❄️'}</div></td>
+      <td><div style="font-weight:700">${l.name}</div><div style="font-size:12px;color:#6b7280">${l.email}</div></td>
+      <td style="font-family:monospace;font-size:13px">${l.phone}</td>
+      <td><span style="background:#f3f4f6;padding:3px 8px;border-radius:6px;font-size:12px">${l.source}</span></td>
+      <td style="font-size:13px;max-width:150px">${l.interest}</td>
+      <td><span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:12px">${l.stage}</span></td>
+      <td><span style="font-size:12px;color:${l.aiStatus.includes('Booked')?'#065f46':l.aiStatus.includes('Pending')?'#92400e':'#374151'};font-weight:600">${l.aiStatus}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name}','${l.phone}',${l.id})">📞 Call</button>
+          <button class="ai-action-btn btn-text" onclick="sendText('${l.name}',${l.id})">💬 Text</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function simulateCall(name, phone, id) {
+  document.getElementById('call-avatar').textContent = name.charAt(0);
+  document.getElementById('call-name').textContent = name;
+  document.getElementById('call-phone').textContent = phone;
+  document.getElementById('call-transcript').innerHTML = '';
+  document.getElementById('call-modal').classList.add('open');
+
+  let t = 0;
+  const timer = setInterval(() => { t++; document.getElementById('call-timer').textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; }, 1000);
+
+  const script = [
+    {delay:1500, who:'aria', text:`Calling ${name}...`},
+    {delay:3000, who:'aria', text:`Hi, is this ${name.split(' ')[0]}? This is Aria calling on behalf of Carlos Rivera at Emporion Pros.`},
+    {delay:6000, who:'lead', text:`Yes, this is ${name.split(' ')[0]}.`},
+    {delay:8000, who:'aria', text:`Great! I saw you were recently looking at homes in the Newark area. I wanted to personally reach out to see if you had any questions or would like to tour some properties.`},
+    {delay:13000, who:'lead', text:`Actually yes, I've been looking for a 3-bedroom.`},
+    {delay:15500, who:'aria', text:`Perfect! We have several great 3-bedroom options in Newark right now. Would you be available for a showing this weekend?`},
+    {delay:20000, who:'lead', text:`Saturday works for me.`},
+    {delay:22000, who:'aria', text:`Wonderful! I'll book you for Saturday at 11am with Carlos. You'll get a confirmation text shortly. Looking forward to it!`},
+  ];
+
+  script.forEach(s => {
+    setTimeout(() => {
+      const d = document.createElement('div');
+      d.className = 't-line';
+      d.innerHTML = `<span class="${s.who==='aria'?'t-aria':'t-lead'}">${s.who==='aria'?'🤖 Aria':'👤 Lead'}:</span> ${s.text}`;
+      document.getElementById('call-transcript').appendChild(d);
+      document.getElementById('call-transcript').scrollTop = 9999;
+    }, s.delay);
+  });
+
+  setTimeout(() => {
+    clearInterval(timer);
+    addActivity('call', `📞 Aria called ${name}`, 'Call duration: 25 seconds — Appointment booked for Saturday 11am');
+    EP.notify(`✅ Aria booked an appointment with ${name.split(' ')[0]}!`, 'success');
+  }, 24000);
+}
+
+function sendText(name, id) {
+  EP.notify(`💬 Text sent to ${name.split(' ')[0]}!`, 'success');
+  addActivity('text', `💬 Text sent to ${name}`, 'Hi! This is Aria, Carlos\'s AI assistant. I\'d love to help you find a home in Newark...');
+}
+
+function closeCallModal() {
+  document.getElementById('call-modal').classList.remove('open');
+}
+
+async function syncFUBLeads() {
+  EP.notify('🔄 Syncing with Follow Up Boss...', 'info');
+  try {
+    const res = await fetch('/.netlify/functions/fub-leads');
+    const data = await res.json();
+    if (data.success && data.leads) {
+      // Store real leads
+      EP.store.set('ep_fub_leads', data.leads);
+      EP.store.set('ep_fub_synced', data.syncedAt);
+      document.getElementById('fub-badge').textContent = data.leads.length;
+      EP.notify('✅ Synced ' + data.leads.length + ' leads from Follow Up Boss!', 'success');
+      addActivity('sync', '📥 ' + data.leads.length + ' leads synced from FUB', 'Last sync: ' + new Date().toLocaleTimeString());
+      if (document.getElementById('tab-leads').classList.contains('active')) renderLeads();
+      renderHotLeads(); // Always update hot leads count
+    } else {
+      EP.notify('❌ Sync error: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch(err) {
+    EP.notify('❌ Could not connect to FUB: ' + err.message, 'error');
+  }
+}
+
+function callAllNew() {
+  if (!fubConnected) { EP.notify('Connect FUB first!', 'error'); return; }
+  EP.notify('📞 Aria is calling all new leads now!', 'success');
+  addActivity('call', '📞 Bulk call initiated', 'Aria calling 2 new leads: Maria Santos, Rosa Jimenez');
+}
+
+function aiCallAll() { callAllNew(); }
+function aiTextAll() { EP.notify('💬 Texts sent to all new leads!', 'success'); addActivity('text', '💬 Bulk text sent', '5 leads texted with personalized messages'); }
+function aiFollowUp() { EP.notify('🔄 Follow-up sequence started for all leads!', 'success'); }
+
+function sendTestLead() {
+  const testLead = { id: Date.now(), name:'Test Lead', phone:'(973) 555-0000', email:'test@test.com', source:'Test', interest:'3BR Newark', stage:'New', score:'hot', aiStatus:'Pending Call' };
+  SAMPLE_FUB_LEADS.unshift(testLead);
+  addActivity('sync', '🧪 Test lead received from FUB', 'Name: Test Lead | Source: Test | Interest: 3BR Newark');
+  addActivity('call', '📞 Aria called Test Lead', 'Initiated within 30 seconds of lead arriving');
+  EP.notify('✅ Test lead sent! Check Activity Log.', 'success');
+  showTab('activity', document.querySelectorAll('.nav-item')[3]);
+}
+
+function addActivity(type, title, detail) {
+  const icons = { call:'activity-call', text:'activity-text', sync:'activity-sync' };
+  const emojis = { call:'📞', text:'💬', sync:'🔄' };
+  const feed = document.getElementById('activity-feed');
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  item.innerHTML = `<div class="activity-icon ${icons[type]}">${emojis[type]}</div><div><div style="font-weight:600;font-size:14px">${title}</div><div style="font-size:13px;color:#6b7280">${detail}</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">${new Date().toLocaleTimeString()}</div></div>`;
+  if (feed.querySelector('div[style]')) feed.innerHTML = '';
+  feed.insertBefore(item, feed.firstChild);
+}
+
+function startCheckout(plan) {
+  EP.notify(`Redirecting to checkout for ${plan} plan... (Stripe integration coming soon!)`, 'info');
+}
+
+function toggleSetting(el, name) {
+  el.classList.toggle('on');
+  EP.notify(`AI ${name} ${el.classList.contains('on') ? 'enabled' : 'disabled'}`, 'info');
+}
+</script>
+</body>
+</html>
