@@ -24,7 +24,6 @@ exports.handler = async function(event, context) {
     const body = JSON.parse(event.body || '{}');
     const { leadName, leadPhone, leadEmail, leadSource, leadId } = body;
 
-    // Format phone number
     let formattedPhone = leadPhone;
     if (leadPhone) {
       const cleaned = leadPhone.replace(/\D/g, '');
@@ -35,112 +34,56 @@ exports.handler = async function(event, context) {
       }
     }
 
-    // Create Vapi assistant with Iron 65 knowledge
-    const vapiAssistant = {
-      name: "Aria - Iron 65 Leasing Agent",
-      voice: {
-        provider: "11labs",
-        voiceId: "rachel", // Natural, professional female voice
-        stability: 0.5,
-        similarityBoost: 0.75,
-        speed: 1.0
+    // Simplified Vapi call with default voice
+    const callPayload = {
+      phoneNumberId: VAPI_PHONE_NUMBER,
+      customer: {
+        number: formattedPhone
       },
-      model: {
-        provider: "anthropic",
-        model: "claude-sonnet-4-20250514",
-        temperature: 0.7,
-        systemPrompt: `You are Aria, a professional leasing agent for Iron 65 luxury apartments in Newark, NJ.
+      assistantId: null,
+      assistant: {
+        name: "Aria",
+        model: {
+          provider: "anthropic",
+          model: "claude-sonnet-4-20250514",
+          messages: [
+            {
+              role: "system",
+              content: `You are Aria, a leasing agent for Iron 65 luxury apartments in Newark, NJ.
 
-PERSONALITY:
-- Warm, professional, conversational
-- Listen actively, don't interrupt
-- Speak naturally like a real person
-- Use contractions (I'm, you're, we've)
-- Keep responses under 30 words unless answering detailed questions
+GOAL: Qualify the lead and book a tour.
 
-YOUR GOAL:
-Qualify the lead and book a tour by collecting:
+COLLECT:
 1. Monthly budget
 2. Move-in date
-3. Annual household income
-4. Credit score (Excellent/Good/Fair/Building)
+3. Annual income
+4. Credit score
 
-IRON 65 PROPERTY INFO:
+PROPERTY INFO:
+- Studio: $2,388/mo
+- 1BR: $2,700/mo
+- 1BR Flex: $3,200/mo
 
-UNITS & PRICING:
-- Studio: Starting at $2,388/month
-- 1 Bedroom: Starting at $2,700/month
-- 1 Bed Flex (convertible to 2BR): Starting at $3,200/month
+FEES: $50 app fee, $1k-1.5mo deposit, $75/mo pet fee
 
-FEES:
-- Application: $50
-- Security deposit: $1,000 to 1.5 months rent
-- Pet fee: $75/month + $500 deposit
-- Bike storage: $25/month
-- Trash: $10/month
-- Water/sewer: Billed via RUBS
-- Internet: $69.99/month (optional)
-- Storage units: $75/month (optional)
+AMENITIES: Gym, sauna, rooftop, concierge, in-unit W/D
 
-AMENITIES:
-- Fitness gym & sauna
-- Rooftop terrace
-- 24/7 concierge
-- In-unit washer/dryer
+SPECIALS:
+12mo: 1 free month
+18mo: $4k credit
+24mo: 2 free months
+Sign in 24hrs = free WiFi 1yr
 
-LEASE SPECIALS:
-12-month: 1 free month + 1 year free amenities ($1,200 value)
-18-month: Up to $4,000 credit + 1 year free amenities
-24-month: 2 free months + 1 year free amenities
+TOUR: https://calendly.com/ana-rosaliagroup/65-iron-tour
 
-URGENCY BONUS: Sign within 24 hours of touring = 12 months free WiFi
-
-TOUR BOOKING: https://calendly.com/ana-rosaliagroup/65-iron-tour
-
-CONVERSATION FLOW:
-1. Greet naturally: "Hi ${leadName}, this is Aria from Iron 65. You reached out about our apartments - do you have 2 minutes to chat?"
-2. If YES: Ask about their budget first
-3. Then ask move-in timeline
-4. Then income (frame it: "To make sure you qualify, what's your approximate annual household income?")
-5. Then credit ("How's your credit? Excellent, good, fair, or building?")
-6. Recommend unit based on budget
-7. Offer to book tour, mention urgency bonus
-8. Get confirmation
-
-HANDLING OBJECTIONS:
-- Too expensive: Mention lease specials and amenities value
-- Not sure timing: Offer tour anyway to see what's available
-- Credit concerns: "We work with various credit situations"
-- Comparing properties: Highlight Iron 65 unique features
-
-Be natural. Don't sound scripted. Listen well. Book that tour!`
-      },
-      firstMessage: `Hi ${leadName}, this is Aria from Iron 65 in Newark. You recently inquired about our luxury apartments. Do you have 2 minutes to chat about what you're looking for?`,
-      endCallMessage: "Perfect! You'll get a confirmation text shortly. Looking forward to showing you around Iron 65!",
-      recordingEnabled: true,
-      endCallFunctionEnabled: true,
-      analysisPlan: {
-        summaryPrompt: "Summarize: budget, move date, income, credit, tour booked?",
-        structuredDataPrompt: `Extract as JSON:
-{
-  "budget": "monthly budget",
-  "moveDate": "when moving",
-  "income": "annual income",
-  "credit": "credit score range",
-  "tourBooked": true/false,
-  "concerns": "any objections or questions"
-}`
-      }
-    };
-
-    // Make call via Vapi
-    const callPayload = {
-      assistant: vapiAssistant,
-      phoneNumberId: VAPI_PHONE_NUMBER || null,
-      customer: {
-        number: formattedPhone,
-        name: leadName,
-        email: leadEmail
+Keep responses under 30 words. Be natural and conversational.`
+            }
+          ]
+        },
+        voice: "jennifer-playht",
+        firstMessage: `Hi ${leadName}, this is Aria from Iron 65 in Newark. You reached out about our luxury apartments - do you have 2 minutes to chat?`,
+        endCallMessage: "Perfect! You'll get a confirmation text. Looking forward to showing you Iron 65!",
+        serverUrl: "https://startling-beijinho-6bd2e5.netlify.app/.netlify/functions/vapi-webhook"
       }
     };
 
@@ -171,8 +114,7 @@ Be natural. Don't sound scripted. Listen well. Book that tour!`
         success: true,
         callId: vapiData.id,
         status: vapiData.status,
-        message: `Aria is calling ${leadName} via Vapi...`,
-        vapiCallId: vapiData.id
+        message: `Aria is calling ${leadName}...`
       })
     };
 
