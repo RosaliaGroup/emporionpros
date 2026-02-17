@@ -4,14 +4,14 @@ exports.handler = async function(event, context) {
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   };
-
+  
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
-
+  
   const VAPI_API_KEY = process.env.VAPI_API_KEY;
   const VAPI_PHONE_NUMBER = process.env.VAPI_PHONE_NUMBER;
-
+  
   if (!VAPI_API_KEY) {
     return {
       statusCode: 500,
@@ -19,11 +19,11 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({ error: 'Vapi API key not configured' })
     };
   }
-
+  
   try {
     const body = JSON.parse(event.body || '{}');
     const { leadName, leadPhone, leadEmail, leadSource, leadId } = body;
-
+    
     let formattedPhone = leadPhone;
     if (leadPhone) {
       const cleaned = leadPhone.replace(/\D/g, '');
@@ -33,8 +33,7 @@ exports.handler = async function(event, context) {
         formattedPhone = '+' + cleaned;
       }
     }
-
-    // Simplified Vapi call with default voice
+    
     const callPayload = {
       phoneNumberId: VAPI_PHONE_NUMBER,
       customer: {
@@ -80,13 +79,13 @@ Keep responses under 30 words. Be natural and conversational.`
             }
           ]
         },
-        voice: "jennifer-playht",
+        voice: "jennifer-azure",  // CHANGED FROM playht to azure
         firstMessage: `Hi ${leadName}, this is Aria from Iron 65 in Newark. You reached out about our luxury apartments - do you have 2 minutes to chat?`,
         endCallMessage: "Perfect! You'll get a confirmation text. Looking forward to showing you Iron 65!",
         serverUrl: "https://startling-beijinho-6bd2e5.netlify.app/.netlify/functions/vapi-webhook"
       }
     };
-
+    
     const vapiResponse = await fetch('https://api.vapi.ai/call/phone', {
       method: 'POST',
       headers: {
@@ -95,7 +94,7 @@ Keep responses under 30 words. Be natural and conversational.`
       },
       body: JSON.stringify(callPayload)
     });
-
+    
     if (!vapiResponse.ok) {
       const errText = await vapiResponse.text();
       return {
@@ -104,9 +103,9 @@ Keep responses under 30 words. Be natural and conversational.`
         body: JSON.stringify({ error: 'Vapi error: ' + errText })
       };
     }
-
+    
     const vapiData = await vapiResponse.json();
-
+    
     return {
       statusCode: 200,
       headers,
@@ -117,7 +116,7 @@ Keep responses under 30 words. Be natural and conversational.`
         message: `Aria is calling ${leadName}...`
       })
     };
-
+    
   } catch (err) {
     return {
       statusCode: 500,
