@@ -1,34 +1,4 @@
-
-async function makeCall(leadId) {
-  const lead = scoreLeads().find(l => l.id === leadId);
-  if (!lead) return;
-  
-  EP.notify('📞 Initiating call to ' + lead.name + '...', 'info');
-  
-  try {
-    const user = EP.auth.user();
-    const res = await fetch('/.netlify/functions/make-call', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        leadName: lead.name,
-        leadPhone: lead.phone,
-        agentName: user.name
-      })
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      EP.notify('✅ ' + data.message, 'success');
-      addActivity('call', '📞 AI call initiated to ' + lead.name, 'Status: ' + data.status);
-    } else {
-      EP.notify('❌ Call failed: ' + (data.error || 'Unknown error'), 'error');
-    }
-  } catch (err) {
-    EP.notify('❌ Could not initiate call: ' + err.message, 'error');
-  }
-}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FUB Integration — Emporion Pros</title>
@@ -477,6 +447,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+async function makeCall(leadId) {
+  const lead = scoreLeads().find(l => l.id === leadId);
+  if (!lead) return;
+  
+  EP.notify('📞 Initiating call to ' + lead.name + '...', 'info');
+  
+  try {
+    const user = EP.auth.user();
+    const res = await fetch('/.netlify/functions/make-call', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        leadName: lead.name,
+        leadPhone: lead.phone,
+        agentName: user.name
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      EP.notify('✅ ' + data.message, 'success');
+      addActivity('call', '📞 AI call initiated to ' + lead.name, 'Status: ' + data.status);
+    } else {
+      EP.notify('❌ Call failed: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    EP.notify('❌ Could not initiate call: ' + err.message, 'error');
+  }
+}
 
 function renderHotLeads() {
   const allLeads = scoreLeads();
