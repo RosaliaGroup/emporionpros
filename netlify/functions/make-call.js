@@ -25,24 +25,32 @@ exports.handler = async function(event, context) {
     const body = JSON.parse(event.body || '{}');
     const { leadName, leadPhone, agentName } = body;
 
-    // TEST MODE - Call Ana instead of the lead
-    const testPhone = '+18624239396';
-    const actualPhone = testPhone; // Use Ana's number for testing
+    // Format phone number properly for Twilio - must be E.164 format
+    let formattedPhone = '+18624239396'; // Ana's test number
+    
+    // Clean and format the phone if provided
+    if (leadPhone) {
+      const cleaned = leadPhone.replace(/\D/g, ''); // Remove all non-digits
+      // If 10 digits, assume US and add +1
+      if (cleaned.length === 10) {
+        formattedPhone = '+1' + cleaned;
+      } else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+        formattedPhone = '+' + cleaned;
+      }
+    }
 
-    // Initiate call via Twilio
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls.json`;
     const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
 
-    // TwiML for AI-powered call
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="Polly.Joanna">
-    Hi Ana, this is Aria, your AI assistant from Emporion Pros. This is a test call to demonstrate the AI calling feature. I would normally be calling ${leadName} right now to follow up on their property inquiry. The system is working perfectly! You can now call real leads by clicking the call button on any lead in your Follow Up Boss dashboard. Have a great day!
+    Hi Ana, this is Aria, your AI assistant from Emporion Pros. This is a test call to demonstrate the AI calling feature. I would normally be calling ${leadName} right now to follow up on their property inquiry. The system is working perfectly! You can now call real leads by clicking the call button. Have a great day!
   </Say>
 </Response>`;
 
     const callParams = new URLSearchParams({
-      To: actualPhone,
+      To: formattedPhone,
       From: TWILIO_PHONE,
       Twiml: twiml,
       Record: 'true',
@@ -76,7 +84,7 @@ exports.handler = async function(event, context) {
         success: true,
         callSid: callData.sid,
         status: callData.status,
-        message: `TEST CALL: Calling Ana at ${actualPhone} to demonstrate the system...`
+        message: `TEST CALL: Calling ${formattedPhone}...`
       })
     };
 
