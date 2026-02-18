@@ -57,9 +57,9 @@ exports.handler = async function(event, context) {
 
 Be conversational and natural. Speak smoothly like a real person - no robotic pauses or choppy delivery.
 
-Your goal: Schedule a tour and collect contact info.
+Your goal: Schedule a tour and collect info.
 
-Collect information in THIS order:
+IMPORTANT - Ask questions in EXACTLY this order:
 1. When they're looking to move in
 2. Monthly budget
 3. How many bedrooms they need
@@ -67,42 +67,34 @@ Collect information in THIS order:
 5. Tour date and time that works for them
 6. Email address for confirmation
 
-Property details:
-- Studio: $2,388/month
-- 1BR: $2,700/month
-- 1BR Flex: $3,200/month
-- Loft: Available (price varies)
-- 2BR/2BA Duplex: ~$3,600/month
-- 3BR/2BA Duplex: ~$4,700/month
+Property info:
+- Studio: $2,388
+- 1BR: $2,700
+- 1BR Flex: $3,200
+- Loft: varies
+- 2BR/2BA Duplex: ~$3,600
+- 3BR/2BA Duplex: ~$4,700
 
-Amenities: 24hr gym, sauna, rooftop lounge, concierge, in-unit washer/dryer
-Parking: Street parking available (no on-site)
+Amenities: Gym, sauna, rooftop, concierge, in-unit washer/dryer
+Parking: Street only
+Specials: 12mo=1mo free, 18mo=$4k credit, 24mo=2mo free
 
-Current specials:
-- 12-month lease: 1 month free
-- 18-month lease: $4,000 credit
-- 24-month lease: 2 months free
-- Sign within 24 hours: Free WiFi for 1 year
-
-If budget or income doesn't qualify:
-Mention TheGuarantors.com - they act as a cosigner with free pre-approval at no cost. You'll text them the link.
+If budget/income doesn't work: Mention TheGuarantors.com - free cosigner approval.
 
 Speaking style:
-- Keep each response under 12 words
-- Sound warm and human, not robotic
-- No awkward pauses between words
+- Keep responses under 12 words
+- Sound like a real human - warm and friendly
+- No awkward pauses
 - Speak at normal conversation speed
-- Ask ONE question at a time
-- Wait for their answer before moving on
+- One question at a time
 - Don't repeat yourself
 
-After booking the tour:
-Say "Perfect! You'll get a text with all the details. Talk soon!" then let them say goodbye.`
+After booking: "Perfect! You'll get a text with details. Talk soon!"`
           }]
         },
         voice: {
           provider: "deepgram",
-          voiceId: "aura-asteria-en"
+          voiceId: "luna"
         },
         silenceTimeoutSeconds: 30,
         maxDurationSeconds: 600,
@@ -114,6 +106,26 @@ Say "Perfect! You'll get a text with all the details. Talk soon!" then let them 
           structuredDataSchema: {
             type: "object",
             properties: {
+              tourBooked: { 
+                type: "boolean",
+                description: "Was a tour appointment scheduled?"
+              },
+              tourDay: { 
+                type: "string",
+                description: "Day/date of scheduled tour"
+              },
+              tourTime: { 
+                type: "string",
+                description: "Time of scheduled tour"
+              },
+              email: { 
+                type: "string",
+                description: "Email address provided"
+              },
+              phoneConfirmed: { 
+                type: "string",
+                description: "Phone number confirmed"
+              },
               moveDate: { 
                 type: "string",
                 description: "When they want to move in"
@@ -124,7 +136,7 @@ Say "Perfect! You'll get a text with all the details. Talk soon!" then let them 
               },
               bedroomsNeeded: { 
                 type: "string",
-                description: "Number of bedrooms needed"
+                description: "Number of bedrooms"
               },
               income: { 
                 type: "string",
@@ -132,39 +144,19 @@ Say "Perfect! You'll get a text with all the details. Talk soon!" then let them 
               },
               credit: { 
                 type: "string",
-                description: "Credit score range"
-              },
-              tourDay: { 
-                type: "string",
-                description: "Scheduled tour day/date"
-              },
-              tourTime: { 
-                type: "string",
-                description: "Scheduled tour time"
-              },
-              email: { 
-                type: "string",
-                description: "Email address for confirmation"
-              },
-              tourBooked: { 
-                type: "boolean",
-                description: "Was a tour appointment scheduled?"
-              },
-              phoneConfirmed: { 
-                type: "string",
-                description: "Phone number confirmed"
+                description: "Credit score"
               },
               needsCosigner: { 
                 type: "boolean",
-                description: "Do they need cosigner information?"
+                description: "Do they need cosigner info?"
               },
               interested: { 
                 type: "boolean",
-                description: "Are they interested in Iron 65?"
+                description: "Are they interested?"
               },
               concerns: { 
                 type: "string",
-                description: "Any concerns or objections mentioned"
+                description: "Any concerns mentioned"
               }
             },
             required: ["tourBooked", "email", "interested"]
@@ -212,3 +204,15 @@ Say "Perfect! You'll get a text with all the details. Talk soon!" then let them 
     };
   }
 };
+```
+
+---
+
+## ✅ Updated Question Order (Lines 53-58):
+```
+1. When they're looking to move in
+2. Monthly budget
+3. How many bedrooms they need
+4. Annual income and credit score
+5. Tour date and time that works for them
+6. Email address for confirmation
