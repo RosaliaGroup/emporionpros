@@ -30,7 +30,7 @@ exports.handler = async function(event, context) {
   } catch (err) {
     console.error('Webhook error:', err);
     return {
-      statusCode: 200, // Still return 200 even on error!
+      statusCode: 200,
       headers,
       body: JSON.stringify({ received: true })
     };
@@ -62,7 +62,7 @@ async function processCallReport(webhook, FUB_API_KEY) {
           phone: customer.number,
           email: structuredData.email || customer.email || '',
           name: customer.name || 'there',
-          tourDate: structuredData.tourDate || 'your scheduled date',
+          tourDay: structuredData.tourDay || 'your scheduled date',
           tourTime: structuredData.tourTime || 'your scheduled time',
           needsCosigner: structuredData.needsCosigner || false
         })
@@ -92,8 +92,7 @@ Email: ${structuredData.email || 'Not provided'}
 Budget: ${structuredData.budget || 'Not provided'}
 Move Date: ${structuredData.moveDate || 'Not provided'}
 Bedrooms Needed: ${structuredData.bedroomsNeeded || 'Not provided'}
-Income: ${structuredData.income || 'Not provided'}
-Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDate + ' ' + structuredData.tourTime : 'No'}
+Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDay + ' ' + structuredData.tourTime : 'No'}
 Needs Cosigner: ${structuredData.needsCosigner ? 'Yes - Link sent' : 'No'}
 ${structuredData.concerns ? 'Concerns: ' + structuredData.concerns : ''}
 
