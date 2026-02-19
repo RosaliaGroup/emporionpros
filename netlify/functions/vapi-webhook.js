@@ -57,14 +57,14 @@ exports.handler = async function(event, context) {
 async function processCallReport(webhook, FUB_API_KEY) {
   console.log('=== PROCESS CALL REPORT START ===');
   
-  // The data is in webhook.call instead of webhook directly
+  // The data is in webhook.call
   const call = webhook.call || {};
   const customer = call.customer || webhook.customer || {};
   
   console.log('Customer:', customer);
   
-  // Wait a moment for Vapi to finish analysis
-  console.log('Waiting 3 seconds for Vapi analysis to complete...');
+  // Wait for Vapi analysis to complete
+  console.log('Waiting 3 seconds for Vapi analysis...');
   await new Promise(resolve => setTimeout(resolve, 3000));
   
   // Fetch the call details to get the analysis
@@ -92,7 +92,7 @@ async function processCallReport(webhook, FUB_API_KEY) {
     }
     
     const callDetails = await callDetailsResponse.json();
-    console.log('Call details fetched');
+    console.log('Call details fetched successfully');
     
     const analysis = callDetails.analysis || {};
     const structuredData = analysis.structuredData || {};
