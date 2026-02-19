@@ -98,17 +98,3 @@ See you soon! 🏢`;
     };
   }
 };
-```
-
----
-
-## 🔑 Environment Variables Needed in Netlify:
-
-Make sure these are all set in **Netlify → Site Settings → Environment Variables**:
-```
-VAPI_API_KEY=your_vapi_key
-VAPI_PHONE_NUMBER=a0ce8f55-ad4a-4a3d-a90b-c25857d03313
-TWILIO_ACCOUNT_SID=AC0d7be4edcbdc6cd8f91be8a830511753
-TWILIO_AUTH_TOKEN=cd171986fe357d9bf19a3a0755bb8efb
-TWILIO_PHONE=+18443574020
-FUB_API_KEY=your_fub_key
