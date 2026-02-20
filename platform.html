@@ -366,7 +366,7 @@ a{text-decoration:none;color:inherit}
 <section class="final-cta sec-dark" id="signup">
   <h2 class="sr">Ready to turn listings into campaigns?</h2>
   <p>Start your free 14-day trial. No credit card required. Cancel anytime.</p>
-  <form class="signup-form" style="max-width:460px;margin:0 auto" onsubmit="event.preventDefault();this.innerHTML='<div style=\'padding:16px;color:#0e9f6e;font-weight:700;font-size:18px\'>✅ You\'re in! Check your email.</div>'">
+  <form class="signup-form" style="max-width:460px;margin:0 auto" onsubmit="handleSignup(event,this,'Platform Overview','general')" >
     <input type="email" placeholder="Your email address" required>
     <button type="submit">Start Free Trial →</button>
   </form>
@@ -378,7 +378,7 @@ a{text-decoration:none;color:inherit}
   <div>
     <h4 class="sr">EmporionPros</h4>
     <p>AI-powered real estate marketing platform. Every listing is a campaign.</p>
-    <p style="margin-top:8px">📧 <a href="mailto:info@emporionpros.com">info@emporionpros.com</a></p>
+    <p style="margin-top:8px">📧 <a href="/cdn-cgi/l/email-protection#670e09010827020a1708150e0809171508144904080a"><span class="__cf_email__" data-cfemail="127b7c747d52777f627d607b7d7c62607d613c717d7f">[email&#160;protected]</span></a></p>
     <p>📞 <a href="tel:8622887972">(862) 288-7972</a></p>
   </div>
   <div>
@@ -406,10 +406,4 @@ a{text-decoration:none;color:inherit}
   </div>
 </div><div class="ft-bot">© 2026 EmporionPros / Rosalia Group · All rights reserved</div></footer>
 
-<script>
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
-});
-</script>
-</body>
-</html>
+<script data-cfasync="fals
