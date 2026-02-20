@@ -27,6 +27,9 @@
 .search-box input::placeholder{color:#94a3b8}
 .search-box button{padding:14px 24px;border:none;background:var(--accent);color:white;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
 .search-box button:hover{background:var(--accent-l)}
+.proj-cat{padding:8px 14px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,.08);color:#c4b5fd;cursor:pointer;border:1px solid rgba(255,255,255,.15);font-family:inherit;transition:.2s}
+.proj-cat:hover{background:rgba(255,255,255,.15)}
+.proj-cat.active{background:rgba(124,58,237,.3);color:white;border-color:rgba(124,58,237,.5)}
 .search-tags{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .search-tag{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,.08);color:#c4b5fd;cursor:pointer;border:1px solid rgba(255,255,255,.1)}
 .search-tag:hover{background:rgba(255,255,255,.15)}
@@ -120,16 +123,17 @@
   <p class="hero-p">Search any address, ZIP code, or town in New Jersey. Get instant market data — rental comps, development costs, zoning news, approved plans, and AI-powered investment projections. Aria AI monitors the market 24/7 and alerts you to opportunities.</p>
 
   <div class="search-box">
-    <input type="text" id="devSearch" placeholder="Enter full address (e.g. 475 Main St, Orange NJ 07050)" autofocus>
+    <input type="text" id="devSearch" placeholder="Enter full address with ZIP (e.g. 475 Main St, Orange NJ 07050)" autofocus>
     <button onclick="runSearch()">📊 Generate Report</button>
   </div>
-  <div class="search-tags">
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='61 Merchant St, Newark NJ 07105';runSearch()">61 Merchant St, Newark 07105</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='475 Main St, Orange NJ 07050';runSearch()">475 Main St, Orange 07050</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='100 Grove St, Jersey City NJ 07302';runSearch()">100 Grove St, JC 07302</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='12 Church St, Montclair NJ 07042';runSearch()">12 Church St, Montclair 07042</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='600 Frank E Rodgers Blvd, Harrison NJ 07029';runSearch()">600 FER Blvd, Harrison 07029</span>
-  </div>
+
+  <!-- PROJECT SIZE CATEGORIES -->
+  <div style="margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap" id="projCats">
+    <button class="proj-cat active" data-cat="all" onclick="setCat(this)">All Projects</button>
+    <button class="proj-cat" data-cat="small" onclick="setCat(this)">🏠 Small · Under 5K sqft</button>
+    <button class="proj-cat" data-cat="mid" onclick="setCat(this)">🏢 Mid-Size · 5K-25K sqft</button>
+    <button class="proj-cat" data-cat="large" onclick="setCat(this)">🏗️ Large · 25K-100K sqft</button>
+    <button class="proj-cat" data-cat="mega" onclick="setCat(this)">🌆 Mega · 100K+ sqft</button>
   </div>
 
   <!-- HERO MOCKUP -->
@@ -359,12 +363,29 @@
 </footer>
 
 <script>
+var activeCat='all';
+function setCat(el){
+  document.querySelectorAll('.proj-cat').forEach(function(b){b.classList.remove('active')});
+  el.classList.add('active');
+  activeCat=el.getAttribute('data-cat');
+  // Re-run search if report is showing
+  var v=document.getElementById('devSearch').value.trim();
+  if(v)runSearch();
+}
+
 var markets={
 '07105':{name:'Ironbound, Newark NJ 07105',studio:2150,br1:2400,br2:3100,br3:3600,occ:96.2,dom:18,yoy:8.3,med:425000,psf:315,appr5:42.6,proj:'35-45%',cap:'5.8-6.5%',tax:9200,landLo:150,landHi:300,woodLo:180,woodHi:220,steelLo:280,steelHi:350,rehabLo:120,rehabHi:180,permit:'4-8',zone:'R-3 / Mixed-Use Overlay',density:40,bestUse:'Mid-Rise Mixed-Use (5-7 stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Residential',driver:'NYC commuters, young professionals',pop:42500,income:55400,age:34.2,popGrow:6.8,walk:88,transit:82,commute:'22 min (PATH)',pipeline:[{n:'Iron 65',s:'Completed 2025'},{n:'Iron Pointe',s:'Leasing Now (80 units)'},{n:'Ferry St Mixed-Use',s:'Approved · 120 units'},{n:'Passaic Ave Redev',s:'Proposed · 200+ units'}],news:[{t:'Gateway Tunnel Project',d:'$16B improving NYC access. 10-15% value boost expected.',s:'NJ.com · Jan 2026'},{t:'Opportunity Zone Extended',d:'Capital gains deferral through 2028.',s:'Newark Council · Dec 2025'},{t:'Permits Up 22%',d:'Multi-family concentrated in Ironbound/Downtown.',s:'Census · 2025'}],aria:'Strong Buy Signal. Early-to-mid growth phase. Gateway Tunnel + Opportunity Zone + 96% occupancy. Best play: mid-rise mixed-use, 1BR-dominant, $2,200-$2,600/mo. Yield: 6.0-6.8%.'},
 '07102':{name:'Downtown Newark NJ 07102',studio:1850,br1:2200,br2:2800,br3:3200,occ:93.5,dom:22,yoy:6.1,med:375000,psf:285,appr5:38.2,proj:'30-40%',cap:'6.0-7.0%',tax:8500,landLo:120,landHi:250,woodLo:175,woodHi:215,steelLo:275,steelHi:340,rehabLo:110,rehabHi:170,permit:'4-8',zone:'C-2 / Transit Village',density:60,bestUse:'High-Rise Mixed-Use (8-15 stories)',gf:'Retail / Office',uf:'Studio + 1BR',driver:'Young professionals, students',pop:38200,income:42800,age:31.5,popGrow:5.2,walk:92,transit:90,commute:'18 min (PATH/NJT)',pipeline:[{n:'Halo Newark',s:'Under Construction · 350 units'},{n:'One Theater Square',s:'Completed · 245 units'},{n:'Mulberry Commons',s:'Approved · 180 units'}],news:[{t:'Prudential Center District',d:'Entertainment driving foot traffic.',s:'NJ Biz · Jan 2026'},{t:'NJIT Expansion',d:'$200M bringing 2,000+ students.',s:'NJIT · 2025'}],aria:'Buy Signal. Transit hub + university expansion + entertainment district. Studio/1BR focus. Cap rates compressing — act before pipeline delivers.'},
 '07302':{name:'Downtown Jersey City NJ 07302',studio:2600,br1:3100,br2:4200,br3:5100,occ:94.8,dom:15,yoy:4.2,med:650000,psf:520,appr5:35.1,proj:'20-30%',cap:'4.5-5.5%',tax:12500,landLo:300,landHi:600,woodLo:200,woodHi:250,steelLo:300,steelHi:400,rehabLo:150,rehabHi:220,permit:'6-12',zone:'R-1 / Waterfront',density:80,bestUse:'High-Rise Luxury (15+ stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Premium',driver:'NYC finance/tech workers',pop:68500,income:95200,age:33.8,popGrow:4.1,walk:95,transit:88,commute:'12 min (PATH)',pipeline:[{n:'Journal Squared Ph3',s:'Construction · 700 units'},{n:'Bayfront Redev',s:'Approved · 8,000 units'},{n:'99 Hudson',s:'Completed · 781 units'}],news:[{t:'PATH Expansion',d:'40% more trains with new signaling.',s:'NJT · 2026'},{t:'Tax Abatement Reform',d:'30yr reduced to 20yr for new projects.',s:'JC Council · 2025'}],aria:'Hold/Selective Buy. Mature market, high land costs, compressing caps. For well-capitalized developers. Focus waterfront near PATH. Model tax abatement changes carefully.'},
 '07042':{name:'Montclair NJ 07042',studio:1800,br1:2100,br2:2800,br3:3500,occ:95.1,dom:20,yoy:5.8,med:685000,psf:380,appr5:30.5,proj:'20-28%',cap:'5.0-6.0%',tax:18500,landLo:200,landHi:450,woodLo:190,woodHi:240,steelLo:290,steelHi:360,rehabLo:130,rehabHi:195,permit:'6-10',zone:'R-2 / Town Center',density:25,bestUse:'Boutique Mixed-Use (3-5 stories)',gf:'Restaurant / Boutique',uf:'2BR + 3BR',driver:'Families, empty nesters',pop:40200,income:112500,age:39.6,popGrow:2.8,walk:75,transit:62,commute:'35 min (NJT)',pipeline:[{n:'Lackawanna Plaza',s:'Approved · 270 units'},{n:'Seymour St Mixed-Use',s:'Proposed · 85 units'}],news:[{t:'Montclair BID Expansion',d:'Streetscape + parking improvements.',s:'Montclair Local · 2025'},{t:'NJT Express Service',d:'More express trains to Penn Station.',s:'NJT · 2026'}],aria:'Selective Buy. High-income suburb, strong schools. Land expensive but rents support. Town center walkable locations. 2BR/3BR premium — families pay $3,200+ for walkable lifestyle.'},
-'07029':{name:'Harrison NJ 07029',studio:2000,br1:2350,br2:3000,br3:3400,occ:94.2,dom:19,yoy:7.5,med:380000,psf:340,appr5:55.2,proj:'35-50%',cap:'5.5-6.5%',tax:7800,landLo:100,landHi:200,woodLo:170,woodHi:210,steelLo:260,steelHi:330,rehabLo:110,rehabHi:165,permit:'4-6',zone:'Redevelopment Zone',density:50,bestUse:'Mid-Rise Residential (5-8 stories)',gf:'Retail / Café',uf:'Studio + 1BR',driver:'NYC commuters, young couples',pop:18500,income:62300,age:32.1,popGrow:12.5,walk:82,transit:78,commute:'20 min (PATH)',pipeline:[{n:'Riverbend Ph2',s:'Construction · 500 units'},{n:'Harrison Station TOD',s:'Approved · 350 units'},{n:'Cape May Waterfront',s:'Proposed · 200 units'}],news:[{t:'Waterfront Park',d:'$15M park driving demand.',s:'Harrison Press · 2025'},{t:'PATH Study',d:'Extended service frequency study.',s:'NJT · 2026'}],aria:'Strong Buy. Fastest-growing NJ municipality. 55% in 5yr, still affordable vs JC/Hoboken. Fast permitting in redev zone. Studio/1BR for commuters. Ground floor retail emerging on Harrison Ave.'}
+'07029':{name:'Harrison NJ 07029',studio:2000,br1:2350,br2:3000,br3:3400,occ:94.2,dom:19,yoy:7.5,med:380000,psf:340,appr5:55.2,proj:'35-50%',cap:'5.5-6.5%',tax:7800,landLo:100,landHi:200,woodLo:170,woodHi:210,steelLo:260,steelHi:330,rehabLo:110,rehabHi:165,permit:'4-6',zone:'Redevelopment Zone',density:50,bestUse:'Mid-Rise Residential (5-8 stories)',gf:'Retail / Café',uf:'Studio + 1BR',driver:'NYC commuters, young couples',pop:18500,income:62300,age:32.1,popGrow:12.5,walk:82,transit:78,commute:'20 min (PATH)',pipeline:[{n:'Riverbend Ph2',s:'Construction · 500 units'},{n:'Harrison Station TOD',s:'Approved · 350 units'},{n:'Cape May Waterfront',s:'Proposed · 200 units'}],news:[{t:'Waterfront Park',d:'$15M park driving demand.',s:'Harrison Press · 2025'},{t:'PATH Study',d:'Extended service frequency study.',s:'NJT · 2026'}],aria:'Strong Buy. Fastest-growing NJ municipality. 55% in 5yr, still affordable vs JC/Hoboken. Fast permitting in redev zone. Studio/1BR for commuters. Ground floor retail emerging on Harrison Ave.'},
+'07050':{name:'Orange NJ 07050',studio:1350,br1:1550,br2:1900,br3:2300,occ:92.8,dom:28,yoy:5.2,med:310000,psf:225,appr5:35.8,proj:'25-35%',cap:'6.5-7.5%',tax:10200,landLo:80,landHi:180,woodLo:165,woodHi:205,steelLo:260,steelHi:330,rehabLo:100,rehabHi:160,permit:'4-8',zone:'R-2 / TOD Overlay near station',density:30,bestUse:'Mid-Rise Residential (4-6 stories)',gf:'Retail / Café',uf:'1BR + 2BR Residential',driver:'NYC commuters via NJT, young families',pop:30800,income:45200,age:33.8,popGrow:3.2,walk:78,transit:72,commute:'28 min (NJ Transit)',pipeline:[{n:'Main St TOD',s:'Proposed · 150 units'},{n:'Valley Arts District',s:'Under Review · Mixed-Use'},{n:'Orange Station Redev',s:'Approved · 90 units'}],news:[{t:'Orange Arts & Culture District',d:'City investing in Valley district as creative hub. Tax incentives for artists.',s:'Orange Transcript · 2025'},{t:'NJ Transit Station Upgrade',d:'$8M renovation of Orange station improving commuter access.',s:'NJT · 2026'},{t:'Main Street Revitalization',d:'Streetscape, lighting, and facade improvement grants available.',s:'City of Orange · 2025'}],aria:'Buy Signal. Undervalued relative to neighbors (Montclair, South Orange, Maplewood). NJ Transit direct service to Penn Station. Arts district emerging on Valley St. Best play: TOD residential near Orange station, 1BR/2BR targeting young commuters at $1,500-$1,900/mo. Cap rates still attractive at 6.5-7.5%.'},
+'07018':{name:'East Orange NJ 07018',studio:1200,br1:1400,br2:1750,br3:2100,occ:91.5,dom:30,yoy:4.8,med:265000,psf:195,appr5:32.1,proj:'25-35%',cap:'7.0-8.5%',tax:9800,landLo:60,landHi:150,woodLo:160,woodHi:200,steelLo:255,steelHi:325,rehabLo:95,rehabHi:155,permit:'4-6',zone:'R-3 / Urban Enterprise Zone',density:35,bestUse:'Mid-Rise Affordable + Market (4-6 stories)',gf:'Retail / Community',uf:'1BR + 2BR Mixed-Income',driver:'Essential workers, NYC commuters, families',pop:64300,income:38500,age:32.6,popGrow:1.8,walk:80,transit:74,commute:'30 min (NJ Transit)',pipeline:[{n:'Evergreen Place Redev',s:'Under Construction · 200 units'},{n:'Main St Gateway',s:'Approved · 120 units'},{n:'Brick Church TOD',s:'Proposed · 180 units'}],news:[{t:'Urban Enterprise Zone Benefits',d:'Tax incentives for businesses. Reduced sales tax drives retail demand.',s:'EO Chamber · 2025'},{t:'Brick Church Station Improvements',d:'Platform and access upgrades improving commuter experience.',s:'NJT · 2026'},{t:'LIHTC Projects Pipeline',d:'Multiple Low-Income Housing Tax Credit projects awarded in 2025.',s:'NJHMFA · 2025'}],aria:'Opportunistic Buy. Highest cap rates in the area at 7-8.5%. Enterprise Zone benefits. Strong LIHTC pipeline for affordable housing developers. Best play: mixed-income near Brick Church station. 4% LIHTC + market-rate combo yields 8%+ on cost. Risk: slower appreciation, higher vacancy.'},
+'07030':{name:'Hoboken NJ 07030',studio:2400,br1:2900,br2:3800,br3:4600,occ:96.5,dom:12,yoy:3.8,med:725000,psf:680,appr5:28.5,proj:'15-22%',cap:'4.0-5.0%',tax:11500,landLo:400,landHi:900,woodLo:210,woodHi:260,steelLo:310,steelHi:410,rehabLo:160,rehabHi:240,permit:'8-14',zone:'R-1 / Historic District',density:50,bestUse:'Boutique Condo (3-6 stories)',gf:'Restaurant / Retail',uf:'1BR + 2BR Premium',driver:'NYC finance/tech, young professionals',pop:60400,income:142000,age:32.5,popGrow:2.1,walk:97,transit:92,commute:'10 min (PATH/Ferry)',pipeline:[{n:'Hoboken Yards',s:'Approved · 4,000 units'},{n:'NW Redevelopment',s:'Under Construction · 500 units'}],news:[{t:'Hoboken Yards Mega-Project',d:'$3B mixed-use on western edge. Transforming industrial waterfront.',s:'NJ.com · 2026'},{t:'Rent Control Expansion',d:'City council tightened rent increase caps to 3% annually.',s:'Hoboken Reporter · 2025'}],aria:'Hold. Premium market, very high land costs, rent control risk. Only for well-capitalized developers with entitlements in hand. Condo plays stronger than rental. Hoboken Yards will add significant supply — time entry carefully.'},
+'07003':{name:'Bloomfield NJ 07003',studio:1500,br1:1750,br2:2200,br3:2700,occ:94.5,dom:22,yoy:5.5,med:425000,psf:280,appr5:33.2,proj:'22-30%',cap:'5.5-6.5%',tax:12800,landLo:120,landHi:280,woodLo:175,woodHi:220,steelLo:270,steelHi:345,rehabLo:115,rehabHi:175,permit:'4-8',zone:'R-2 / Town Center',density:25,bestUse:'Boutique Mixed-Use (3-5 stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Residential',driver:'NYC commuters, young families',pop:52500,income:72500,age:36.2,popGrow:3.5,walk:72,transit:65,commute:'32 min (NJ Transit)',pipeline:[{n:'Bloomfield Ave Mixed-Use',s:'Approved · 95 units'},{n:'Watsessing Station TOD',s:'Proposed · 120 units'}],news:[{t:'Bloomfield Center Alliance',d:'Downtown revitalization with streetscape and public art.',s:'Bloomfield Patch · 2025'},{t:'NJT Midtown Direct Access',d:'Express service to Penn Station drives residential demand.',s:'NJT · 2026'}],aria:'Buy Signal. Sweet spot between Newark affordability and Montclair desirability. NJT Midtown Direct makes it a strong commuter market. Best play: Bloomfield Ave mixed-use, 1BR/2BR at $1,750-$2,200. Still room for appreciation.'},
+'07111':{name:'Irvington NJ 07111',studio:1100,br1:1300,br2:1600,br3:1950,occ:90.2,dom:32,yoy:4.2,med:235000,psf:175,appr5:28.5,proj:'20-30%',cap:'7.5-9.0%',tax:8200,landLo:50,landHi:120,woodLo:155,woodHi:195,steelLo:250,steelHi:320,rehabLo:90,rehabHi:145,permit:'3-6',zone:'R-3 / Urban Enterprise Zone',density:35,bestUse:'Multi-Family Value-Add (3-4 stories)',gf:'Community / Retail',uf:'1BR + 2BR Affordable',driver:'Essential workers, families, Section 8',pop:54100,income:35800,age:33.1,popGrow:0.8,walk:76,transit:70,commute:'35 min (NJ Transit/Bus)',pipeline:[{n:'Springfield Ave Corridor',s:'Multiple rehabs in progress'},{n:'Irvington Station Area',s:'Proposed TOD · 100 units'}],news:[{t:'Enterprise Zone Designation',d:'Reduced sales tax and business incentives attracting retail.',s:'Irvington Herald · 2025'},{t:'Springfield Ave Revitalization',d:'Facade grants and streetscape improvements along main corridor.',s:'City of Irvington · 2025'}],aria:'Deep Value Play. Highest cap rates in Essex County at 7.5-9%. Low land costs = strong basis. Section 8 demand provides stable cash flow. Risk: slower appreciation, higher management intensity. Best for experienced operators. Value-add rehab of 6-12 unit buildings yielding 8%+ cash-on-cash.'},
+'07201':{name:'Elizabeth NJ 07201',studio:1400,br1:1650,br2:2100,br3:2500,occ:93.8,dom:24,yoy:5.8,med:350000,psf:240,appr5:30.5,proj:'25-35%',cap:'6.0-7.5%',tax:9500,landLo:90,landHi:200,woodLo:170,woodHi:210,steelLo:265,steelHi:335,rehabLo:105,rehabHi:165,permit:'4-8',zone:'R-3 / Transit Corridor',density:40,bestUse:'Mid-Rise Residential (4-7 stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Residential',driver:'Airport workers, NYC commuters, immigrants',pop:137000,income:47500,age:33.5,popGrow:3.8,walk:85,transit:78,commute:'30 min (NJT/Bus to Penn)',pipeline:[{n:'Elizabethport Redev',s:'Under Construction · 250 units'},{n:'Midtown Station TOD',s:'Approved · 180 units'},{n:'Elizabeth Hub',s:'Proposed · 500+ units'}],news:[{t:'Amazon Air Hub Expansion',d:'Newark Airport logistics creating thousands of jobs nearby.',s:'NJ Biz · 2026'},{t:'NJ Transit Elizabeth Station Upgrade',d:'$45M renovation of Midtown station.',s:'NJT · 2025'}],aria:'Buy Signal. Largest city in Union County with strong transit, airport proximity, and growing population. Midtown station TOD is the prime play. 1BR/2BR targeting airport/logistics workers at $1,600-$2,100. Cap rates still favorable.'},
+'07002':{name:'Bayonne NJ 07002',studio:1700,br1:2000,br2:2650,br3:3100,occ:94.0,dom:20,yoy:5.2,med:420000,psf:350,appr5:38.2,proj:'25-35%',cap:'5.5-6.5%',tax:10800,landLo:150,landHi:350,woodLo:180,woodHi:225,steelLo:275,steelHi:350,rehabLo:120,rehabHi:180,permit:'5-10',zone:'R-2 / Waterfront Redevelopment',density:45,bestUse:'Mid-Rise Waterfront (5-8 stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Residential',driver:'NYC commuters via Light Rail, young professionals',pop:71500,income:62800,age:35.2,popGrow:5.5,walk:78,transit:68,commute:'25 min (HBLR + PATH)',pipeline:[{n:'Bayonne Crossing',s:'Under Construction · 300 units'},{n:'Bergen Point Waterfront',s:'Approved · 450 units'},{n:'Military Ocean Terminal',s:'Master Plan · 2,000+ units'}],news:[{t:'Military Ocean Terminal Redevelopment',d:'Massive former military base being transformed into waterfront community.',s:'NJ.com · 2026'},{t:'Light Rail Extension Study',d:'Potential extension improving transit access.',s:'NJT · 2025'}],aria:'Buy Signal. Bayonne is where JC was 10 years ago. Waterfront parcels still available at fraction of JC prices. MOTBY redevelopment will transform the city. Best play: waterfront mid-rise near Light Rail, 1BR/2BR at $2,000-$2,650. Strong upside.'}
 };
 
 function findMarket(q){
@@ -377,45 +398,53 @@ if(zipMatch){
   if(markets[zip])return {key:zip,addr:q};
   // Map nearby ZIPs to closest market
   var zipMap={
-    // Newark ZIPs → Ironbound or Downtown
-    '07101':'07102','07103':'07102','07104':'07102','07106':'07102','07107':'07102','07108':'07102','07112':'07102','07114':'07102',
+    // Newark ZIPs → specific Newark markets
+    '07101':'07102','07103':'07102','07104':'07102','07106':'07102','07107':'07102','07108':'07102','07112':'07102','07114':'07105',
     // JC ZIPs
     '07301':'07302','07304':'07302','07305':'07302','07306':'07302','07307':'07302','07310':'07302','07311':'07302',
-    // Hoboken/North Hudson → JC market
-    '07030':'07302','07086':'07302','07087':'07302','07093':'07302',
-    // Harrison/Kearny/E.Newark area
+    // Hoboken/North Hudson
+    '07086':'07030','07087':'07030','07093':'07030',
+    // Harrison/Kearny
     '07032':'07029',
-    // Montclair area
-    '07003':'07042','07006':'07042','07009':'07042','07028':'07042','07043':'07042','07044':'07042',
-    // South Orange/Maplewood
-    '07040':'07042','07079':'07042',
-    // Bloomfield/Nutley/Belleville
-    '07003':'07042','07110':'07042',
-    // Orange/E.Orange/W.Orange
-    '07017':'07102','07018':'07102','07019':'07102','07050':'07102','07052':'07042',
-    // Elizabeth/Union area
-    '07201':'07105','07202':'07105','07083':'07105','07088':'07105',
+    // Orange area — maps to Orange market
+    '07017':'07018','07019':'07018',
+    // West Orange / South Orange / Maplewood → Montclair market
+    '07052':'07042','07040':'07042','07079':'07042',
+    // Bloomfield/Nutley/Belleville → Bloomfield market
+    '07109':'07003','07110':'07003',
     // Irvington
-    '07111':'07102',
-    // Passaic/Clifton
-    '07055':'07042','07012':'07042','07013':'07042','07014':'07042',
+    // (07111 is its own market)
+    // Elizabeth/Union area
+    '07202':'07201','07083':'07201','07088':'07201','07036':'07201',
     // Bayonne
-    '07002':'07302'
+    // (07002 is its own market)
+    // Montclair adjacent
+    '07009':'07042','07028':'07042','07043':'07042','07044':'07042',
+    // Passaic/Clifton
+    '07055':'07003','07012':'07003','07013':'07003','07014':'07003',
+    // North Bergen/Secaucus → JC
+    '07047':'07302','07094':'07302'
   };
   if(zipMap[zip])return {key:zipMap[zip],addr:q,origZip:zip};
 }
 // 2. City name matching (for addresses without ZIP)
 var cityMap={
-  'newark':'07105','ironbound':'07105','north ironbound':'07105',
+  'ironbound':'07105','north ironbound':'07105',
+  'newark':'07105',
+  'downtown newark':'07102',
   'jersey city':'07302','downtown jc':'07302',
-  'hoboken':'07302','weehawken':'07302','union city':'07302',
-  'montclair':'07042','glen ridge':'07042','bloomfield':'07042','nutley':'07042',
+  'hoboken':'07030','weehawken':'07030','union city':'07030',
+  'montclair':'07042','glen ridge':'07042','upper montclair':'07042',
   'harrison':'07029','kearny':'07029','east newark':'07029',
-  'east orange':'07102','orange':'07102','west orange':'07042','south orange':'07042','maplewood':'07042',
-  'irvington':'07102','belleville':'07042',
-  'elizabeth':'07105','union':'07105','linden':'07105',
-  'bayonne':'07302','north bergen':'07302','secaucus':'07302',
-  'clifton':'07042','passaic':'07042'
+  'orange':'07050','city of orange':'07050',
+  'east orange':'07018',
+  'west orange':'07042','south orange':'07042','maplewood':'07042',
+  'irvington':'07111',
+  'bloomfield':'07003','nutley':'07003','belleville':'07003',
+  'elizabeth':'07201','linden':'07201','union':'07201','roselle':'07201',
+  'bayonne':'07002',
+  'north bergen':'07302','secaucus':'07302',
+  'clifton':'07003','passaic':'07003'
 };
 for(var city in cityMap){if(q.indexOf(city)>-1)return {key:cityMap[city],addr:q};}
 return null;
@@ -470,7 +499,50 @@ h+='<div class="report-row"><span class="label">Pop Growth (5yr)</span><span cla
 h+='<div class="report-row"><span class="label">Walk Score</span><span class="val g">'+m.walk+'</span></div>';
 h+='<div class="report-row"><span class="label">Transit Score</span><span class="val g">'+m.transit+'</span></div>';
 h+='<div class="report-row"><span class="label">Commute to NYC</span><span class="val">'+m.commute+'</span></div>';
-h+='<div class="aria-box"><h5>🤖 Aria AI — Investment Recommendation</h5><p>'+m.aria+'</p></div></div>';
+h+='<div class="aria-box"><h5>🤖 Aria AI — Investment Recommendation</h5><p>'+m.aria+'</p></div>';
+// Project Size Analysis
+var catLabel={all:'All Project Sizes',small:'Small (Under 5,000 sqft)',mid:'Mid-Size (5,000-25,000 sqft)',large:'Large (25,000-100,000 sqft)',mega:'Mega (100,000+ sqft)'};
+var catData={
+small:{title:'🏠 Small Development · Under 5,000 sqft',types:'Single-Family, Duplex, Triplex, Townhome, Small Mixed-Use',units:'1-6 units',cost:function(m){return '$'+(Math.round(m.woodLo*3.5/10)*10)+'K - $'+(Math.round(m.woodHi*5/10)*10)+'K total'},timeline:'6-12 months',financing:'Conventional, FHA 203k, Hard Money, DSCR',tip:'Best for: first-time developers, fix-and-flip, small rental portfolios. Low barrier to entry.'},
+mid:{title:'🏢 Mid-Size Development · 5K-25K sqft',types:'Apartment Building, Mixed-Use, Small Condo, Adaptive Reuse',units:'6-30 units',cost:function(m){return '$'+Math.round(m.woodLo*10/100)+'M - $'+Math.round(m.steelHi*25/1000)+'M total'},timeline:'12-24 months',financing:'Commercial Loan, SBA 504, Private Equity, Bridge Loan',tip:'Sweet spot for most developers. Enough scale for economies but manageable risk.'},
+large:{title:'🏗️ Large Development · 25K-100K sqft',types:'Mid-Rise Apartment, Mixed-Use Tower, Condo, Office/Retail',units:'30-120 units',cost:function(m){return '$'+Math.round(m.steelLo*40/1000)+'M - $'+Math.round(m.steelHi*100/1000)+'M total'},timeline:'18-36 months',financing:'Construction Loan, Mezzanine, EB-5, Opportunity Zone Fund, LIHTC',tip:'Requires experienced team and strong capitalization. Consider OZ/LIHTC incentives.'},
+mega:{title:'🌆 Mega Development · 100K+ sqft',types:'High-Rise Tower, Master-Planned Community, Campus, Mixed-Use District',units:'120+ units',cost:function(m){return '$'+Math.round(m.steelLo*100/1000)+'M - $'+Math.round(m.steelHi*300/1000)+'M+ total'},timeline:'24-48+ months',financing:'Institutional Equity, Public-Private Partnership, Tax Increment Financing, Bond',tip:'Institutional-scale projects. Requires public approvals, community engagement, phased delivery.'}
+};
+h+='<div class="report-sect">📐 Project Size Analysis</div>';
+if(activeCat==='all'){
+['small','mid','large','mega'].forEach(function(c){
+var d=catData[c];
+h+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:10px">';
+h+='<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+d.title+'</div>';
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px">';
+h+='<div><span style="color:#64748b">Types:</span> '+d.types+'</div>';
+h+='<div><span style="color:#64748b">Typical Units:</span> '+d.units+'</div>';
+h+='<div><span style="color:#64748b">Est. Total Cost:</span> <b>'+d.cost(m)+'</b></div>';
+h+='<div><span style="color:#64748b">Timeline:</span> '+d.timeline+'</div>';
+h+='<div style="grid-column:1/-1"><span style="color:#64748b">Financing:</span> '+d.financing+'</div>';
+h+='<div style="grid-column:1/-1;color:#7c3aed;font-weight:600;margin-top:4px">💡 '+d.tip+'</div>';
+h+='</div></div>';
+});
+}else if(catData[activeCat]){
+var d=catData[activeCat];
+h+='<div style="background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:12px;padding:18px">';
+h+='<div style="font-size:15px;font-weight:800;margin-bottom:10px">'+d.title+'</div>';
+h+='<div class="report-row"><span class="label">Project Types</span><span class="val">'+d.types+'</span></div>';
+h+='<div class="report-row"><span class="label">Typical Unit Count</span><span class="val">'+d.units+'</span></div>';
+h+='<div class="report-row"><span class="label">Estimated Total Cost</span><span class="val" style="color:#7c3aed;font-size:14px">'+d.cost(m)+'</span></div>';
+h+='<div class="report-row"><span class="label">Construction Timeline</span><span class="val">'+d.timeline+'</span></div>';
+h+='<div class="report-row"><span class="label">Financing Options</span><span class="val">'+d.financing+'</span></div>';
+h+='<div style="margin-top:10px;padding:10px;background:rgba(124,58,237,.05);border-radius:8px;font-size:12px;color:#5b21b6;font-weight:600">💡 '+d.tip+'</div>';
+// Revenue projection for selected size
+var sqftEst=activeCat==='small'?3500:activeCat==='mid'?15000:activeCat==='large'?60000:150000;
+var unitEst=activeCat==='small'?3:activeCat==='mid'?15:activeCat==='large'?70:160;
+var avgRent=Math.round((m.br1+m.br2)/2);
+var grossAnnual=unitEst*avgRent*12;
+var noi=Math.round(grossAnnual*.62);
+h+='<div style="margin-top:14px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#059669;margin-bottom:6px">📈 Revenue Projection ('+unitEst+' units @ $'+avgRent.toLocaleString()+'/mo avg)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;margin-top:6px"><div><div style="font-size:9px;color:#64748b">Gross Annual</div><div style="font-weight:800;color:#059669">$'+grossAnnual.toLocaleString()+'</div></div><div><div style="font-size:9px;color:#64748b">Est. NOI (62%)</div><div style="font-weight:800;color:#059669">$'+noi.toLocaleString()+'</div></div><div><div style="font-size:9px;color:#64748b">Est. Cap Rate</div><div style="font-weight:800;color:#059669">'+m.cap+'</div></div></div></div>';
+h+='</div>';
+}
+h+='</div>';
 return h;
 }
 
