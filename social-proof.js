@@ -116,7 +116,7 @@ setTimeout(show,2500);
 setInterval(function(){if(!showing)show()},Math.floor(Math.random()*6000)+8000);
 
 // ── COST ANALYSIS ──
-if(isDev) return; // No cost analysis on developer page (has its own pricing)
+if(isDev){return;} // No cost analysis on developer page
 
 var realLeadBadge='<div style="margin-top:14px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1.5px solid #86efac;text-align:center"><div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">✅ 100% REAL, VERIFIED LEADS</div><div style="font-size:10px;color:#064e3b;line-height:1.5">Every lead is a <b>real person</b> who found your listing organically. No recycled leads. No shared leads. No bots. <b>You never pay per lead</b> — unlimited leads in your flat monthly plan.</div></div>';
 var caTitle,caDesc,caRows,caBottom,caLink;

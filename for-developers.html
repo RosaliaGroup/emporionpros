@@ -120,15 +120,16 @@
   <p class="hero-p">Search any address, ZIP code, or town in New Jersey. Get instant market data — rental comps, development costs, zoning news, approved plans, and AI-powered investment projections. Aria AI monitors the market 24/7 and alerts you to opportunities.</p>
 
   <div class="search-box">
-    <input type="text" id="devSearch" placeholder="Enter address, ZIP code, or town name..." autofocus>
-    <button onclick="runSearch()">🔍 Analyze Market</button>
+    <input type="text" id="devSearch" placeholder="Enter full address (e.g. 475 Main St, Orange NJ 07050)" autofocus>
+    <button onclick="runSearch()">📊 Generate Report</button>
   </div>
   <div class="search-tags">
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='Newark, NJ 07105';runSearch()">Ironbound, Newark</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='Jersey City 07302';runSearch()">Downtown JC</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='Montclair, NJ';runSearch()">Montclair</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='Harrison, NJ';runSearch()">Harrison</span>
-    <span class="search-tag" onclick="document.getElementById('devSearch').value='07102';runSearch()">Newark Downtown</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='61 Merchant St, Newark NJ 07105';runSearch()">61 Merchant St, Newark 07105</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='475 Main St, Orange NJ 07050';runSearch()">475 Main St, Orange 07050</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='100 Grove St, Jersey City NJ 07302';runSearch()">100 Grove St, JC 07302</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='12 Church St, Montclair NJ 07042';runSearch()">12 Church St, Montclair 07042</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='600 Frank E Rodgers Blvd, Harrison NJ 07029';runSearch()">600 FER Blvd, Harrison 07029</span>
+  </div>
   </div>
 
   <!-- HERO MOCKUP -->
@@ -178,7 +179,7 @@
 <!-- ═══════════════ DEMO REPORT ═══════════════ -->
 <section class="sec" id="demo-report"><div class="sec-in">
   <div class="sec-label">Sample Report</div>
-  <h2 class="sec-h sr">Ironbound, Newark NJ — Market Intelligence</h2>
+  <h2 class="sec-h sr" id="reportTitle">Ironbound, Newark NJ — Market Intelligence</h2>
   <p class="sec-p">This is what a Developer Intelligence report looks like. Search any area to generate yours.</p>
 
   <div class="report" id="reportCard">
@@ -335,7 +336,7 @@
         <li>Quarterly market briefings</li>
         <li>White-label reports</li>
       </ul>
-      <a href="mailto:info@emporionpros.com?subject=Enterprise Developer Intelligence" class="price-cta price-cta-out" style="display:block;text-decoration:none">Contact Sales</a>
+      <a href="/cdn-cgi/l/email-protection#9df4f3fbf2ddf8f0edf2eff4f2f3edeff2eeb3fef2f0a2eee8fff7f8fee9a0d8f3e9f8efedeff4eef8bdd9f8ebf8f1f2edf8efbdd4f3e9f8f1f1f4faf8f3fef8" class="price-cta price-cta-out" style="display:block;text-decoration:none">Contact Sales</a>
     </div>
   </div>
 </div></section>
@@ -354,19 +355,154 @@
 
 <footer class="ft">
   <p><a href="platform.html">EmporionPros</a> · <a href="for-agents.html">For Agents</a> · <a href="for-managers.html">For Managers</a> · <a href="for-owners.html">For Owners</a> · <a href="for-vendors.html">For Vendors</a> · <a href="for-developers.html">For Developers</a> · <a href="vendors.html">Marketplace</a></p>
-  <p style="margin-top:8px">© 2026 EmporionPros · <a href="mailto:info@emporionpros.com">info@emporionpros.com</a> · (862) 288-7972</p>
+  <p style="margin-top:8px">© 2026 EmporionPros · <a href="/cdn-cgi/l/email-protection#7c15121a133c19110c130e1513120c0e130f521f1311"><span class="__cf_email__" data-cfemail="30595e565f70555d405f42595f5e40425f431e535f5d">[email&#160;protected]</span></a> · (862) 288-7972</p>
 </footer>
 
 <script>
+var markets={
+'07105':{name:'Ironbound, Newark NJ 07105',studio:2150,br1:2400,br2:3100,br3:3600,occ:96.2,dom:18,yoy:8.3,med:425000,psf:315,appr5:42.6,proj:'35-45%',cap:'5.8-6.5%',tax:9200,landLo:150,landHi:300,woodLo:180,woodHi:220,steelLo:280,steelHi:350,rehabLo:120,rehabHi:180,permit:'4-8',zone:'R-3 / Mixed-Use Overlay',density:40,bestUse:'Mid-Rise Mixed-Use (5-7 stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Residential',driver:'NYC commuters, young professionals',pop:42500,income:55400,age:34.2,popGrow:6.8,walk:88,transit:82,commute:'22 min (PATH)',pipeline:[{n:'Iron 65',s:'Completed 2025'},{n:'Iron Pointe',s:'Leasing Now (80 units)'},{n:'Ferry St Mixed-Use',s:'Approved · 120 units'},{n:'Passaic Ave Redev',s:'Proposed · 200+ units'}],news:[{t:'Gateway Tunnel Project',d:'$16B improving NYC access. 10-15% value boost expected.',s:'NJ.com · Jan 2026'},{t:'Opportunity Zone Extended',d:'Capital gains deferral through 2028.',s:'Newark Council · Dec 2025'},{t:'Permits Up 22%',d:'Multi-family concentrated in Ironbound/Downtown.',s:'Census · 2025'}],aria:'Strong Buy Signal. Early-to-mid growth phase. Gateway Tunnel + Opportunity Zone + 96% occupancy. Best play: mid-rise mixed-use, 1BR-dominant, $2,200-$2,600/mo. Yield: 6.0-6.8%.'},
+'07102':{name:'Downtown Newark NJ 07102',studio:1850,br1:2200,br2:2800,br3:3200,occ:93.5,dom:22,yoy:6.1,med:375000,psf:285,appr5:38.2,proj:'30-40%',cap:'6.0-7.0%',tax:8500,landLo:120,landHi:250,woodLo:175,woodHi:215,steelLo:275,steelHi:340,rehabLo:110,rehabHi:170,permit:'4-8',zone:'C-2 / Transit Village',density:60,bestUse:'High-Rise Mixed-Use (8-15 stories)',gf:'Retail / Office',uf:'Studio + 1BR',driver:'Young professionals, students',pop:38200,income:42800,age:31.5,popGrow:5.2,walk:92,transit:90,commute:'18 min (PATH/NJT)',pipeline:[{n:'Halo Newark',s:'Under Construction · 350 units'},{n:'One Theater Square',s:'Completed · 245 units'},{n:'Mulberry Commons',s:'Approved · 180 units'}],news:[{t:'Prudential Center District',d:'Entertainment driving foot traffic.',s:'NJ Biz · Jan 2026'},{t:'NJIT Expansion',d:'$200M bringing 2,000+ students.',s:'NJIT · 2025'}],aria:'Buy Signal. Transit hub + university expansion + entertainment district. Studio/1BR focus. Cap rates compressing — act before pipeline delivers.'},
+'07302':{name:'Downtown Jersey City NJ 07302',studio:2600,br1:3100,br2:4200,br3:5100,occ:94.8,dom:15,yoy:4.2,med:650000,psf:520,appr5:35.1,proj:'20-30%',cap:'4.5-5.5%',tax:12500,landLo:300,landHi:600,woodLo:200,woodHi:250,steelLo:300,steelHi:400,rehabLo:150,rehabHi:220,permit:'6-12',zone:'R-1 / Waterfront',density:80,bestUse:'High-Rise Luxury (15+ stories)',gf:'Retail / Restaurant',uf:'1BR + 2BR Premium',driver:'NYC finance/tech workers',pop:68500,income:95200,age:33.8,popGrow:4.1,walk:95,transit:88,commute:'12 min (PATH)',pipeline:[{n:'Journal Squared Ph3',s:'Construction · 700 units'},{n:'Bayfront Redev',s:'Approved · 8,000 units'},{n:'99 Hudson',s:'Completed · 781 units'}],news:[{t:'PATH Expansion',d:'40% more trains with new signaling.',s:'NJT · 2026'},{t:'Tax Abatement Reform',d:'30yr reduced to 20yr for new projects.',s:'JC Council · 2025'}],aria:'Hold/Selective Buy. Mature market, high land costs, compressing caps. For well-capitalized developers. Focus waterfront near PATH. Model tax abatement changes carefully.'},
+'07042':{name:'Montclair NJ 07042',studio:1800,br1:2100,br2:2800,br3:3500,occ:95.1,dom:20,yoy:5.8,med:685000,psf:380,appr5:30.5,proj:'20-28%',cap:'5.0-6.0%',tax:18500,landLo:200,landHi:450,woodLo:190,woodHi:240,steelLo:290,steelHi:360,rehabLo:130,rehabHi:195,permit:'6-10',zone:'R-2 / Town Center',density:25,bestUse:'Boutique Mixed-Use (3-5 stories)',gf:'Restaurant / Boutique',uf:'2BR + 3BR',driver:'Families, empty nesters',pop:40200,income:112500,age:39.6,popGrow:2.8,walk:75,transit:62,commute:'35 min (NJT)',pipeline:[{n:'Lackawanna Plaza',s:'Approved · 270 units'},{n:'Seymour St Mixed-Use',s:'Proposed · 85 units'}],news:[{t:'Montclair BID Expansion',d:'Streetscape + parking improvements.',s:'Montclair Local · 2025'},{t:'NJT Express Service',d:'More express trains to Penn Station.',s:'NJT · 2026'}],aria:'Selective Buy. High-income suburb, strong schools. Land expensive but rents support. Town center walkable locations. 2BR/3BR premium — families pay $3,200+ for walkable lifestyle.'},
+'07029':{name:'Harrison NJ 07029',studio:2000,br1:2350,br2:3000,br3:3400,occ:94.2,dom:19,yoy:7.5,med:380000,psf:340,appr5:55.2,proj:'35-50%',cap:'5.5-6.5%',tax:7800,landLo:100,landHi:200,woodLo:170,woodHi:210,steelLo:260,steelHi:330,rehabLo:110,rehabHi:165,permit:'4-6',zone:'Redevelopment Zone',density:50,bestUse:'Mid-Rise Residential (5-8 stories)',gf:'Retail / Café',uf:'Studio + 1BR',driver:'NYC commuters, young couples',pop:18500,income:62300,age:32.1,popGrow:12.5,walk:82,transit:78,commute:'20 min (PATH)',pipeline:[{n:'Riverbend Ph2',s:'Construction · 500 units'},{n:'Harrison Station TOD',s:'Approved · 350 units'},{n:'Cape May Waterfront',s:'Proposed · 200 units'}],news:[{t:'Waterfront Park',d:'$15M park driving demand.',s:'Harrison Press · 2025'},{t:'PATH Study',d:'Extended service frequency study.',s:'NJT · 2026'}],aria:'Strong Buy. Fastest-growing NJ municipality. 55% in 5yr, still affordable vs JC/Hoboken. Fast permitting in redev zone. Studio/1BR for commuters. Ground floor retail emerging on Harrison Ave.'}
+};
+
+function findMarket(q){
+q=q.toLowerCase().trim();
+// 1. Extract 5-digit ZIP from anywhere in the string
+var zipMatch=q.match(/\b(0[0-9]{4})\b/);
+if(zipMatch){
+  var zip=zipMatch[1];
+  // Direct match
+  if(markets[zip])return {key:zip,addr:q};
+  // Map nearby ZIPs to closest market
+  var zipMap={
+    // Newark ZIPs → Ironbound or Downtown
+    '07101':'07102','07103':'07102','07104':'07102','07106':'07102','07107':'07102','07108':'07102','07112':'07102','07114':'07102',
+    // JC ZIPs
+    '07301':'07302','07304':'07302','07305':'07302','07306':'07302','07307':'07302','07310':'07302','07311':'07302',
+    // Hoboken/North Hudson → JC market
+    '07030':'07302','07086':'07302','07087':'07302','07093':'07302',
+    // Harrison/Kearny/E.Newark area
+    '07032':'07029',
+    // Montclair area
+    '07003':'07042','07006':'07042','07009':'07042','07028':'07042','07043':'07042','07044':'07042',
+    // South Orange/Maplewood
+    '07040':'07042','07079':'07042',
+    // Bloomfield/Nutley/Belleville
+    '07003':'07042','07110':'07042',
+    // Orange/E.Orange/W.Orange
+    '07017':'07102','07018':'07102','07019':'07102','07050':'07102','07052':'07042',
+    // Elizabeth/Union area
+    '07201':'07105','07202':'07105','07083':'07105','07088':'07105',
+    // Irvington
+    '07111':'07102',
+    // Passaic/Clifton
+    '07055':'07042','07012':'07042','07013':'07042','07014':'07042',
+    // Bayonne
+    '07002':'07302'
+  };
+  if(zipMap[zip])return {key:zipMap[zip],addr:q,origZip:zip};
+}
+// 2. City name matching (for addresses without ZIP)
+var cityMap={
+  'newark':'07105','ironbound':'07105','north ironbound':'07105',
+  'jersey city':'07302','downtown jc':'07302',
+  'hoboken':'07302','weehawken':'07302','union city':'07302',
+  'montclair':'07042','glen ridge':'07042','bloomfield':'07042','nutley':'07042',
+  'harrison':'07029','kearny':'07029','east newark':'07029',
+  'east orange':'07102','orange':'07102','west orange':'07042','south orange':'07042','maplewood':'07042',
+  'irvington':'07102','belleville':'07042',
+  'elizabeth':'07105','union':'07105','linden':'07105',
+  'bayonne':'07302','north bergen':'07302','secaucus':'07302',
+  'clifton':'07042','passaic':'07042'
+};
+for(var city in cityMap){if(q.indexOf(city)>-1)return {key:cityMap[city],addr:q};}
+return null;
+}
+
+function buildReport(m,searchAddr){
+var addrLine=searchAddr?'<div style="font-size:12px;margin-top:6px;padding:8px 12px;background:rgba(255,255,255,.1);border-radius:6px;display:inline-block">📍 Searched: <b>'+searchAddr+'</b></div>':'';
+var h='<div class="report-hd"><h4>📊 Market Report — '+m.name+'</h4><p>Generated Feb 2026 · Public records, Census, NJ Transit, local news, zoning board</p>'+addrLine+'</div><div class="report-bd">';
+h+='<div style="background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:14px;margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7c3aed;margin-bottom:4px">📍 Property Location</div><div style="font-size:14px;font-weight:700">'+(searchAddr||m.name)+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">Market Area: <b>'+m.name+'</b></div></div>';
+h+='<div class="report-sect">🏠 Rental Market Overview</div>';
+h+='<div class="report-row"><span class="label">Avg Rent — Studio</span><span class="val">$'+m.studio.toLocaleString()+'/mo</span></div>';
+h+='<div class="report-row"><span class="label">Avg Rent — 1BR</span><span class="val">$'+m.br1.toLocaleString()+'/mo</span></div>';
+h+='<div class="report-row"><span class="label">Avg Rent — 2BR</span><span class="val">$'+m.br2.toLocaleString()+'/mo</span></div>';
+h+='<div class="report-row"><span class="label">Avg Rent — 3BR</span><span class="val">$'+m.br3.toLocaleString()+'/mo</span></div>';
+h+='<div class="report-row"><span class="label">Occupancy Rate</span><span class="val g">'+m.occ+'%</span></div>';
+h+='<div class="report-row"><span class="label">Avg Days on Market</span><span class="val">'+m.dom+' days</span></div>';
+h+='<div class="report-row"><span class="label">YoY Rent Growth</span><span class="val g">+'+m.yoy+'%</span></div>';
+var rents=[Math.round(m.br1*.69),Math.round(m.br1*.77),Math.round(m.br1*.88),Math.round(m.br1*.94),m.br1];
+h+='<div style="margin:16px 0 8px;font-size:11px;font-weight:700;color:#64748b">📈 Avg 1BR Rent — 5 Years</div><div class="report-chart">';
+['2022','2023','2024','2025','2026'].forEach(function(yr,i){var ht=Math.round(rents[i]/m.br1*90);h+='<div class="bar-col"><div class="bar-val">$'+rents[i].toLocaleString()+'</div><div class="bar" style="height:'+ht+'px;background:'+['#c4b5fd','#a78bfa','#8b5cf6','#7c3aed','#6d28d9'][i]+'"></div><div class="bar-label">'+yr+'</div></div>';});
+h+='</div>';
+h+='<div class="report-sect">💰 Sales & Values</div>';
+h+='<div class="report-row"><span class="label">Median Sale Price</span><span class="val">$'+m.med.toLocaleString()+'</span></div>';
+h+='<div class="report-row"><span class="label">Price/Sq Ft</span><span class="val">$'+m.psf+'/sqft</span></div>';
+h+='<div class="report-row"><span class="label">5-Year Appreciation</span><span class="val g">+'+m.appr5+'%</span></div>';
+h+='<div class="report-row"><span class="label">Projected 5-Year</span><span class="val g">'+m.proj+'</span></div>';
+h+='<div class="report-row"><span class="label">Cap Rate (Multi-Family)</span><span class="val">'+m.cap+'</span></div>';
+h+='<div class="report-row"><span class="label">Avg Property Tax</span><span class="val r">$'+m.tax.toLocaleString()+'/yr</span></div>';
+h+='<div class="report-sect">🏗️ Development Costs</div>';
+h+='<div class="report-row"><span class="label">Land (per lot)</span><span class="val">$'+m.landLo+'K-$'+m.landHi+'K</span></div>';
+h+='<div class="report-row"><span class="label">Wood Frame</span><span class="val">$'+m.woodLo+'-$'+m.woodHi+'/sqft</span></div>';
+h+='<div class="report-row"><span class="label">Steel/Concrete</span><span class="val">$'+m.steelLo+'-$'+m.steelHi+'/sqft</span></div>';
+h+='<div class="report-row"><span class="label">Gut Rehab</span><span class="val">$'+m.rehabLo+'-$'+m.rehabHi+'/sqft</span></div>';
+h+='<div class="report-row"><span class="label">Permitting</span><span class="val">'+m.permit+' months</span></div>';
+h+='<div class="report-sect">📐 Highest & Best Use</div>';
+h+='<div class="report-row"><span class="label">Zoning</span><span class="val">'+m.zone+'</span></div>';
+h+='<div class="report-row"><span class="label">Max Density</span><span class="val">'+m.density+' units/acre</span></div>';
+h+='<div class="report-row"><span class="label">AI Recommended</span><span class="val g">'+m.bestUse+'</span></div>';
+h+='<div class="report-row"><span class="label">Ground Floor</span><span class="val">'+m.gf+'</span></div>';
+h+='<div class="report-row"><span class="label">Upper Floors</span><span class="val">'+m.uf+'</span></div>';
+h+='<div class="report-row"><span class="label">Demand Driver</span><span class="val">'+m.driver+'</span></div>';
+h+='<div class="report-sect">📋 Pipeline</div>';
+m.pipeline.forEach(function(p){h+='<div class="report-row"><span class="label">'+p.n+'</span><span class="val" style="color:#7c3aed">'+p.s+'</span></div>';});
+h+='<div class="report-sect">📰 News & Signals</div><div style="font-size:12px;line-height:1.6">';
+m.news.forEach(function(n){h+='<div style="padding:8px 0;border-bottom:1px solid #f1f5f9">📌 <b>'+n.t+'</b> — '+n.d+' <span style="color:#64748b;font-size:10px">'+n.s+'</span></div>';});
+h+='</div>';
+h+='<div class="report-sect">👥 Demographics</div>';
+h+='<div class="report-row"><span class="label">Population</span><span class="val">'+m.pop.toLocaleString()+'</span></div>';
+h+='<div class="report-row"><span class="label">Median Income</span><span class="val">$'+m.income.toLocaleString()+'</span></div>';
+h+='<div class="report-row"><span class="label">Median Age</span><span class="val">'+m.age+'</span></div>';
+h+='<div class="report-row"><span class="label">Pop Growth (5yr)</span><span class="val g">+'+m.popGrow+'%</span></div>';
+h+='<div class="report-row"><span class="label">Walk Score</span><span class="val g">'+m.walk+'</span></div>';
+h+='<div class="report-row"><span class="label">Transit Score</span><span class="val g">'+m.transit+'</span></div>';
+h+='<div class="report-row"><span class="label">Commute to NYC</span><span class="val">'+m.commute+'</span></div>';
+h+='<div class="aria-box"><h5>🤖 Aria AI — Investment Recommendation</h5><p>'+m.aria+'</p></div></div>';
+return h;
+}
+
 function runSearch(){
-  var v=document.getElementById('devSearch').value.trim();
-  if(!v)return;
-  var el=document.getElementById('demo-report');
-  el.scrollIntoView({behavior:'smooth'});
-  // Flash the report card to show "loading"
-  var rc=document.getElementById('reportCard');
-  rc.style.opacity='.4';
-  setTimeout(function(){rc.style.opacity='1';rc.style.transition='opacity .5s'},800);
+var v=document.getElementById('devSearch').value.trim();
+if(!v)return;
+// Validate: must look like an address (has a number or ZIP)
+var hasNum=/\d/.test(v);
+if(!hasNum){
+  document.getElementById('devSearch').style.border='2px solid #dc2626';
+  document.getElementById('devSearch').setAttribute('placeholder','Please enter a full address with ZIP code');
+  setTimeout(function(){document.getElementById('devSearch').style.border='none';document.getElementById('devSearch').setAttribute('placeholder','Enter full address (e.g. 475 Main St, Orange NJ 07050)');},3000);
+  return;
+}
+var result=findMarket(v);
+var rc=document.getElementById('reportCard');
+var st=document.getElementById('reportTitle');
+rc.style.opacity='.3';rc.style.transition='opacity .3s';
+setTimeout(function(){
+if(result&&markets[result.key]){
+var m=markets[result.key];
+st.textContent=m.name+' — Market Intelligence';
+rc.innerHTML=buildReport(m,v);
+}else{
+// Extract ZIP if present for display
+var zipShow=v.match(/\b(0[0-9]{4})\b/);
+st.textContent=v+' — Market Intelligence';
+rc.innerHTML='<div class="report-hd"><h4>📊 Report Request</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🏗️</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">Full Report Being Generated</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">We\'re building the market intelligence report for:<br><b>"'+v+'"</b>'+(zipShow?' (ZIP: '+zipShow[1]+')':'')+'</p><p style="font-size:12px;color:#64748b;margin-top:12px">Your report will include rental comps, development costs, zoning, pipeline, news, demographics, and Aria AI analysis. Ready within <b>24 hours</b>.</p><div style="margin-top:8px;font-size:11px;color:#7c3aed"><b>Reports available now for:</b> 07105 · 07102 · 07302 · 07042 · 07029 and 40+ surrounding ZIPs</div><div style="margin-top:20px"><a href="#signup" style="padding:12px 24px;background:#7c3aed;color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Get Notified When Ready →</a></div></div>';
+}
+rc.style.opacity='1';
+document.getElementById('demo-report').scrollIntoView({behavior:'smooth'});
+},500);
 }
 document.getElementById('devSearch').addEventListener('keydown',function(e){if(e.key==='Enter')runSearch()});
 </script>
