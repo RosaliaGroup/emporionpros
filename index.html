@@ -42,12 +42,14 @@
 .footer a{color:rgba(255,255,255,.7);text-decoration:none;font-size:14px;transition:.2s}
 .footer a:hover{color:white}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:24px;text-align:center;color:rgba(255,255,255,.4);font-size:13px}
+/* Special badge on cards */
+.prop-special{position:absolute;top:12px;right:12px;background:#f97316;color:white;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700}
+.prop-heart-special{right:auto;left:auto}
 @media(max-width:768px){.search-row{flex-direction:column}.footer-grid{grid-template-columns:1fr;gap:24px}.stats-strip{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div id="header-mount"></div>
-
 <section class="hero">
   <div class="ep-container">
     <div style="max-width:680px">
@@ -81,7 +83,6 @@
     </div>
   </div>
 </section>
-
 <div class="stats-strip">
   <div class="ep-container" style="grid-column:1/-1">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin:0 auto;text-align:center">
@@ -92,7 +93,6 @@
     </div>
   </div>
 </div>
-
 <section class="ep-section">
   <div class="ep-container">
     <span class="section-label">Featured Listings</span>
@@ -103,7 +103,6 @@
     <div class="featured-grid" id="featured-grid">Loading...</div>
   </div>
 </section>
-
 <section style="background:white;padding:80px 0">
   <div class="ep-container">
     <div style="text-align:center;margin-bottom:56px">
@@ -120,7 +119,6 @@
     </div>
   </div>
 </section>
-
 <div class="cta-band">
   <div class="ep-container">
     <h2>Agents & Vendors — Grow Your Business</h2>
@@ -131,7 +129,6 @@
     </div>
   </div>
 </div>
-
 <footer class="footer">
   <div class="ep-container">
     <div class="footer-grid">
@@ -169,39 +166,46 @@
     <div class="footer-bottom">© 2026 Emporion Pros. All rights reserved.</div>
   </div>
 </footer>
-
 <div id="ai-mount"></div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('header-mount').innerHTML = EP.renderHeader('home');
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
 
-  // Render featured properties
-  const grid = document.getElementById('featured-grid');
-  const featured = EP.properties.slice(0, 6);
-  grid.innerHTML = featured.map(p => buildPropCard(p)).join('');
+  // Featured: Iron 65 + Iron Pointe first, then newest regular listings
+  const iron = EP.properties.filter(p => p.source === 'Iron 65' || p.source === 'Iron Pointe');
+  const regular = EP.properties.filter(p => p.source !== 'Iron 65' && p.source !== 'Iron Pointe');
+  // Pick 3 Iron listings (mix of both buildings) + 3 regular
+  const ironPicks = [];
+  const iron65 = iron.filter(p => p.source === 'Iron 65');
+  const ironPointe = iron.filter(p => p.source === 'Iron Pointe');
+  if (iron65.length) ironPicks.push(iron65[0], iron65[Math.min(2, iron65.length-1)]);
+  if (ironPointe.length) ironPicks.push(ironPointe[0]);
+  const featured = [...ironPicks, ...regular.slice(0, 6 - ironPicks.length)];
+
+  document.getElementById('featured-grid').innerHTML = featured.map(p => buildPropCard(p)).join('');
 });
 
 function buildPropCard(p) {
   const saved = EP.saved.isSaved(p.id);
+  const bedText = p.beds === 0 ? 'Studio' : p.beds + ' bed';
   return `<div class="ep-card" onclick="window.location='property-details.html?id=${p.id}'">
     <div class="prop-img-wrap">
       <img src="${p.img}" class="prop-img" alt="${p.title}" loading="lazy">
       <span class="prop-badge ${p.type==='rent'?'rent':''}">${p.type==='sale'?'For Sale':'For Rent'}</span>
-      <button class="prop-heart" onclick="event.stopPropagation();toggleSave(${p.id},this)">${saved?'❤️':'♡'}</button>
+      ${p.special ? `<span class="prop-special">🎉 ${p.special}</span>` : `<button class="prop-heart" onclick="event.stopPropagation();toggleSave(${p.id},this)">${saved?'❤️':'♡'}</button>`}
     </div>
     <div class="prop-body">
       <div class="prop-price">$${p.price.toLocaleString()}${p.type==='rent'?'<small>/mo</small>':''}</div>
-      <div class="prop-addr">${p.city}, ${p.state}</div>
+      <div class="prop-addr">${p.address ? p.address + ', ' : ''}${p.city}, ${p.state}</div>
       <div class="prop-stats">
-        <span class="prop-stat">🛏 ${p.beds} bed</span>
+        <span class="prop-stat">🛏 ${bedText}</span>
         <span class="prop-stat">🛁 ${p.baths} bath</span>
         <span class="prop-stat">📐 ${p.sqft.toLocaleString()} sqft</span>
       </div>
       <div class="prop-footer">
-        <span>${p.propType}</span>
-        <span>${p.daysListed}d ago</span>
+        <span>${p.source === 'Iron 65' || p.source === 'Iron Pointe' ? p.source : p.propType}</span>
+        <span>${p.source === 'Iron 65' || p.source === 'Iron Pointe' ? '🆕 New Construction' : p.daysListed + 'd ago'}</span>
       </div>
     </div>
   </div>`;
@@ -211,12 +215,10 @@ function toggleSave(id, btn) {
   const isSaved = EP.saved.toggle(id);
   btn.textContent = isSaved ? '❤️' : '♡';
 }
-
 function setTab(btn, type) {
   document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
-
 function doSearch() {
   const loc = document.getElementById('hero-location').value;
   const beds = document.getElementById('hero-beds').value;
