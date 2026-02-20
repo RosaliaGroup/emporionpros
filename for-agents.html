@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EmporionPros for Agents — AI-Powered Listing Marketing | Free Trial</title>
+<meta name="description" content="Turn every listing into a lead-generating campaign. AI assistant answers calls 24/7, books tours, qualifies leads. Social media tools included. Free 14-day trial.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0f1a;--paper:#f7f5f0;--copper:#c8622a;--copper-light:#e8813f;--gold:#c9a96e;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff;--green:#0e9f6e}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.95);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:800}.nav-logo span{color:var(--copper)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:20px}
+.nav-r a{font-size:13px;font-weight:500;color:var(--slate);transition:.2s}.nav-r a:hover{color:var(--ink)}
+.nav-btn{background:var(--copper);color:white!important;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px}.nav-btn:hover{background:var(--copper-light)}
+@media(max-width:768px){.nav-r a:not(.nav-btn){display:none}}
+
+.hero{padding:120px clamp(16px,4vw,48px) 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(200,98,42,.06) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,98,42,.08);border:1px solid rgba(200,98,42,.15);padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;color:var(--copper);margin-bottom:20px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(32px,4.5vw,52px);font-weight:800;line-height:1.08;margin-bottom:16px;max-width:700px;margin-left:auto;margin-right:auto}
+.hero h1 em{font-style:italic;color:var(--copper)}
+.hero-p{font-size:17px;color:var(--slate);line-height:1.7;max-width:540px;margin:0 auto 28px}
+.btn{padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;transition:.25s;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--copper);color:white}.btn-primary:hover{background:var(--copper-light);transform:translateY(-2px);box-shadow:0 12px 32px rgba(200,98,42,.25)}
+.btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--border)}.btn-outline:hover{border-color:var(--ink)}
+
+.sec{padding:clamp(48px,6vw,80px) clamp(16px,4vw,48px)}.sec-in{max-width:1100px;margin:0 auto}
+.sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--copper);font-weight:700;margin-bottom:8px}
+.sec-h{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,40px);font-weight:800;line-height:1.1;margin-bottom:12px}
+.sec-p{font-size:15px;color:var(--slate);max-width:500px;line-height:1.7}
+.sec-white{background:white}.sec-dark{background:var(--ink);color:white}.sec-dark .sec-p{color:rgba(255,255,255,.6)}
+
+/* PAIN POINTS */
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+@media(max-width:768px){.pains{grid-template-columns:1fr}}
+.pain{background:white;border-radius:14px;padding:24px;border:1.5px solid var(--border)}
+.pain-icon{font-size:28px;margin-bottom:10px}
+.pain h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.pain-old{font-size:13px;color:#dc2626;text-decoration:line-through;margin-bottom:4px}
+.pain-new{font-size:13px;color:var(--green);font-weight:600}
+
+/* FEATURES */
+.agent-feats{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:32px}
+@media(max-width:768px){.agent-feats{grid-template-columns:1fr}}
+.af{display:flex;gap:16px;padding:24px;border-radius:14px;border:1.5px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);transition:.3s}
+.af:hover{background:rgba(255,255,255,.06);border-color:rgba(200,98,42,.3)}
+.af-icon{font-size:28px;flex-shrink:0;margin-top:2px}
+.af h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.af p{font-size:12px;color:rgba(255,255,255,.55);line-height:1.6}
+
+/* COMPARISON */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}
+@media(max-width:768px){.compare{grid-template-columns:1fr}}
+.compare-col{border-radius:14px;padding:28px;border:1.5px solid var(--border)}
+.compare-col.old{background:#fef2f2;border-color:#fecaca}
+.compare-col.new{background:#f0fdf4;border-color:#bbf7d0}
+.compare-col h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.compare-item{font-size:13px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:8px}
+
+/* PRICING */
+.agent-pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+@media(max-width:768px){.agent-pricing{grid-template-columns:1fr}}
+.ap{background:white;border-radius:14px;padding:28px;border:1.5px solid var(--border);text-align:center;transition:.3s}
+.ap:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.06)}
+.ap.pop{border-color:var(--copper);position:relative}
+.ap.pop::before{content:'BEST VALUE';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--copper);color:white;font-size:10px;font-weight:800;padding:3px 12px;border-radius:12px}
+.ap-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px}
+.ap-price{font-size:36px;font-weight:900;margin:10px 0 4px}.ap-price span{font-size:14px;font-weight:400;color:var(--slate)}
+.ap-desc{font-size:12px;color:var(--slate);margin-bottom:16px}
+.ap-list{list-style:none;text-align:left;margin-bottom:20px}
+.ap-list li{font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:6px}.ap-list li::before{content:'✓';color:var(--copper);font-weight:800}
+.ap-btn{width:100%;padding:12px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;transition:.2s}
+.ap-btn-fill{background:var(--copper);color:white}.ap-btn-fill:hover{background:var(--copper-light)}
+.ap-btn-out{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.ap-btn-out:hover{border-color:var(--ink)}
+
+/* CTA */
+.final{text-align:center;padding:clamp(48px,6vw,80px) clamp(16px,4vw,48px);background:var(--ink);color:white}
+.final h2{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:800;margin-bottom:10px}
+.final p{font-size:15px;color:rgba(255,255,255,.6);margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto}
+.signup-form{display:flex;gap:8px;max-width:440px;margin:0 auto}
+.signup-form input{flex:1;padding:14px 16px;border:1.5px solid rgba(255,255,255,.15);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,.05);color:white}
+.signup-form input::placeholder{color:rgba(255,255,255,.4)}
+.signup-form button{padding:14px 24px;background:var(--copper);color:white;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s}
+.signup-form button:hover{background:var(--copper-light)}
+
+.ft{padding:32px clamp(16px,4vw,48px) 20px;border-top:1px solid var(--border);text-align:center}
+.ft p{font-size:11px;color:var(--slate)}
+.ft a{color:var(--copper)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="platform.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <div class="nav-r">
+    <a href="platform.html">Platform</a>
+    <a href="for-managers.html">For Managers</a>
+    <a href="for-owners.html">For Owners</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#signup" class="nav-btn">Start Free Trial →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">🏆 Built for Real Estate Agents</div>
+  <h1 class="sr">Stop losing leads.<br>Start running <em>campaigns.</em></h1>
+  <p class="hero-p">Your listings deserve more than a flat MLS page. EmporionPros turns every property into a shareable campaign with an AI assistant that answers calls, qualifies leads, and books tours — 24/7.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="#signup" class="btn btn-primary">Start 14-Day Free Trial →</a>
+    <a href="iron-65.html" class="btn btn-outline">See a Live Campaign</a>
+  </div>
+  <div style="display:flex;gap:28px;justify-content:center;margin-top:28px;flex-wrap:wrap">
+    <div style="text-align:center"><div style="font-family:'Fraunces',serif;font-size:28px;font-weight:800">340%</div><div style="font-size:11px;color:var(--slate)">More inquiries</div></div>
+    <div style="text-align:center"><div style="font-family:'Fraunces',serif;font-size:28px;font-weight:800">24/7</div><div style="font-size:11px;color:var(--slate)">AI answers calls</div></div>
+    <div style="text-align:center"><div style="font-family:'Fraunces',serif;font-size:28px;font-weight:800">5 min</div><div style="font-size:11px;color:var(--slate)">To go live</div></div>
+    <div style="text-align:center"><div style="font-family:'Fraunces',serif;font-size:28px;font-weight:800">$0</div><div style="font-size:11px;color:var(--slate)">To start</div></div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="sec sec-white"><div class="sec-in">
+  <div class="sec-label">The Problem</div>
+  <h2 class="sec-h sr">You're losing deals. Here's why.</h2>
+  <div class="pains">
+    <div class="pain"><div class="pain-icon">📞</div><h3>Missed Calls = Missed Deals</h3><div class="pain-old">78% of leads go to the first agent who responds</div><div class="pain-new">✓ Aria AI answers every call in 2 seconds — 24/7</div></div>
+    <div class="pain"><div class="pain-icon">📋</div><h3>Flat Listings Don't Convert</h3><div class="pain-old">MLS pages look identical — no differentiation</div><div class="pain-new">✓ Campaign pages with hero images, specials, share tools</div></div>
+    <div class="pain"><div class="pain-icon">📱</div><h3>Social Media Takes Hours</h3><div class="pain-old">Creating posts, scheduling, tracking — who has time?</div><div class="pain-new">✓ Auto-generated social posts from your listing data</div></div>
+    <div class="pain"><div class="pain-icon">🗺️</div><h3>No Neighborhood Story</h3><div class="pain-old">Buyers want to know the area — not just the unit</div><div class="pain-new">✓ Auto neighborhood guides with restaurants, transit, schools</div></div>
+    <div class="pain"><div class="pain-icon">📊</div><h3>Leads Scattered Everywhere</h3><div class="pain-old">Texts, emails, voicemails, DMs — chaos</div><div class="pain-new">✓ One dashboard for all leads with pipeline tracking</div></div>
+    <div class="pain"><div class="pain-icon">🎯</div><h3>One Page Fits All?</h3><div class="pain-old">Same listing shown to commuters, families, and pilots?</div><div class="pain-new">✓ Audience-specific landing pages per listing</div></div>
+  </div>
+</div></section>
+
+<!-- FEATURES -->
+<section class="sec sec-dark"><div class="sec-in">
+  <div class="sec-label" style="color:var(--gold)">What You Get</div>
+  <h2 class="sec-h sr">Your entire marketing team — for $99/month.</h2>
+  <p class="sec-p">Everything an agent needs to market properties, capture leads, and close deals.</p>
+  <div class="agent-feats">
+    <div class="af"><div class="af-icon">🤖</div><div><h3>Aria AI — Your 24/7 Leasing Agent</h3><p>Answers phone calls and texts in English & Spanish. Qualifies leads by asking budget, timeline, requirements. Books tours directly on your calendar. Sends you a summary of every conversation.</p></div></div>
+    <div class="af"><div class="af-icon">🎨</div><div><h3>Campaign-Style Listing Pages</h3><p>Hero images, photo galleries, amenity grids, special offer banners, cost comparisons, and share buttons. Every listing looks like a $10,000 marketing site.</p></div></div>
+    <div class="af"><div class="af-icon">🗺️</div><div><h3>Neighborhood Guides</h3><p>Auto-generated: restaurants, bars, schools, transit, parks, walk scores, fun facts. Every listing tells a "life here" story that sells the location — not just the unit.</p></div></div>
+    <div class="af"><div class="af-icon">📱</div><div><h3>Social Media Campaign Kit</h3><p>Auto-generate Instagram posts, Facebook listings, TikTok scripts. Copy link, email, and text share buttons. Trackable campaign URLs for every platform.</p></div></div>
+    <div class="af"><div class="af-icon">📊</div><div><h3>Lead Dashboard & CRM</h3><p>Every call, text, form, and chat captured. Lead scoring (hot/warm/cold). Pipeline tracking (New → Touring → Applying → Closed). Automated follow-up sequences.</p></div></div>
+    <div class="af"><div class="af-icon">🎯</div><div><h3>Audience-Specific Pages</h3><p>One listing → multiple landing pages: NYC Commuters, Flight Attendants, Young Professionals, Pet Owners, Families. Each page speaks their language.</p></div></div>
+    <div class="af"><div class="af-icon">💰</div><div><h3>Cost Comparison Calculators</h3><p>Auto-generated "how this stacks up" tools that show savings vs. nearby buildings. Interactive sliders. Converts price-shoppers into applicants.</p></div></div>
+    <div class="af"><div class="af-icon">📅</div><div><h3>Tour Booking & Calendar</h3><p>Prospects book tours from the listing page. Syncs with Google Calendar and Calendly. Aria sends reminders and follow-ups automatically.</p></div></div>
+  </div>
+</div></section>
+
+<!-- BEFORE/AFTER -->
+<section class="sec"><div class="sec-in">
+  <div class="sec-label">Before & After</div>
+  <h2 class="sec-h sr">The EmporionPros difference.</h2>
+  <div class="compare">
+    <div class="compare-col old">
+      <h3>❌ Without EmporionPros</h3>
+      <div class="compare-item">📋 Flat MLS listing — looks like everyone else</div>
+      <div class="compare-item">📞 Missed calls after 6pm — lost leads</div>
+      <div class="compare-item">📱 Manually creating social media posts</div>
+      <div class="compare-item">🗺️ No neighborhood info — buyers research elsewhere</div>
+      <div class="compare-item">📊 Leads in texts, emails, voicemails — chaos</div>
+      <div class="compare-item">🎯 Same page for all audiences</div>
+      <div class="compare-item">📅 Back-and-forth to schedule showings</div>
+      <div class="compare-item" style="border:none">💸 Paying $500+/mo for marketing tools</div>
+    </div>
+    <div class="compare-col new">
+      <h3>✅ With EmporionPros</h3>
+      <div class="compare-item">🎨 Campaign page — shareable, branded, converting</div>
+      <div class="compare-item">🤖 Aria answers every call 24/7 — never miss a lead</div>
+      <div class="compare-item">📱 Auto-generated posts from listing data</div>
+      <div class="compare-item">🗺️ Rich neighborhood guide with every listing</div>
+      <div class="compare-item">📊 One dashboard — calls, texts, forms, pipeline</div>
+      <div class="compare-item">🎯 Audience-specific landing pages</div>
+      <div class="compare-item">📅 Self-serve booking from the listing page</div>
+      <div class="compare-item" style="border:none">💰 All-in-one for $99/month</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section class="sec sec-white" id="pricing"><div class="sec-in">
+  <div class="sec-label">Agent Pricing</div>
+  <h2 class="sec-h sr">Start free. Upgrade when you're ready.</h2>
+  <p class="sec-p" style="margin-bottom:8px">14-day free trial on all plans. No credit card required.</p>
+  <div class="agent-pricing">
+    <div class="ap">
+      <div class="ap-name sr">Starter</div>
+      <div class="ap-desc">Getting started</div>
+      <div class="ap-price">$49<span>/mo</span></div>
+      <div class="ap-desc">$39/mo billed annually</div>
+      <ul class="ap-list">
+        <li>5 active listings</li>
+        <li>Campaign pages</li>
+        <li>Aria AI chat</li>
+        <li>Neighborhood guides</li>
+        <li>Share links</li>
+        <li>Lead capture</li>
+      </ul>
+      <button class="ap-btn ap-btn-out">Start Free Trial</button>
+    </div>
+    <div class="ap pop">
+      <div class="ap-name sr">Professional</div>
+      <div class="ap-desc">For active agents</div>
+      <div class="ap-price">$99<span>/mo</span></div>
+      <div class="ap-desc">$79/mo billed annually</div>
+      <ul class="ap-list">
+        <li>25 active listings</li>
+        <li>Campaign + audience pages</li>
+        <li>Aria AI phone + SMS + chat</li>
+        <li>Social media templates</li>
+        <li>Full CRM dashboard</li>
+        <li>Cost calculators</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="ap-btn ap-btn-fill">Start Free Trial</button>
+    </div>
+    <div class="ap">
+      <div class="ap-name sr">Enterprise</div>
+      <div class="ap-desc">For teams & brokerages</div>
+      <div class="ap-price">$249<span>/mo</span></div>
+      <div class="ap-desc">$199/mo billed annually</div>
+      <ul class="ap-list">
+        <li>Unlimited listings</li>
+        <li>Custom Aria voice</li>
+        <li>Custom domain</li>
+        <li>Social media management</li>
+        <li>Ad campaign tools</li>
+        <li>API access</li>
+        <li>Dedicated manager</li>
+      </ul>
+      <button class="ap-btn ap-btn-out">Contact Sales</button>
+    </div>
+  </div>
+</div></section>
+
+<!-- FAQ -->
+<section class="sec"><div class="sec-in">
+  <div class="sec-label">FAQ</div>
+  <h2 class="sec-h sr">Common questions.</h2>
+  <div style="max-width:700px;margin-top:24px">
+    <details style="border-bottom:1px solid var(--border);padding:14px 0"><summary style="font-weight:700;cursor:pointer;font-size:15px">How does the AI assistant work?</summary><p style="font-size:13px;color:var(--slate);margin-top:8px;line-height:1.7">Aria is an AI voice and text agent powered by advanced language models. She answers calls to your dedicated listing phone number, responds to texts, qualifies leads by asking about budget/timeline/requirements, and books tours directly on your calendar. She speaks English and Spanish. You get a transcript and summary of every conversation.</p></details>
+    <details style="border-bottom:1px solid var(--border);padding:14px 0"><summary style="font-weight:700;cursor:pointer;font-size:15px">Can I try it before I pay?</summary><p style="font-size:13px;color:var(--slate);margin-top:8px;line-height:1.7">Yes — every plan comes with a free 14-day trial. No credit card required. Create your first campaign listing in 5 minutes and see leads come in.</p></details>
+    <details style="border-bottom:1px solid var(--border);padding:14px 0"><summary style="font-weight:700;cursor:pointer;font-size:15px">Do I need technical skills?</summary><p style="font-size:13px;color:var(--slate);margin-top:8px;line-height:1.7">Zero. Upload photos, fill in details, and your campaign page auto-generates. Neighborhood guides, cost comparisons, and social media posts are all automatic.</p></details>
+    <details style="border-bottom:1px solid var(--border);padding:14px 0"><summary style="font-weight:700;cursor:pointer;font-size:15px">Does it work for rentals AND sales?</summary><p style="font-size:13px;color:var(--slate);margin-top:8px;line-height:1.7">Yes — rentals, sales, short-term rentals, and even international properties. The campaign page adapts to the listing type automatically.</p></details>
+    <details style="border-bottom:1px solid var(--border);padding:14px 0"><summary style="font-weight:700;cursor:pointer;font-size:15px">Can I cancel anytime?</summary><p style="font-size:13px;color:var(--slate);margin-top:8px;line-height:1.7">Absolutely. Monthly plans cancel instantly. Annual plans can be cancelled at the end of the billing period. No contracts, no lock-in.</p></details>
+  </div>
+</div></section>
+
+<!-- FINAL CTA -->
+<section class="final" id="signup">
+  <h2 class="sr">Ready to 10x your listing leads?</h2>
+  <p>Start your free 14-day trial. First campaign live in 5 minutes.</p>
+  <form class="signup-form" onsubmit="event.preventDefault();this.innerHTML='<div style=\'padding:16px;color:#0e9f6e;font-weight:700;font-size:18px\'>✅ You\'re in! Check your email.</div>'">
+    <input type="email" placeholder="Your email address" required>
+    <button type="submit">Start Free Trial →</button>
+  </form>
+  <p style="font-size:11px;opacity:.4;margin-top:12px">Free 14-day trial · No credit card · Cancel anytime</p>
+</section>
+
+<footer class="ft">
+  <p>© 2026 EmporionPros / Rosalia Group · <a href="platform.html">Platform</a> · <a href="for-managers.html">For Managers</a> · <a href="for-owners.html">For Owners</a> · <a href="for-vendors.html">For Vendors</a> · <a href="mailto:info@emporionpros.com">info@emporionpros.com</a></p>
+</footer>
+</body>
+</html>
