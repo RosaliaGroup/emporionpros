@@ -1,152 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Services & Vendors — Emporion Pros</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="app.js"></script>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EmporionPros — Vendor Marketplace | Find Real Estate Professionals Near You</title>
+<meta name="description" content="Find plumbers, inspectors, title companies, electricians, movers, mortgage lenders and more. Connect directly and chat through the app.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
 <style>
-.page-hero{background:linear-gradient(135deg,#064e3b,#065f46);color:white;padding:60px 0;text-align:center}
-.page-hero h1{font-size:42px;font-weight:800;margin-bottom:10px}
-.cat-strip{display:flex;gap:10px;flex-wrap:wrap;margin:32px 0}
-.cat-btn{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:30px;background:white;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
-.cat-btn:hover,.cat-btn.active{background:#065f46;color:white;border-color:#065f46}
-.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
-.vendor-card{background:white;border-radius:14px;padding:26px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:2px solid transparent;transition:.3s}
-.vendor-card:hover{border-color:#065f46;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
-.vendor-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px}
-.vendor-name{font-size:18px;font-weight:700}
-.vendor-cat{display:inline-block;padding:4px 12px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:12px;font-weight:600;margin-top:4px}
-.vendor-price{font-size:22px;font-weight:800;color:#065f46}
-.badges{display:flex;gap:6px;margin:12px 0}
-.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-licensed{background:#eff6ff;color:#1a56db}
-.badge-insured{background:#f0fdf4;color:#15803d}
-.badge-premium{background:#fffbeb;color:#b45309}
-.services-list{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
-.service-pill{padding:4px 10px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;font-size:12px;color:#374151}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-inner{background:white;border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto}
+:root{--ink:#0a0f1a;--paper:#f7f5f0;--copper:#c8622a;--copper-light:#e8813f;--gold:#c9a96e;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff;--green:#0e9f6e;--blue:#1a56db}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:800}.nav-logo span{color:var(--copper)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:16px}
+.nav-r a{font-size:13px;font-weight:500;color:var(--slate);transition:.2s}.nav-r a:hover{color:var(--ink)}
+.nav-btn{background:var(--copper);color:white!important;padding:9px 18px;border-radius:8px;font-weight:600;font-size:12px}
+@media(max-width:768px){.nav-r a:not(.nav-btn){display:none}}
+
+/* HERO */
+.hero{background:var(--ink);color:white;padding:clamp(36px,5vw,56px) clamp(16px,4vw,48px);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(200,98,42,.12),transparent 70%)}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:800;line-height:1.1;margin-bottom:10px;position:relative}
+.hero h1 em{font-style:italic;color:var(--copper)}
+.hero p{font-size:15px;opacity:.7;max-width:500px;margin:0 auto 24px;position:relative}
+
+/* SEARCH */
+.search-wrap{max-width:700px;margin:0 auto;position:relative}
+.search-bar{display:flex;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px}
+.search-bar input,.search-bar select{padding:12px 14px;border:none;border-radius:8px;font-size:14px;font-family:inherit;background:white;color:var(--ink)}
+.search-bar input{flex:1;min-width:0}
+.search-bar select{width:160px;cursor:pointer}
+.search-bar button{padding:12px 24px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.search-bar button:hover{background:var(--copper-light)}
+@media(max-width:600px){.search-bar{flex-wrap:wrap}.search-bar input,.search-bar select{width:100%}}
+
+/* CATEGORIES */
+.cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:20px;position:relative}
+.cat-pill{padding:7px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);cursor:pointer;transition:.2s;background:transparent}
+.cat-pill:hover,.cat-pill.active{background:var(--copper);color:white;border-color:var(--copper)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:28px clamp(16px,4vw,48px)}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.results-count{font-size:14px;color:var(--slate)}.results-count strong{color:var(--ink)}
+.sort-sel{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:white}
+
+/* VENDOR CARDS */
+.vendors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.v-card{background:var(--card);border-radius:14px;border:1.5px solid var(--border);overflow:hidden;transition:.3s}
+.v-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.06);border-color:var(--copper)}
+.v-card.featured{border-color:var(--gold);position:relative}
+.v-card.featured::before{content:'⭐ FEATURED';position:absolute;top:12px;right:12px;background:var(--gold);color:var(--ink);font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;z-index:2;letter-spacing:.5px}
+.v-header{padding:20px 20px 0;display:flex;gap:14px;align-items:flex-start}
+.v-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.v-info{flex:1;min-width:0}
+.v-name{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:2px}
+.v-cat{font-size:11px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.v-body{padding:12px 20px}
+.v-desc{font-size:12px;color:var(--slate);line-height:1.6;margin-bottom:10px}
+.v-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.v-tag{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(200,98,42,.06);color:var(--copper)}
+.v-meta{display:flex;gap:12px;font-size:11px;color:var(--slate);margin-bottom:10px;flex-wrap:wrap}
+.v-meta span{display:flex;align-items:center;gap:3px}
+.v-rating{color:var(--gold);font-weight:700}
+.v-footer{padding:0 20px 16px;display:flex;gap:8px}
+.v-btn{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:.2s;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px}
+.v-btn-primary{background:var(--copper);color:white}.v-btn-primary:hover{background:var(--copper-light)}
+.v-btn-chat{background:var(--ink);color:white}.v-btn-chat:hover{background:#1e293b}
+.v-btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.v-btn-outline:hover{border-color:var(--ink)}
+
+/* CHAT MODAL */
+#chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#chat-modal.open{display:flex}
+.chat-box{background:white;border-radius:16px;width:min(440px,95vw);max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.chat-header{padding:16px 20px;background:var(--ink);color:white;display:flex;align-items:center;gap:12px}
+.chat-header-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,.1)}
+.chat-header-info h4{font-size:14px;font-weight:700}.chat-header-info p{font-size:11px;opacity:.6}
+.chat-close{margin-left:auto;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px}
+.chat-messages{flex:1;padding:16px;overflow-y:auto;min-height:280px;background:#f9fafb}
+.chat-msg{margin-bottom:12px;max-width:80%}
+.chat-msg.them{margin-right:auto}.chat-msg.me{margin-left:auto}
+.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.chat-msg.them .chat-bubble{background:white;border:1px solid var(--border);border-bottom-left-radius:4px}
+.chat-msg.me .chat-bubble{background:var(--copper);color:white;border-bottom-right-radius:4px}
+.chat-time{font-size:9px;color:var(--slate);margin-top:3px;padding:0 4px}
+.chat-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;background:white}
+.chat-input-row input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+.chat-input-row input:focus{outline:none;border-color:var(--copper)}
+.chat-input-row button{padding:10px 16px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* VENDOR DETAIL MODAL */
+#vendor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center}
+#vendor-modal.open{display:flex}
+.vm-box{background:white;border-radius:16px;width:min(560px,95vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.vm-header{padding:24px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid var(--border)}
+.vm-av{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.vm-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--slate)}
+.vm-body{padding:24px}
+.vm-section{margin-bottom:20px}
+.vm-section h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);margin-bottom:8px}
+.vm-services{display:flex;gap:6px;flex-wrap:wrap}
+.vm-service{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(200,98,42,.06);color:var(--copper)}
+.vm-reviews{border-top:1px solid var(--border);padding-top:16px}
+.vm-review{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.vm-review:last-child{border:none}
+.vm-review-stars{color:var(--gold);font-size:12px;margin-bottom:3px}
+.vm-review-text{font-size:12px;color:var(--slate);line-height:1.6}
+.vm-review-author{font-size:11px;font-weight:600;margin-top:4px}
+.vm-actions{padding:0 24px 24px;display:flex;gap:8px}
+.vm-btn{flex:1;padding:12px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:60px 20px;color:var(--slate)}
+.no-results h3{font-family:'Fraunces',serif;font-size:22px;color:var(--ink);margin-bottom:8px}
+
+/* CTA */
+.vendor-cta{background:linear-gradient(135deg,var(--ink),#162d5a);border-radius:16px;padding:clamp(28px,4vw,40px);color:white;text-align:center;margin:40px 0}
+.vendor-cta h2{font-family:'Fraunces',serif;font-size:clamp(22px,3vw,28px);font-weight:800;margin-bottom:6px}
+.vendor-cta p{opacity:.6;margin-bottom:16px;font-size:14px}
+
+.ft{padding:32px clamp(16px,4vw,48px) 20px;border-top:1px solid var(--border);text-align:center}
+.ft p{font-size:11px;color:var(--slate)}.ft a{color:var(--copper)}
 </style>
 </head>
 <body>
-<div id="header-mount"></div>
 
-<div class="page-hero">
-  <div class="ep-container">
-    <h1>Find Trusted Service Providers</h1>
-    <p>Licensed, insured, and vetted professionals for every real estate need</p>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <div class="nav-r">
+    <a href="platform.html">Platform</a>
+    <a href="listings.html">Listings</a>
+    <a href="for-vendors.html">List Your Business</a>
+    <a href="for-vendors.html#signup" class="nav-btn">Join as Vendor →</a>
   </div>
-</div>
+</nav>
 
-<section class="ep-section">
-  <div class="ep-container">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">
-      <input class="ep-input" id="vendor-search" placeholder="Search vendors..." oninput="renderVendors()" style="flex:1">
+<!-- HERO + SEARCH -->
+<section class="hero">
+  <h1 class="sr">Find <em>trusted pros</em> for every real estate need.</h1>
+  <p>Plumbers, inspectors, title companies, electricians, movers, mortgage lenders — search, connect, and chat directly through the app.</p>
+  <div class="search-wrap">
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search by name, service, or keyword..." oninput="filterVendors()">
+      <select id="search-cat" onchange="filterVendors()">
+        <option value="">All Categories</option>
+        <option value="Plumbing">🔧 Plumbing</option>
+        <option value="Electrical">⚡ Electrical</option>
+        <option value="Inspection">🔍 Inspection</option>
+        <option value="Title">📜 Title Company</option>
+        <option value="Mortgage">🏦 Mortgage</option>
+        <option value="Insurance">🛡️ Insurance</option>
+        <option value="Moving">📦 Moving</option>
+        <option value="Cleaning">🧹 Cleaning</option>
+        <option value="Renovation">🔨 Renovation</option>
+        <option value="Legal">⚖️ Legal</option>
+        <option value="Photography">📸 Photography</option>
+        <option value="Landscaping">🌿 Landscaping</option>
+        <option value="HVAC">🌡️ HVAC</option>
+        <option value="Pest Control">🐜 Pest Control</option>
+        <option value="Locksmith">🔑 Locksmith</option>
+        <option value="Staging">🪴 Staging</option>
+      </select>
+      <button onclick="filterVendors()">🔍 Search</button>
     </div>
-    <div class="cat-strip" id="cat-strip">
-      <button class="cat-btn active" onclick="setCategory('',this)">All Services</button>
-      <button class="cat-btn" onclick="setCategory('Plumbing',this)">🔧 Plumbing</button>
-      <button class="cat-btn" onclick="setCategory('HVAC',this)">❄️ HVAC</button>
-      <button class="cat-btn" onclick="setCategory('Electrical',this)">⚡ Electrical</button>
-      <button class="cat-btn" onclick="setCategory('Mortgage',this)">🏦 Mortgage</button>
-      <button class="cat-btn" onclick="setCategory('Insurance',this)">🛡️ Insurance</button>
-      <button class="cat-btn" onclick="setCategory('Title',this)">📋 Title</button>
-      <button class="cat-btn" onclick="setCategory('Inspection',this)">🔍 Inspection</button>
-      <button class="cat-btn" onclick="setCategory('Real Estate Attorney',this)">⚖️ Attorney</button>
-      <button class="cat-btn" onclick="setCategory('General Contractor',this)">🏗️ Contractor</button>
-    </div>
-    <div class="vendor-grid" id="vendor-grid"></div>
+    <div class="cats" id="cat-pills"></div>
   </div>
 </section>
 
-<div class="modal-overlay" id="vendor-modal">
-  <div class="modal-inner"><div id="vendor-modal-content"></div></div>
+<!-- RESULTS -->
+<div class="main">
+  <div class="results-header">
+    <div class="results-count" id="results-count"></div>
+    <select class="sort-sel" id="sort-sel" onchange="filterVendors()">
+      <option value="featured">Featured First</option>
+      <option value="rating">Highest Rated</option>
+      <option value="reviews">Most Reviews</option>
+      <option value="name">A-Z</option>
+    </select>
+  </div>
+  <div class="vendors-grid" id="vendors-grid"></div>
+
+  <!-- CTA -->
+  <div class="vendor-cta">
+    <h2 class="sr">Are you a service provider?</h2>
+    <p>List your business free. Get matched with active buyers, renters, agents, and property managers in your area.</p>
+    <a href="for-vendors.html" style="display:inline-block;padding:12px 28px;background:var(--copper);color:white;border-radius:10px;font-weight:700;font-size:15px">List Your Business Free →</a>
+  </div>
 </div>
-<div id="ai-mount"></div>
+
+<!-- CHAT MODAL -->
+<div id="chat-modal">
+  <div class="chat-box">
+    <div class="chat-header">
+      <div class="chat-header-av" id="chat-av"></div>
+      <div class="chat-header-info"><h4 id="chat-name"></h4><p id="chat-status">Online · Typically replies in 5 min</p></div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR DETAIL MODAL -->
+<div id="vendor-modal">
+  <div class="vm-box" id="vm-content"></div>
+</div>
+
+<footer class="ft">
+  <p>© 2026 EmporionPros · <a href="platform.html">Platform</a> · <a href="for-agents.html">Agents</a> · <a href="for-managers.html">Managers</a> · <a href="for-owners.html">Owners</a> · <a href="for-vendors.html">Vendors</a> · <a href="neighborhood.html">Neighborhood</a></p>
+</footer>
 
 <script>
-let currentCat = '';
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('header-mount').innerHTML = EP.renderHeader('vendors');
-  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
-  renderVendors();
-  document.getElementById('vendor-modal').addEventListener('click', function(e) { if (e.target === this) closeVModal(); });
-});
+// ===== DEMO VENDOR DATA =====
+const vendors = [
+  {id:1,name:"Garden State Home Inspections",cat:"Inspection",icon:"🔍",color:"#dbeafe",services:["Pre-Purchase Inspection","Radon Testing","Mold Testing","Termite Inspection"],desc:"Licensed NJ home inspectors with 15+ years experience. Same-day reports. Serving Essex, Hudson, Union & Passaic counties.",phone:"(973) 555-0142",email:"info@gsinspections.com",area:"Essex, Hudson, Union, Passaic",rating:4.9,reviews:127,featured:true,
+    reviewList:[{stars:5,text:"Thorough inspection, found issues the seller didn't disclose. Saved us $12k in repairs.",author:"Maria T., Home Buyer"},{stars:5,text:"Professional, on time, detailed report within 24 hours.",author:"James K., Agent"},{stars:4,text:"Great service. Would have liked the report a bit sooner.",author:"Lisa M., Home Buyer"}]},
+  {id:2,name:"Liberty Title Group",cat:"Title",icon:"📜",color:"#fef3c7",services:["Title Search","Title Insurance","Closing Services","Escrow"],desc:"Full-service title company handling residential and commercial closings across New Jersey. Fast, accurate, affordable.",phone:"(201) 555-0298",email:"closings@libertytitle.com",area:"All of New Jersey",rating:4.8,reviews:89,featured:true,
+    reviewList:[{stars:5,text:"Smoothest closing I've ever had. Team was responsive and caught a lien the other company missed.",author:"David R., Agent"},{stars:5,text:"Handled our commercial closing perfectly. Highly recommend.",author:"Sarah P., Property Manager"}]},
+  {id:3,name:"Ironbound Plumbing Co.",cat:"Plumbing",icon:"🔧",color:"#dcfce7",services:["Emergency Repairs","Drain Cleaning","Water Heater","Pipe Installation","Bathroom Remodel"],desc:"Family-owned since 1998. 24/7 emergency service. Licensed, bonded, insured. The Ironbound's most trusted plumber.",phone:"(862) 555-0177",email:"service@ironboundplumbing.com",area:"Newark, East Orange, Irvington",rating:4.7,reviews:203,featured:false,
+    reviewList:[{stars:5,text:"Called at midnight with a burst pipe. They were here in 30 minutes. Lifesaver.",author:"Tom H., Homeowner"},{stars:4,text:"Good work, fair price. Will use again.",author:"Ana S., Property Manager"}]},
+  {id:4,name:"PowerLine Electric LLC",cat:"Electrical",icon:"⚡",color:"#fef9c3",services:["Panel Upgrades","Rewiring","EV Charger Install","Lighting","Code Compliance"],desc:"Master electricians serving North Jersey. Specializing in new construction and renovations. Free estimates.",phone:"(973) 555-0331",email:"info@powerlineelectric.com",area:"Essex, Bergen, Passaic, Morris",rating:4.8,reviews:156,featured:false,
+    reviewList:[{stars:5,text:"Installed EV charger at our building. Clean work, great communication.",author:"Mike D., Property Manager"},{stars:5,text:"Upgraded our panel from 100 to 200 amp. Professional crew.",author:"Jennifer L., Homeowner"}]},
+  {id:5,name:"First National Mortgage",cat:"Mortgage",icon:"🏦",color:"#ede9fe",services:["Conventional Loans","FHA Loans","VA Loans","Refinancing","Pre-Approval"],desc:"Local mortgage lender with competitive rates. Pre-approvals in 24 hours. Bilingual team (English/Spanish/Portuguese).",phone:"(201) 555-0445",email:"apply@firstnatmortgage.com",area:"New Jersey & New York",rating:4.6,reviews:78,featured:true,
+    reviewList:[{stars:5,text:"Got pre-approved in hours, not days. Portuguese-speaking team was a huge plus for my clients.",author:"Carlos M., Agent"},{stars:4,text:"Good rates, smooth process. Communication could be slightly better.",author:"Rachel W., Home Buyer"}]},
+  {id:6,name:"SafeGuard Insurance Group",cat:"Insurance",icon:"🛡️",color:"#fce7f3",services:["Homeowner Insurance","Renter Insurance","Landlord Insurance","Flood Insurance","Umbrella Policies"],desc:"Independent agency shopping 20+ carriers for the best rates. Specializing in real estate insurance for owners, landlords, and renters.",phone:"(973) 555-0562",email:"quote@safeguardins.com",area:"New Jersey",rating:4.5,reviews:64,featured:false,
+    reviewList:[{stars:5,text:"Saved me $800/year on my landlord policy by shopping multiple carriers.",author:"Robert K., Property Owner"},{stars:5,text:"Quick quote turnaround for my rental property clients.",author:"Ana G., Agent"}]},
+  {id:7,name:"EZ Move NJ",cat:"Moving",icon:"📦",color:"#e0f2fe",services:["Local Moving","Long Distance","Packing Services","Storage","Junk Removal"],desc:"Affordable, reliable moving company. Flat-rate pricing, no hidden fees. Full packing service available. Licensed & insured.",phone:"(862) 555-0688",email:"book@ezmove.com",area:"NJ, NY, PA, CT",rating:4.4,reviews:312,featured:false,
+    reviewList:[{stars:5,text:"Moved my entire 2BR in 3 hours flat. Careful with furniture, reasonable price.",author:"Priya S., Renter"},{stars:4,text:"Good overall but showed up 30 min late. Moving itself was excellent.",author:"Mark T., Homeowner"}]},
+  {id:8,name:"Sparkle Clean Services",cat:"Cleaning",icon:"🧹",color:"#ecfdf5",services:["Move-In/Out Cleaning","Deep Clean","Regular Service","Post-Construction","Airbnb Turnover"],desc:"Professional cleaning for real estate. Move-in/out specialists. Same-day availability. We make properties show-ready.",phone:"(973) 555-0734",email:"book@sparkleclean.com",area:"Newark, Jersey City, Hoboken",rating:4.7,reviews:189,featured:false,
+    reviewList:[{stars:5,text:"They cleaned our 80-unit building turnover in one weekend. Incredible team.",author:"Property Manager, Iron Pointe"},{stars:5,text:"My listing photos looked 10x better after their deep clean.",author:"Lisa A., Agent"}]},
+  {id:9,name:"NJ Renovation Pros",cat:"Renovation",icon:"🔨",color:"#fff7ed",services:["Kitchen Remodel","Bathroom Remodel","Flooring","Painting","General Contracting"],desc:"Full-service renovation contractor. From kitchens to full gut rehabs. Licensed GC. Free estimates. Financing available.",phone:"(201) 555-0891",email:"projects@njrenovation.com",area:"Essex, Hudson, Bergen, Union",rating:4.6,reviews:97,featured:false,
+    reviewList:[{stars:5,text:"Transformed a dated 1970s kitchen into modern luxury. On time and on budget.",author:"Steven R., Homeowner"},{stars:4,text:"Great quality work. Had to follow up a few times on scheduling.",author:"Maria C., Property Manager"}]},
+  {id:10,name:"Torres & Associates Law",cat:"Legal",icon:"⚖️",color:"#f5f3ff",services:["Real Estate Closings","Contract Review","Eviction","Landlord-Tenant","Title Issues"],desc:"Real estate attorneys specializing in NJ residential and commercial transactions. Bilingual (English/Spanish). Flat-fee closings.",phone:"(862) 555-0923",email:"intake@torreslaw.com",area:"New Jersey",rating:4.8,reviews:56,featured:true,
+    reviewList:[{stars:5,text:"Caught a title issue that could have cost us the deal. Worth every penny.",author:"David L., Home Buyer"},{stars:5,text:"Handles all our eviction cases. Fast, professional, knows NJ law inside out.",author:"PM Client"}]},
+  {id:11,name:"Lens & Light RE Photography",cat:"Photography",icon:"📸",color:"#fdf2f8",services:["Listing Photos","Drone/Aerial","Virtual Tours","Video Walkthrough","Floor Plans"],desc:"Professional real estate photography that sells. HDR, drone, 3D tours. 24-hour turnaround. Serving all of North Jersey.",phone:"(973) 555-1045",email:"book@lensandlight.com",area:"North New Jersey",rating:4.9,reviews:142,featured:false,
+    reviewList:[{stars:5,text:"My listings sell 40% faster since switching to Lens & Light. The drone shots are incredible.",author:"Top Agent, Keller Williams"},{stars:5,text:"24-hour turnaround as promised. Beautiful HDR photos.",author:"Jessica M., Agent"}]},
+  {id:12,name:"Green Thumb Landscaping",cat:"Landscaping",icon:"🌿",color:"#ecfdf5",services:["Lawn Care","Garden Design","Snow Removal","Tree Service","Hardscaping"],desc:"Commercial and residential landscaping. Weekly maintenance, seasonal cleanups, and full landscape design. Serving Newark metro.",phone:"(862) 555-1167",email:"info@greenthumbscape.com",area:"Newark, East Orange, Bloomfield",rating:4.5,reviews:83,featured:false,
+    reviewList:[{stars:5,text:"They maintain all our common areas. Properties look pristine.",author:"Property Manager"},{stars:4,text:"Good seasonal cleanup service. Responsive to requests.",author:"Homeowner"}]},
+  {id:13,name:"Comfort Zone HVAC",cat:"HVAC",icon:"🌡️",color:"#fff1f2",services:["AC Install/Repair","Heating","Furnace","Ductwork","Maintenance Plans"],desc:"Heating and cooling experts. 24/7 emergency service. Energy-efficient installations. Licensed NJ HVAC contractor.",phone:"(973) 555-1289",email:"service@comfortzonehvac.com",area:"Essex, Union, Morris, Passaic",rating:4.6,reviews:118,featured:false,
+    reviewList:[{stars:5,text:"Replaced all HVAC units in our 5-story building. Excellent project management.",author:"Building Owner"}]},
+  {id:14,name:"Shield Pest Solutions",cat:"Pest Control",icon:"🐜",color:"#fefce8",services:["Termite Treatment","Rodent Control","Bed Bugs","General Pest","Commercial"],desc:"Licensed NJ pest control. Eco-friendly options available. Termite inspections for real estate closings. Same-day service.",phone:"(201) 555-1312",email:"service@shieldpest.com",area:"Northern New Jersey",rating:4.7,reviews:95,featured:false,
+    reviewList:[{stars:5,text:"Fast termite inspection for our closing. Report within 2 hours.",author:"Real Estate Agent"}]},
+  {id:15,name:"QuickLock Locksmith",cat:"Locksmith",icon:"🔑",color:"#f0fdf4",services:["Rekey","Lock Change","Smart Locks","Access Control","Emergency Lockout"],desc:"24/7 locksmith service. Rekey for move-ins, smart lock installation, commercial access control. 15-minute response time.",phone:"(862) 555-1434",email:"help@quicklock247.com",area:"Newark metro area",rating:4.4,reviews:67,featured:false,
+    reviewList:[{stars:5,text:"Rekeyed 12 units in one day for our new building. Great pricing for bulk jobs.",author:"Property Manager"}]},
+  {id:16,name:"Stage & Sell Interiors",cat:"Staging",icon:"🪴",color:"#faf5ff",services:["Full Home Staging","Vacant Staging","Virtual Staging","Consultation","Furniture Rental"],desc:"Professional home staging that transforms listings. Vacant and occupied staging. Proven to sell homes 73% faster.",phone:"(973) 555-1556",email:"hello@stageandsell.com",area:"NJ & NYC metro",rating:4.9,reviews:71,featured:true,
+    reviewList:[{stars:5,text:"Staged my $800K listing and it sold in 4 days — $30K over asking.",author:"Listing Agent"},{stars:5,text:"The virtual staging option is incredible for the price. Buyers couldn't tell it was virtual.",author:"Agent"}]}
+];
 
-function setCategory(cat, btn) {
-  currentCat = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderVendors();
-}
-
-function renderVendors() {
-  const q = document.getElementById('vendor-search').value.toLowerCase();
-  const filtered = EP.vendors.filter(v =>
-    (!currentCat || v.category === currentCat) &&
-    (!q || v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.services.some(s => s.toLowerCase().includes(q)))
-  );
-  document.getElementById('vendor-grid').innerHTML = filtered.length ? filtered.map(v => `
-    <div class="vendor-card">
-      <div class="vendor-top">
-        <div>
-          <div class="vendor-name">${v.name}</div>
-          <div class="vendor-cat">${v.category}</div>
+// ===== RENDER =====
+function renderVendors(list) {
+  const grid = document.getElementById('vendors-grid');
+  const count = document.getElementById('results-count');
+  count.innerHTML = `<strong>${list.length}</strong> professionals found`;
+  
+  if (!list.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No vendors found</h3><p>Try a different search term or category.</p></div>`;
+    return;
+  }
+  
+  grid.innerHTML = list.map(v => `
+    <div class="v-card ${v.featured?'featured':''}">
+      <div class="v-header">
+        <div class="v-avatar" style="background:${v.color}">${v.icon}</div>
+        <div class="v-info">
+          <div class="v-name">${v.name}</div>
+          <div class="v-cat">${v.cat}</div>
         </div>
-        <div style="text-align:right">
-          <div class="ep-stars">★★★★★</div>
-          <div style="font-size:13px;font-weight:600">${v.rating} <span style="color:#6b7280;font-weight:400">(${v.reviews})</span></div>
+      </div>
+      <div class="v-body">
+        <div class="v-desc">${v.desc}</div>
+        <div class="v-tags">${v.services.slice(0,4).map(s=>`<span class="v-tag">${s}</span>`).join('')}</div>
+        <div class="v-meta">
+          <span class="v-rating">⭐ ${v.rating}</span>
+          <span>${v.reviews} reviews</span>
+          <span>📍 ${v.area.split(',')[0]}</span>
         </div>
       </div>
-      <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">${v.description}</p>
-      <div class="badges">
-        ${v.licensed ? '<span class="badge badge-licensed">✓ Licensed</span>' : ''}
-        ${v.insured ? '<span class="badge badge-insured">✓ Insured</span>' : ''}
-        ${v.tier === 'premium' ? '<span class="badge badge-premium">⭐ Premium</span>' : ''}
+      <div class="v-footer">
+        <button class="v-btn v-btn-chat" onclick="openChat(${v.id})">💬 Chat</button>
+        <button class="v-btn v-btn-primary" onclick="openVendor(${v.id})">View Profile</button>
+        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="v-btn v-btn-outline">📞 Call</a>
       </div>
-      <div class="services-list">${v.services.map(s => `<span class="service-pill">${s}</span>`).join('')}</div>
-      <div style="font-size:13px;color:#6b7280;margin-bottom:16px">📍 ${v.areas.join(' · ')}</div>
-      <div style="display:flex;gap:10px">
-        <button class="ep-btn ep-btn-primary" style="flex:1" onclick="openVendorModal(${v.id})">Get Quote / Connect</button>
-        <button class="ep-btn ep-btn-outline" onclick="EP.ai.simulatePhoneCall()">📞</button>
-      </div>
-    </div>`).join('') : '<p style="color:#6b7280;padding:40px;grid-column:1/-1">No vendors match your search.</p>';
-}
-
-function openVendorModal(vId) {
-  const v = EP.vendors.find(x => x.id === vId);
-  document.getElementById('vendor-modal-content').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
-      <div><h2 style="font-size:22px;font-weight:700">${v.name}</h2><div class="vendor-cat" style="display:inline-block;padding:4px 12px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:12px;font-weight:600;margin-top:4px">${v.category}</div></div>
-      <button onclick="closeVModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">✕</button>
     </div>
-    <p style="color:#6b7280;font-size:13px;margin-bottom:20px">${v.description}</p>
-    <form onsubmit="submitVendorLead(event,${vId})">
-      <div class="ep-form-group"><label class="ep-label">Your Name</label><input class="ep-input" name="name" required></div>
-      <div class="ep-form-group"><label class="ep-label">Email</label><input class="ep-input" name="email" type="email" required></div>
-      <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" name="phone" type="tel" required></div>
-      <div class="ep-form-group"><label class="ep-label">Property Address</label><input class="ep-input" name="address"></div>
-      <div class="ep-form-group"><label class="ep-label">Service Needed</label>
-        <select class="ep-select" name="service">${v.services.map(s => `<option>${s}</option>`).join('')}</select>
+  `).join('');
+}
+
+function filterVendors() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const cat = document.getElementById('search-cat').value;
+  const sort = document.getElementById('sort-sel').value;
+  
+  let list = vendors.filter(v => {
+    const matchQ = !q || v.name.toLowerCase().includes(q) || v.cat.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q) || v.services.some(s => s.toLowerCase().includes(q));
+    const matchCat = !cat || v.cat === cat;
+    return matchQ && matchCat;
+  });
+  
+  // Update active pill
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+  
+  // Sort
+  if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+  else if (sort === 'reviews') list.sort((a,b) => b.reviews - a.reviews);
+  else if (sort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+  else list.sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.rating - a.rating);
+  
+  renderVendors(list);
+}
+
+// Category pills
+const cats = [...new Set(vendors.map(v => v.cat))].sort();
+document.getElementById('cat-pills').innerHTML = 
+  `<span class="cat-pill active" data-cat="" onclick="pickCat(this,'')">All</span>` +
+  cats.map(c => {
+    const v = vendors.find(x => x.cat === c);
+    return `<span class="cat-pill" data-cat="${c}" onclick="pickCat(this,'${c}')">${v.icon} ${c}</span>`;
+  }).join('');
+
+function pickCat(el, cat) {
+  document.getElementById('search-cat').value = cat;
+  filterVendors();
+}
+
+// ===== CHAT =====
+let chatVendor = null;
+function openChat(id) {
+  chatVendor = vendors.find(v => v.id === id);
+  if (!chatVendor) return;
+  document.getElementById('chat-av').textContent = chatVendor.icon;
+  document.getElementById('chat-av').style.background = chatVendor.color;
+  document.getElementById('chat-name').textContent = chatVendor.name;
+  document.getElementById('chat-messages').innerHTML = `
+    <div class="chat-msg them">
+      <div class="chat-bubble">Hi! Thanks for reaching out to ${chatVendor.name}. How can we help you today?</div>
+      <div class="chat-time">Just now</div>
+    </div>`;
+  document.getElementById('chat-modal').classList.add('open');
+  document.getElementById('chat-input').focus();
+  
+  // Log as lead
+  const leads = JSON.parse(localStorage.getItem('ep_vendor_chats') || '[]');
+  leads.push({vendor: chatVendor.name, cat: chatVendor.cat, time: new Date().toISOString(), source: 'Vendor Marketplace Chat'});
+  localStorage.setItem('ep_vendor_chats', JSON.stringify(leads));
+}
+function closeChat() { document.getElementById('chat-modal').classList.remove('open'); }
+function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const container = document.getElementById('chat-messages');
+  const now = new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  container.innerHTML += `<div class="chat-msg me"><div class="chat-bubble">${msg}</div><div class="chat-time" style="text-align:right">${now}</div></div>`;
+  input.value = '';
+  container.scrollTop = container.scrollHeight;
+  
+  // Auto-reply
+  setTimeout(() => {
+    const replies = [
+      `Thanks for your message! Let me check on that for you. Can you share your property address or more details?`,
+      `Great question! We serve the entire ${chatVendor.area} area. Would you like to schedule a free estimate?`,
+      `We'd be happy to help. For the fastest service, you can also call us directly at ${chatVendor.phone}. What's your timeline?`
+    ];
+    const reply = replies[Math.floor(Math.random()*replies.length)];
+    container.innerHTML += `<div class="chat-msg them"><div class="chat-bubble">${reply}</div><div class="chat-time">${now}</div></div>`;
+    container.scrollTop = container.scrollHeight;
+  }, 1200);
+}
+
+// ===== VENDOR PROFILE =====
+function openVendor(id) {
+  const v = vendors.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('vm-content').innerHTML = `
+    <div style="position:relative">
+      <button class="vm-close" onclick="closeVendor()">✕</button>
+      <div class="vm-header">
+        <div class="vm-av" style="background:${v.color}">${v.icon}</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:800">${v.name}</div>
+          <div style="font-size:12px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${v.cat}</div>
+          <div style="font-size:12px;color:var(--slate);margin-top:4px">⭐ ${v.rating} · ${v.reviews} reviews · 📍 ${v.area}</div>
+        </div>
       </div>
-      <div class="ep-form-group"><label class="ep-label">Urgency</label>
-        <select class="ep-select" name="urgency"><option>Routine</option><option>Urgent (within a week)</option><option>Emergency (24 hours)</option></select>
+      <div class="vm-body">
+        <div class="vm-section">
+          <h4>About</h4>
+          <p style="font-size:13px;color:var(--slate);line-height:1.7">${v.desc}</p>
+        </div>
+        <div class="vm-section">
+          <h4>Services</h4>
+          <div class="vm-services">${v.services.map(s=>`<span class="vm-service">${s}</span>`).join('')}</div>
+        </div>
+        <div class="vm-section">
+          <h4>Contact</h4>
+          <p style="font-size:13px">📞 <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" style="color:var(--copper);font-weight:600">${v.phone}</a></p>
+          <p style="font-size:13px">📧 <a href="mailto:${v.email}" style="color:var(--copper);font-weight:600">${v.email}</a></p>
+          <p style="font-size:13px">📍 Service area: ${v.area}</p>
+        </div>
+        <div class="vm-section vm-reviews">
+          <h4>Reviews (${v.reviewList.length})</h4>
+          ${v.reviewList.map(r=>`
+            <div class="vm-review">
+              <div class="vm-review-stars">${'⭐'.repeat(r.stars)}</div>
+              <div class="vm-review-text">"${r.text}"</div>
+              <div class="vm-review-author">— ${r.author}</div>
+            </div>`).join('')}
+        </div>
       </div>
-      <div class="ep-form-group"><label class="ep-label">Additional Details</label><textarea class="ep-textarea" name="message"></textarea></div>
-      <button type="submit" class="ep-btn ep-btn-primary" style="width:100%;padding:14px">Request Quote</button>
-    </form>`;
+      <div class="vm-actions">
+        <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${v.id})">💬 Chat Now</button>
+        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="vm-btn" style="background:var(--copper);color:white">📞 Call</a>
+        <a href="mailto:${v.email}" class="vm-btn" style="background:transparent;border:1.5px solid var(--border);color:var(--ink)">📧 Email</a>
+      </div>
+    </div>`;
   document.getElementById('vendor-modal').classList.add('open');
 }
+function closeVendor() { document.getElementById('vendor-modal').classList.remove('open'); }
 
-function submitVendorLead(e, vId) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  EP.leads.capture({ name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'), address: fd.get('address'), service: fd.get('service'), urgency: fd.get('urgency'), message: fd.get('message'), vendorId: vId, source: 'Vendor Page' });
-  document.getElementById('vendor-modal-content').innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px">✅</div><h3 style="margin-top:16px;font-size:22px">Quote Request Sent!</h3><p style="color:#6b7280;margin-top:8px">The vendor will contact you within 2 hours.</p><button onclick="closeVModal()" class="ep-btn ep-btn-primary" style="margin-top:20px">Close</button></div>';
-}
+// Close modals on background click
+document.getElementById('chat-modal').addEventListener('click', e => { if (e.target.id === 'chat-modal') closeChat(); });
+document.getElementById('vendor-modal').addEventListener('click', e => { if (e.target.id === 'vendor-modal') closeVendor(); });
 
-function closeVModal() { document.getElementById('vendor-modal').classList.remove('open'); }
+// Init
+filterVendors();
 </script>
 </body>
 </html>
