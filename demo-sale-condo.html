@@ -9,90 +9,79 @@
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
 .nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
 .nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800}.nav-logo span{color:var(--copper)}
-.nav-r{margin-left:auto;display:flex;align-items:center;gap:14px}
-.nav-r a{font-size:12px;font-weight:600;color:var(--slate)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:14px}.nav-r a{font-size:12px;font-weight:600;color:var(--slate)}
 .nav-btn{background:var(--accent);color:white!important;padding:9px 16px;border-radius:8px}
 .hero{background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:white;padding:clamp(40px,5vw,60px) clamp(16px,4vw,48px);text-align:center}
 .hero-badge{display:inline-flex;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:700;background:rgba(139,92,246,.2);color:#c4b5fd;margin-bottom:14px}
 .hero h1{font-family:'Fraunces',serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;margin-bottom:6px}
 .hero-price{font-size:clamp(28px,4vw,42px);font-weight:900;color:#c4b5fd;margin:8px 0}
 .hero-sub{font-size:14px;color:#a5b4fc;margin-top:4px}
-.hero-stats{display:flex;gap:20px;justify-content:center;margin:16px 0;flex-wrap:wrap}
-.hero-stat{font-size:13px;opacity:.8}.hero-stat strong{color:white}
+.hero-stats{display:flex;gap:20px;justify-content:center;margin:16px 0;flex-wrap:wrap}.hero-stat{font-size:13px;opacity:.8}.hero-stat strong{color:white}
 .sec{padding:clamp(32px,4vw,48px) clamp(16px,4vw,48px)}.sec-in{max-width:900px;margin:0 auto}
 .sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:8px}
 .sec-h{font-family:'Fraunces',serif;font-size:clamp(22px,3vw,30px);font-weight:800;margin-bottom:12px}
 .sec-white{background:white}
 .gallery{display:grid;grid-template-columns:2fr 1fr;gap:6px;margin:20px auto;border-radius:12px;overflow:hidden;max-width:900px}
-.gallery img{width:100%;height:100%;object-fit:cover;display:block}
-.gallery-main{grid-row:span 2;min-height:300px}
-.gallery-side{min-height:147px}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}.gallery-main{grid-row:span 2;min-height:280px}.gallery-side{min-height:137px}
 @media(max-width:600px){.gallery{grid-template-columns:1fr}.gallery-main{grid-row:auto}}
 .features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
 @media(max-width:600px){.features{grid-template-columns:1fr}}
 .feat{background:white;border-radius:10px;padding:16px;border:1px solid var(--border);text-align:center}
-.feat-i{font-size:24px;margin-bottom:6px}
-.feat h4{font-size:13px;font-weight:700}.feat p{font-size:11px;color:var(--slate)}
+.feat-i{font-size:24px;margin-bottom:6px}.feat h4{font-size:13px;font-weight:700}.feat p{font-size:11px;color:var(--slate)}
 .note{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:16px;font-size:13px;color:#5b21b6;margin:20px auto;text-align:center;max-width:900px}
 .roi{background:white;border-radius:12px;border:1.5px solid var(--border);padding:24px;margin-top:20px}
 .roi h4{font-size:14px;font-weight:800;margin-bottom:12px}
-.roi-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
-.roi-row:last-child{border:none}
+.roi-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}.roi-row:last-child{border:none}
 .roi-total{background:#f0fdf4;border-radius:8px;padding:12px;margin-top:10px;text-align:center}
 .roi-total .big{font-size:22px;font-weight:900;color:#059669}
 .cta-box{background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:14px;padding:32px;text-align:center;color:white;margin:24px 0}
 .cta-box h3{font-family:'Fraunces',serif;font-size:22px;font-weight:800;margin-bottom:6px}
 .cta-box p{font-size:13px;opacity:.7;margin-bottom:16px}
-.cta-btn{display:inline-block;padding:12px 28px;background:var(--accent);color:white;border-radius:8px;font-weight:700;font-size:14px;margin:4px}
+.cta-btn{display:inline-block;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;margin:4px;color:white}
 .share-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .share-btn{padding:8px 16px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.2);color:white;cursor:pointer;background:transparent}
 .ft{padding:24px;text-align:center;font-size:11px;color:var(--slate);border-top:1px solid var(--border)}.ft a{color:var(--copper)}
-.demo-badge{position:fixed;bottom:80px;right:24px;background:var(--copper);color:white;padding:8px 14px;border-radius:8px;font-size:10px;font-weight:700;z-index:97;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 </style>
 </head>
 <body>
 <nav class="nav">
   <a href="index.html" class="nav-logo">Emporion<span>Pros</span></a>
-  <div class="nav-r">
-    <a href="for-owners.html">For Homeowners</a>
-    <a href="platform.html">Platform</a>
-    <a href="for-owners.html#signup" class="nav-btn">List Your Property →</a>
-  </div>
+  <div class="nav-r"><a href="for-owners.html">For Homeowners</a><a href="platform.html">Platform</a><a href="for-owners.html#signup" class="nav-btn">List Your Property →</a></div>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge">📍 Ironbound, Newark NJ · Multi-Family · Investment</div>
+  <div class="hero-badge">📍 Ironbound, Newark NJ 07105 · Multi-Family · Investment Opportunity</div>
   <h1 class="sr">2-Unit Multi-Family — Turn-Key Investment in the Ironbound</h1>
   <div class="hero-price">$449,900</div>
-  <div class="hero-sub">5 Bed / 2 Bath Total · 1,568 sqft · Fully Rented · Positive Cash Flow</div>
+  <div class="hero-sub">Fully Rented · Positive Cash Flow · 5.8% Cap Rate</div>
   <div class="hero-stats">
     <span class="hero-stat">🏠 <strong>2</strong> Units</span>
-    <span class="hero-stat">🛏 <strong>5</strong> Total Beds</span>
-    <span class="hero-stat">🛁 <strong>2</strong> Total Baths</span>
+    <span class="hero-stat">🛏 <strong>5</strong> Beds Total</span>
+    <span class="hero-stat">🛁 <strong>2</strong> Baths Total</span>
     <span class="hero-stat">📐 <strong>1,568</strong> sqft</span>
-    <span class="hero-stat">💰 <strong>6.4%</strong> Cap Rate</span>
+    <span class="hero-stat">💰 <strong>$39,600</strong>/yr Income</span>
   </div>
 </section>
 
 <div style="max-width:900px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 0">
   <div class="gallery">
-    <img class="gallery-main" src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&q=80" alt="Multi-family exterior">
-    <img class="gallery-side" src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80" alt="Interior">
-    <img class="gallery-side" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" alt="Living space">
+    <img class="gallery-main" src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&q=80" alt="Multi-family building">
+    <img class="gallery-side" src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80" alt="Interior unit">
+    <img class="gallery-side" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" alt="Living area">
   </div>
-  <div class="note">📍 <strong>Exact address provided to qualified buyers only.</strong> Located on a residential street in the Ironbound, close to Ferry Street, schools, and Newark Penn Station.</div>
+  <div class="note">🔒 <strong>Address provided to qualified buyers only.</strong> Residential block in the Ironbound — close to Ferry Street, Newark Penn, schools, and shopping. Both units currently occupied.</div>
 </div>
 
 <section class="sec sec-white"><div class="sec-in">
   <div class="sec-label">Property Details</div>
-  <h2 class="sec-h sr">Well-maintained and fully rented.</h2>
+  <h2 class="sec-h sr">Well-maintained. Fully rented. Ready to close.</h2>
   <div class="features">
-    <div class="feat"><div class="feat-i">🏠</div><h4>Unit 1 — 3BR/1BA</h4><p>Ground floor, 3 bedrooms, full bath, separate entrance, currently rented at $1,800/mo</p></div>
-    <div class="feat"><div class="feat-i">🏠</div><h4>Unit 2 — 2BR/1BA</h4><p>Upper floor, 2 bedrooms, full bath, separate entrance, currently rented at $1,500/mo</p></div>
-    <div class="feat"><div class="feat-i">💰</div><h4>Fully Rented</h4><p>Both units occupied with reliable tenants. Leases in place. Immediate cash flow</p></div>
-    <div class="feat"><div class="feat-i">🔧</div><h4>Recently Updated</h4><p>New roof (2022), updated electrical, modern kitchens in both units</p></div>
-    <div class="feat"><div class="feat-i">📈</div><h4>Ironbound Appreciation</h4><p>Avg 8% annual appreciation. Newark's hottest neighborhood for investors</p></div>
-    <div class="feat"><div class="feat-i">🚂</div><h4>Transit Access</h4><p>Walk to Newark Penn Station, PATH to NYC, NJ Transit, and bus routes</p></div>
+    <div class="feat"><div class="feat-i">🏠</div><h4>Unit 1 — 3BR/1BA</h4><p>Ground floor · Separate entrance · Rented at $1,800/mo · Lease through 2026</p></div>
+    <div class="feat"><div class="feat-i">🏠</div><h4>Unit 2 — 2BR/1BA</h4><p>Upper floor · Separate entrance · Rented at $1,500/mo · Lease through 2026</p></div>
+    <div class="feat"><div class="feat-i">💰</div><h4>Immediate Cash Flow</h4><p>Both units occupied. $3,300/mo gross income from day one</p></div>
+    <div class="feat"><div class="feat-i">🔧</div><h4>Updated Systems</h4><p>New roof (2022), updated electrical, modern kitchens in both units</p></div>
+    <div class="feat"><div class="feat-i">📈</div><h4>Ironbound Growth</h4><p>8% annual appreciation. Newark's most in-demand neighborhood</p></div>
+    <div class="feat"><div class="feat-i">🚂</div><h4>Transit Access</h4><p>Walk to Newark Penn → PATH to NYC. Perfect for commuter tenants</p></div>
   </div>
 </div></section>
 
@@ -101,36 +90,33 @@
   <h2 class="sec-h sr">The numbers work.</h2>
   <div class="roi">
     <h4>📊 Income & Expenses</h4>
-    <div class="roi-row"><span>Unit 1 Rent (3BR)</span><span style="font-weight:700">$1,800/mo</span></div>
-    <div class="roi-row"><span>Unit 2 Rent (2BR)</span><span style="font-weight:700">$1,500/mo</span></div>
-    <div class="roi-row"><span style="color:#059669;font-weight:700">Gross Monthly Income</span><span style="color:#059669;font-weight:800">$3,300/mo</span></div>
-    <div class="roi-row"><span style="color:#059669;font-weight:700">Gross Annual Income</span><span style="color:#059669;font-weight:800">$39,600/yr</span></div>
-    <div class="roi-row"><span>Est. Property Tax</span><span style="color:#dc2626">−$9,200/yr</span></div>
-    <div class="roi-row"><span>Est. Insurance</span><span style="color:#dc2626">−$2,400/yr</span></div>
-    <div class="roi-row"><span>Est. Maintenance (5%)</span><span style="color:#dc2626">−$1,980/yr</span></div>
+    <div class="roi-row"><span>Unit 1 — 3BR/1BA</span><span style="font-weight:700;color:#059669">+$1,800/mo</span></div>
+    <div class="roi-row"><span>Unit 2 — 2BR/1BA</span><span style="font-weight:700;color:#059669">+$1,500/mo</span></div>
+    <div class="roi-row"><span style="font-weight:700">Gross Annual Income</span><span style="font-weight:800;color:#059669">$39,600/yr</span></div>
+    <div class="roi-row"><span>Property Tax</span><span style="color:#dc2626">−$9,200/yr</span></div>
+    <div class="roi-row"><span>Insurance</span><span style="color:#dc2626">−$2,400/yr</span></div>
+    <div class="roi-row"><span>Maintenance Reserve (5%)</span><span style="color:#dc2626">−$1,980/yr</span></div>
     <div class="roi-total">
       <div style="font-size:11px;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:1px">Net Operating Income</div>
       <div class="big">$26,020/yr</div>
-      <div style="font-size:11px;color:var(--slate)">Cap Rate: 5.8% · Cash-on-Cash: ~9.2% (with 20% down)</div>
+      <div style="font-size:11px;color:var(--slate);margin-top:4px">Cap Rate: 5.8% · With 20% down ($90K): <strong>Cash-on-Cash ~9.2%</strong></div>
     </div>
   </div>
 </div></section>
 
 <section class="sec sec-white"><div class="sec-in">
   <div class="cta-box">
-    <h3 class="sr">Ready to invest? Get the address & financials.</h3>
-    <p>Full rent rolls, tax records, and private tour available to qualified buyers.</p>
-    <a href="tel:8622887972" class="cta-btn">📞 Call (862) 288-7972</a>
-    <a href="https://calendly.com/ana-rosaliagroup/65-iron-tour?utm_source=sale_listing_2" class="cta-btn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3)">📅 Schedule Tour</a>
+    <h3 class="sr">Ready to invest? Get the full package.</h3>
+    <p>Exact address, rent rolls, tax records, and private tour for qualified buyers.</p>
+    <a href="tel:8622887972" class="cta-btn" style="background:var(--accent)">📞 Call (862) 288-7972</a>
+    <a href="https://calendly.com/ana-rosaliagroup/65-iron-tour?utm_source=sale_multifamily" class="cta-btn" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25)">📅 Schedule Tour</a>
     <div class="share-row">
-      <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✅ Copied!'">🔗 Copy Link</button>
-      <a class="share-btn" href="mailto:?subject=2-Unit Investment in Newark Ironbound — $449,900&body=Fully rented multi-family with 6.4% cap rate!">📧 Email</a>
-      <button class="share-btn" onclick="window.open('sms:?body=Check out this investment property in the Ironbound: '+window.location.href)">💬 Text</button>
+      <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✅ Copied!'">🔗 Copy</button>
+      <a class="share-btn" href="mailto:?subject=2-Unit Investment in the Ironbound — $449,900&body=Fully rented multi-family, 5.8% cap rate!">📧 Email</a>
     </div>
   </div>
 </div></section>
 
-<div class="demo-badge">🎯 Demo Campaign</div>
 <footer class="ft"><p>Campaign by <a href="platform.html">EmporionPros</a> · <a href="for-owners.html">List your property for $29/mo →</a></p></footer>
 <script src="social-proof.js"></script>
 </body>
