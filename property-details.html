@@ -2,9 +2,10 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Property — Emporion Pros</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="app.js"></script>
 <style>
+/* ── STANDARD STYLES ── */
 .detail-grid{display:grid;grid-template-columns:1fr 360px;gap:28px;max-width:1400px;margin:32px auto;padding:0 24px}
 .gallery{border-radius:12px;overflow:hidden;margin-bottom:20px;background:#f9fafb}
 .gallery-main{width:100%;height:460px;object-fit:cover;cursor:pointer}
@@ -15,8 +16,6 @@
 .prop-title{font-size:30px;font-weight:800;margin-bottom:6px}
 .prop-location{font-size:16px;color:#6b7280;margin-bottom:16px}
 .big-price{font-size:38px;font-weight:800;color:#1a56db}
-.special-badge{display:inline-block;background:#f97316;color:white;padding:6px 14px;border-radius:8px;font-size:14px;font-weight:700;margin-left:12px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
 .features-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .pill{padding:6px 14px;background:#f0fdf4;color:#15803d;border-radius:20px;font-size:13px;font-weight:500}
 .section-h{font-size:20px;font-weight:700;margin-bottom:16px}
@@ -29,11 +28,75 @@
 .agent-meta strong{display:block;font-size:15px;margin-bottom:2px}
 .cta-row{display:flex;gap:10px;margin-top:12px}
 @media(max-width:900px){.detail-grid{grid-template-columns:1fr}.lead-sticky{position:static}}
+
+/* ── CAMPAIGN STYLES ── */
+.c{font-family:'DM Sans',sans-serif;background:#faf8f5}
+.c-hero{position:relative;height:72vh;min-height:460px;display:flex;align-items:flex-end;overflow:hidden}
+.c-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.c-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,27,58,.95) 0%,rgba(12,27,58,.35) 50%,rgba(12,27,58,.1) 100%)}
+.c-hero-c{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 50px;width:100%;color:white}
+.c-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.c-tag{background:rgba(255,255,255,.12);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.15);padding:6px 13px;border-radius:24px;font-size:11px;font-weight:600}
+.c-tag-special{border-color:transparent}
+.c-h1{font-family:'Playfair Display',serif;font-size:clamp(30px,4.5vw,52px);font-weight:700;line-height:1.08;margin-bottom:8px}
+.c-addr{font-size:15px;opacity:.8;margin-bottom:18px}
+.c-stats{display:flex;gap:30px;margin-bottom:22px;flex-wrap:wrap}
+.c-sv{font-size:22px;font-weight:800}.c-sl{font-size:10px;opacity:.55;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.c-btns{display:flex;gap:10px;flex-wrap:wrap}
+.c-btn{padding:12px 24px;border-radius:8px;font-weight:700;font-size:13px;transition:.2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
+.c-btn-fill{color:white}.c-btn-fill:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.c-btn-ghost{background:transparent;color:white;border:1px solid rgba(255,255,255,.3)}.c-btn-ghost:hover{background:rgba(255,255,255,.08)}
+
+.c-wrap{max-width:1200px;margin:0 auto;padding:0 clamp(16px,3vw,40px)}
+
+.c-ai{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:12px;padding:18px 22px;margin:20px 0;display:flex;align-items:center;gap:14px;color:white}
+.c-ai-i{font-size:34px;flex-shrink:0}
+.c-ai h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.c-ai p{font-size:12px;opacity:.8}
+.c-ai a{background:white;color:#4f46e5;padding:8px 16px;border-radius:7px;font-weight:700;font-size:12px;flex-shrink:0;text-decoration:none;transition:.2s}
+.c-ai a:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+.c-gal{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:180px 180px;gap:8px;margin:20px 0;border-radius:12px;overflow:hidden}
+.c-gal img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:.3s}
+.c-gal img:first-child{grid-row:1/3}
+.c-gal img:hover{opacity:.9}
+@media(max-width:640px){.c-gal{grid-template-columns:1fr 1fr;grid-template-rows:auto}.c-gal img{height:150px}.c-gal img:first-child{grid-row:auto;grid-column:1/-1;height:220px}}
+
+.c-grid{display:grid;grid-template-columns:1fr 370px;gap:24px;margin:20px 0 40px}
+@media(max-width:900px){.c-grid{grid-template-columns:1fr}}
+
+.c-card{background:white;border-radius:12px;padding:26px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);border:1px solid #e5e7eb}
+.c-card h3{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#0c1b3a;margin-bottom:14px}
+
+.c-amenities{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.c-am{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #f1f5f9;transition:.2s}
+.c-am:hover{border-color:#c7d2fe;background:#eff6ff}
+.c-am-i{font-size:18px}
+.c-am-t{font-size:12px;font-weight:600;color:#1e293b}
+
+.c-details{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.c-det{padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #f1f5f9}
+.c-det-l{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.c-det-v{font-size:14px;font-weight:700;color:#0c1b3a}
+
+.c-hood-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.c-hood-tag{padding:5px 12px;background:#eff6ff;color:#1e40af;border-radius:6px;font-size:11px;font-weight:600}
+
+.c-special{border-radius:12px;padding:22px;color:white;text-align:center;margin-bottom:18px}
+.c-special h4{font-size:24px;font-weight:800;margin:6px 0 4px}
+.c-special p{font-size:12px;opacity:.85}
+
+.c-share{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.c-share-btn{padding:7px 14px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #e5e7eb;background:white;cursor:pointer;transition:.2s;color:#374151;font-family:inherit}
+.c-share-btn:hover{background:#f1f5f9}
+
+.c-link-card{background:white;border-radius:10px;padding:16px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e5e7eb;text-align:center}
+.c-link-card a{font-weight:700;font-size:13px;text-decoration:none}
 </style>
 </head>
 <body>
 <div id="header-mount"></div>
-<div class="detail-grid" id="detail-root">Loading...</div>
+<div id="detail-root">Loading...</div>
 <div id="ai-mount"></div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,30 +104,154 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
   const id = parseInt(new URLSearchParams(window.location.search).get('id')) || 1;
   const p = EP.properties.find(x => x.id === id);
-  if (!p) { document.getElementById('detail-root').innerHTML = '<p style="padding:40px">Property not found. <a href="listings.html">← Back</a></p>'; return; }
-  document.title = `${p.title} — Emporion Pros`;
+  if (!p) { document.getElementById('detail-root').innerHTML = '<p style="padding:40px">Property not found. <a href="listings.html">&larr; Back</a></p>'; return; }
+  document.title = p.title + ' — Emporion Pros';
 
-  // Use contact object if available, otherwise fall back to agent
+  const isCampaign = p.source === 'Iron 65' || p.source === 'Iron Pointe';
   const agent = EP.agents.find(a => a.id === p.agentId);
   const contact = p.contact || (agent ? { name: agent.name, title: agent.title, phone: agent.phone, email: agent.email, initials: agent.photo } : null);
   const initials = contact ? (contact.initials || contact.name.split(' ').map(w => w[0]).join('')) : '';
-  const hasSpecial = p.special;
-  const showFullAddress = p.source === 'Iron 65' || p.source === 'Iron Pointe';
+
+  if (isCampaign) renderCampaign(p, contact, initials);
+  else renderStandard(p, agent, contact, initials);
+});
+
+/* ═══════════════════════════════════════ */
+/*  CAMPAIGN LAYOUT (Iron 65 / Pointe)   */
+/* ═══════════════════════════════════════ */
+function renderCampaign(p, contact, initials) {
+  const is65 = p.source === 'Iron 65';
+  const accent = is65 ? '#d4763c' : '#c9a96e';
+  const landing = is65 ? 'iron-65.html' : 'iron-pointe.html';
+  const bed = p.beds === 0 ? 'Studio' : p.beds + ' Bed';
+  const ph = contact ? contact.phone : '';
+  const phClean = ph.replace(/[^0-9]/g,'');
+  const calLink = 'https://calendly.com/ana-rosaliagroup/' + (is65 ? 'iron-65-tour' : '65-iron-tour-clone');
+  const esc = s => s.replace(/'/g,"\\'");
 
   document.getElementById('detail-root').innerHTML = `
+  <div class="c">
+    <div class="c-hero">
+      <div class="c-hero-bg" style="background-image:url('${p.imgs[0]}')"></div>
+      <div class="c-hero-ov"></div>
+      <div class="c-hero-c">
+        <div class="c-tags">
+          <span class="c-tag">🏙️ ${p.source}</span>
+          <span class="c-tag">${bed} · ${p.sqft.toLocaleString()} sqft</span>
+          <span class="c-tag">🆕 Built ${p.yearBuilt}</span>
+          ${p.special ? '<span class="c-tag c-tag-special" style="background:'+accent+'">🎉 '+p.special+'</span>' : ''}
+        </div>
+        <h1 class="c-h1">${p.title}</h1>
+        <div class="c-addr">📍 ${p.address}, ${p.city}, ${p.state} ${p.zip}</div>
+        <div class="c-stats">
+          <div><div class="c-sv" style="color:${accent}">$${p.price.toLocaleString()}<span style="font-size:13px;opacity:.6">/mo</span></div><div class="c-sl">Starting rent</div></div>
+          <div><div class="c-sv" style="color:${accent}">${p.sqft.toLocaleString()}</div><div class="c-sl">Square feet</div></div>
+          <div><div class="c-sv" style="color:${accent}">${p.baths}</div><div class="c-sl">Bathrooms</div></div>
+          <div><div class="c-sv" style="color:${accent}">${p.yearBuilt}</div><div class="c-sl">Year built</div></div>
+        </div>
+        <div class="c-btns">
+          <a href="${calLink}" class="c-btn c-btn-fill" style="background:${accent}">📅 Schedule a Tour</a>
+          <a href="tel:${phClean}" class="c-btn c-btn-ghost">🤖 Call Aria — 24/7</a>
+          <a href="${landing}" class="c-btn c-btn-ghost">🏢 All ${p.source} Units</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-wrap">
+      <div class="c-ai">
+        <div class="c-ai-i">🤖</div>
+        <div style="flex:1"><h4>Aria — AI Leasing Assistant · 24/7</h4><p>Instant answers on pricing, availability & tours</p></div>
+        <a href="tel:${phClean}">📞 ${ph}</a>
+      </div>
+
+      ${p.imgs.length > 1 ? '<div class="c-gal">' + p.imgs.slice(0,5).map(img => '<img src="'+img+'" alt="'+p.title+'" onclick="window.open(\''+img+'\',\'_blank\')">').join('') + '</div>' : ''}
+
+      <div class="c-grid">
+        <div>
+          <div class="c-card">
+            <h3>About This Home</h3>
+            <p style="color:#374151;line-height:1.8;font-size:14px">${p.desc}</p>
+          </div>
+          <div class="c-card">
+            <h3>Amenities & Features</h3>
+            <div class="c-amenities">${p.features.map(f => '<div class="c-am"><span class="c-am-i">✓</span><span class="c-am-t">'+f+'</span></div>').join('')}</div>
+          </div>
+          <div class="c-card">
+            <h3>Property Details</h3>
+            <div class="c-details">
+              <div class="c-det"><div class="c-det-l">Type</div><div class="c-det-v">${bed}</div></div>
+              <div class="c-det"><div class="c-det-l">Building</div><div class="c-det-v">${p.source}</div></div>
+              <div class="c-det"><div class="c-det-l">Address</div><div class="c-det-v">${p.address}</div></div>
+              <div class="c-det"><div class="c-det-l">City</div><div class="c-det-v">${p.city}, ${p.state} ${p.zip}</div></div>
+              <div class="c-det"><div class="c-det-l">Year Built</div><div class="c-det-v">${p.yearBuilt}</div></div>
+              <div class="c-det"><div class="c-det-l">Size</div><div class="c-det-v">${p.sqft.toLocaleString()} sqft</div></div>
+            </div>
+          </div>
+          <div class="c-card">
+            <h3>The Ironbound Neighborhood</h3>
+            <p style="color:#374151;line-height:1.7;font-size:13px">Newark's most vibrant district — authentic Portuguese restaurants, world-class dining, booming nightlife. 20 min to Manhattan via PATH, 5 min to Newark Airport.</p>
+            <div class="c-hood-tags">
+              <span class="c-hood-tag">🚆 20 min to NYC</span>
+              <span class="c-hood-tag">✈️ 5 min to EWR</span>
+              <span class="c-hood-tag">🍽️ Ferry St dining</span>
+              <span class="c-hood-tag">🏞️ Riverbank Park</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lead-sticky">
+          ${p.special ? '<div class="c-special" style="background:linear-gradient(135deg,'+accent+','+(is65?'#c06830':'#b8963e')+')"><div style="font-size:28px">🎉</div><h4>'+p.special+'</h4><p>Limited time — contact us today</p></div>' : ''}
+
+          <div class="lead-card">
+            <h3 style="font-size:16px">Contact Us</h3>
+            <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Schedule a tour or ask a question</p>
+            ${contact ? '<div class="agent-row" style="background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:1px solid #c7d2fe"><div class="agent-av" style="background:#4f46e5">🤖</div><div class="agent-meta"><strong>'+contact.name+'</strong>'+contact.title+'<br><a href="tel:'+phClean+'" style="color:#1a56db;text-decoration:none">'+ph+'</a></div></div>' : ''}
+            <form onsubmit="submitLead(event,${p.id},${p.agentId})">
+              <div class="ep-form-group"><input class="ep-input" name="name" placeholder="Your Full Name" required></div>
+              <div class="ep-form-group"><input class="ep-input" name="email" type="email" placeholder="Email Address" required></div>
+              <div class="ep-form-group"><input class="ep-input" name="phone" type="tel" placeholder="Phone Number" required></div>
+              <div class="ep-form-group"><textarea class="ep-textarea" name="message" style="min-height:70px">I'm interested in ${p.title}. Please contact me.</textarea></div>
+              <button type="submit" class="ep-btn ep-btn-primary" style="width:100%;background:${accent}">Send Message</button>
+            </form>
+            <div class="cta-row">
+              <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal('${esc(p.title)}','${p.address}, ${p.city} ${p.state} ${p.zip}')">📅 Book Tour</button>
+              <a href="tel:${phClean}" class="ep-btn ep-btn-outline" style="flex:1;text-align:center;text-decoration:none">🤖 Call Aria</a>
+            </div>
+          </div>
+
+          <div class="c-link-card"><a href="${landing}" style="color:${accent}">🏢 See All ${p.source} Units & Pricing →</a></div>
+
+          <div class="c-link-card">
+            <p style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px">Share This Listing</p>
+            <div class="c-share">
+              <button class="c-share-btn" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✓ Copied!'">📋 Copy Link</button>
+              <button class="c-share-btn" onclick="window.open('mailto:?subject='+encodeURIComponent('${esc(p.title)}')+'&body='+encodeURIComponent('${esc(p.title)} - $${p.price.toLocaleString()}/mo\\n${p.address}, ${p.city}\\n'+window.location.href))">📧 Email</button>
+              <button class="c-share-btn" onclick="window.open('sms:?body='+encodeURIComponent('Check out ${esc(p.title)} - $${p.price.toLocaleString()}/mo '+window.location.href))">💬 Text</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════ */
+/*  STANDARD LAYOUT (regular listings)    */
+/* ═══════════════════════════════════════ */
+function renderStandard(p, agent, contact, initials) {
+  document.getElementById('detail-root').innerHTML = `
+    <div class="detail-grid">
     <div>
       <div class="gallery">
         <img id="gallery-main" src="${p.imgs[0]}" class="gallery-main" alt="${p.title}">
-        ${p.imgs.length > 1 ? `<div class="gallery-thumbs">
-          ${p.imgs.map((img,i) => `<img src="${img}" class="gallery-thumb ${i===0?'active':''}" onclick="setImg('${img}',this)" loading="lazy">`).join('')}
-        </div>` : ''}
+        ${p.imgs.length > 1 ? '<div class="gallery-thumbs">' + p.imgs.map((img,i) => '<img src="'+img+'" class="gallery-thumb '+(i===0?'active':'')+'" onclick="setImg(\''+img+'\',this)" loading="lazy">').join('') + '</div>' : ''}
       </div>
       <div class="info-card">
-        <h1 class="prop-title">${p.title}${hasSpecial ? `<span class="special-badge">🎉 ${p.special}</span>` : ''}</h1>
-        <div class="prop-location">📍 ${showFullAddress ? p.address + ', ' : ''}${p.city}, ${p.state} ${p.zip}${!showFullAddress ? ' &nbsp;<span style="font-size:12px;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:12px;font-weight:600">📬 Full address shared after inquiry</span>' : ''}</div>
+        <h1 class="prop-title">${p.title}</h1>
+        <div class="prop-location">📍 ${p.city}, ${p.state} ${p.zip} &nbsp;<span style="font-size:12px;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:12px;font-weight:600">📬 Full address shared after inquiry</span></div>
         <div class="big-price">$${p.price.toLocaleString()}${p.type==='rent'?'<span style="font-size:18px;font-weight:400;color:#6b7280"> /month</span>':''}</div>
         <div style="display:flex;gap:24px;margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb">
-          <div><div style="font-size:24px;font-weight:800">${p.beds === 0 ? 'Studio' : p.beds}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">${p.beds === 0 ? 'Type' : 'Beds'}</div></div>
+          <div><div style="font-size:24px;font-weight:800">${p.beds}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Beds</div></div>
           <div><div style="font-size:24px;font-weight:800">${p.baths}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Baths</div></div>
           <div><div style="font-size:24px;font-weight:800">${p.sqft.toLocaleString()}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Sq Ft</div></div>
           <div><div style="font-size:24px;font-weight:800">${p.yearBuilt}</div><div style="font-size:12px;color:#6b7280;text-transform:uppercase">Year Built</div></div>
@@ -73,54 +260,44 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="info-card">
         <h2 class="section-h">About This Property</h2>
         <p style="color:#374151;line-height:1.8">${p.desc}</p>
-        <div class="features-pills">${p.features.map(f => `<span class="pill">✓ ${f}</span>`).join('')}</div>
+        <div class="features-pills">${p.features.map(f => '<span class="pill">✓ '+f+'</span>').join('')}</div>
       </div>
       <div class="info-card">
         <h2 class="section-h">Property Details</h2>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
           <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Property Type</div><div style="font-weight:600">${p.propType}</div></div>
-          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Listing Type</div><div style="font-weight:600">${p.type === 'sale' ? 'For Sale' : 'For Rent'}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Listing Type</div><div style="font-weight:600">${p.type==='sale'?'For Sale':'For Rent'}</div></div>
           <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Year Built</div><div style="font-weight:600">${p.yearBuilt}</div></div>
-          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Building</div><div style="font-weight:600">${p.source}</div></div>
-          ${showFullAddress ? `<div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Address</div><div style="font-weight:600">${p.address}, ${p.city} ${p.state} ${p.zip}</div></div>` : `<div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Days Listed</div><div style="font-weight:600">${p.daysListed} days</div></div>`}
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Data Source</div><div style="font-weight:600">${p.source}</div></div>
+          <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">Days Listed</div><div style="font-weight:600">${p.daysListed} days</div></div>
           <div style="padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:#6b7280">City</div><div style="font-weight:600">${p.city}, ${p.state}</div></div>
         </div>
       </div>
     </div>
     <div class="lead-sticky">
       <div class="lead-card">
-        <h3>${contact ? 'Contact Us' : 'Contact Agent'}</h3>
+        <h3>Contact Agent</h3>
         <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Schedule a showing or ask a question</p>
-        ${contact ? `<div class="agent-row" style="${contact.name === 'Aria' ? 'background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:1px solid #c7d2fe' : 'background:#f9fafb'}">
-          <div class="agent-av" style="${contact.name === 'Aria' ? 'background:#4f46e5' : ''}">${contact.name === 'Aria' ? '🤖' : initials}</div>
-          <div class="agent-meta"><strong>${contact.name}</strong>${contact.title}<br><a href="tel:${contact.phone.replace(/[^0-9+]/g,'')}" style="color:#1a56db;text-decoration:none">${contact.phone}</a></div>
-        </div>` : ''}
-        <form onsubmit="submitLead(event, ${p.id}, ${p.agentId})">
+        ${agent ? '<div class="agent-row"><div class="agent-av">'+agent.photo+'</div><div class="agent-meta"><strong>'+agent.name+'</strong>'+agent.title+'<br><span style="color:#1a56db">'+agent.phone+'</span></div></div>' : ''}
+        <form onsubmit="submitLead(event,${p.id},${p.agentId})">
           <div class="ep-form-group"><input class="ep-input" name="name" placeholder="Your Full Name" required></div>
           <div class="ep-form-group"><input class="ep-input" name="email" type="email" placeholder="Email Address" required></div>
           <div class="ep-form-group"><input class="ep-input" name="phone" type="tel" placeholder="Phone Number" required></div>
-          <div class="ep-form-group"><textarea class="ep-textarea" name="message" style="min-height:80px">I'm interested in ${p.title}. Please contact me.</textarea></div>
+          <div class="ep-form-group"><textarea class="ep-textarea" name="message" style="min-height:80px">I\'m interested in this property. Please contact me.</textarea></div>
           <button type="submit" class="ep-btn ep-btn-primary" style="width:100%">Send Message</button>
         </form>
         <div class="cta-row">
-          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal('${p.title.replace(/'/g,"\\'")}','${p.address}, ${p.city} ${p.state} ${p.zip}')">📅 Book Showing</button>
-          <a href="tel:${contact ? contact.phone.replace(/[^0-9+]/g,'') : ''}" class="ep-btn ep-btn-outline" style="flex:1;text-align:center;text-decoration:none">📞 Call Now</a>
+          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
+          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.simulatePhoneCall()">📞 Call Agent</button>
         </div>
       </div>
-      ${hasSpecial ? `<div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:12px;padding:20px;margin-top:16px;color:white;text-align:center">
-        <div style="font-size:24px;margin-bottom:6px">🎉</div>
-        <div style="font-size:18px;font-weight:800;margin-bottom:4px">${p.special}</div>
-        <div style="font-size:13px;opacity:.9">Limited time offer — contact us today</div>
-      </div>` : ''}
       <div style="background:white;border-radius:12px;padding:20px;margin-top:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
         <h3 style="font-size:15px;font-weight:700;margin-bottom:14px">Need Services?</h3>
-        ${EP.vendors.slice(0,4).map(v => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6">
-          <div><div style="font-weight:600;font-size:13px">${v.name}</div><div style="font-size:12px;color:#6b7280">${v.category}</div></div>
-          <a href="vendors.html" class="ep-btn ep-btn-outline" style="padding:5px 12px;font-size:12px">Connect</a>
-        </div>`).join('')}
+        ${EP.vendors.slice(0,4).map(v => '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:600;font-size:13px">'+v.name+'</div><div style="font-size:12px;color:#6b7280">'+v.category+'</div></div><a href="vendors.html" class="ep-btn ep-btn-outline" style="padding:5px 12px;font-size:12px">Connect</a></div>').join('')}
       </div>
+    </div>
     </div>`;
-});
+}
 
 function setImg(src, thumb) {
   document.getElementById('gallery-main').src = src;
@@ -131,7 +308,7 @@ function setImg(src, thumb) {
 function submitLead(e, propId, agentId) {
   e.preventDefault();
   const fd = new FormData(e.target);
-  EP.leads.capture({ name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'), message: fd.get('message'), propertyId: propId, agentId, source: 'Property Detail Page' });
+  EP.leads.capture({ name:fd.get('name'), email:fd.get('email'), phone:fd.get('phone'), message:fd.get('message'), propertyId:propId, agentId, source:'Property Detail Page' });
   e.target.innerHTML = '<div style="text-align:center;padding:20px;color:#0e9f6e"><div style="font-size:32px">✅</div><div style="font-weight:700;margin-top:8px">Message Sent!</div><p style="font-size:13px;margin-top:4px">We\'ll contact you shortly.</p></div>';
 }
 </script>
