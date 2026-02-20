@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="submit" class="ep-btn ep-btn-primary" style="width:100%">Send Message</button>
         </form>
         <div class="cta-row">
-          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
+          <button class="ep-btn ep-btn-outline" style="flex:1" onclick="EP.ai.showAppointmentModal('${p.title.replace(/'/g,"\\'")}','${p.address}, ${p.city} ${p.state} ${p.zip}')">📅 Book Showing</button>
           <a href="tel:${contact ? contact.phone.replace(/[^0-9+]/g,'') : ''}" class="ep-btn ep-btn-outline" style="flex:1;text-align:center;text-decoration:none">📞 Call Now</a>
         </div>
       </div>
