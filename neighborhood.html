@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Ironbound — Newark's Most Vibrant Neighborhood | EmporionPros</title>
+<meta name="description" content="Discover the Ironbound — Newark's most vibrant neighborhood. Portuguese culture, world-class dining, riverside parks, and 20 minutes from Manhattan.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0c1b3a;--accent:#d4763c;--gold:#c9a96e;--cream:#faf8f5;--white:#fff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--green:#0e9f6e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+
+/* PROMO BAR */
+.promo{background:var(--navy);color:white;text-align:center;padding:10px 20px;font-size:12px;font-weight:500;letter-spacing:.2px}
+.promo strong{color:var(--accent)}
+.promo a{color:var(--gold);font-weight:700}
+
+/* NAV */
+.nav{background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 clamp(16px,3vw,40px)}
+.nav-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:56px;gap:20px}
+.nav-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy)}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:16px;margin-left:auto;align-items:center;font-size:13px}
+.nav-links a{color:var(--muted);font-weight:500;transition:.2s}
+.nav-links a:hover{color:var(--navy)}
+.nav-links .active{color:var(--accent);font-weight:700}
+.nav-cta{background:var(--navy);color:white!important;padding:8px 16px;border-radius:7px;font-weight:600;font-size:12px}
+@media(max-width:768px){.nav-links a:not(.nav-cta):not(.active){display:none}}
+
+/* HERO */
+.hero{background:var(--navy);padding:clamp(40px,6vw,70px) clamp(16px,3vw,40px);color:white;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(212,118,60,.15),transparent 70%),radial-gradient(ellipse at 70% 80%,rgba(201,169,110,.1),transparent 60%)}
+.hero-lab{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--gold);font-weight:700;margin-bottom:12px;position:relative}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,56px);font-weight:700;line-height:1.1;margin-bottom:14px;position:relative}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{font-size:16px;opacity:.8;max-width:560px;margin:0 auto 24px;line-height:1.6;position:relative}
+.hero-tags{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;position:relative}
+.hero-tag{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:7px 14px;border-radius:24px;font-size:11px;font-weight:600}
+
+/* SECTIONS */
+.sec{padding:clamp(40px,5vw,70px) clamp(16px,3vw,40px)}
+.sec-in{max-width:1100px;margin:0 auto}
+.sec-lab{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--accent);font-weight:700;margin-bottom:8px}
+.sec-h{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:10px}
+.sec-p{font-size:14px;color:var(--muted);max-width:520px;line-height:1.7}
+.sec-w{background:var(--white)}
+
+/* FUN FACTS */
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-top:28px}
+.fact{background:var(--white);border-radius:12px;padding:24px;border:1px solid var(--border);transition:.3s;position:relative;overflow:hidden}
+.fact:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.06);border-color:var(--accent)}
+.fact::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);opacity:0;transition:.3s}
+.fact:hover::after{opacity:1}
+.fact-icon{font-size:28px;margin-bottom:10px}
+.fact-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.fact-text{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* RESTAURANTS */
+.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:24px}
+.rest{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--border);transition:.3s;display:flex;gap:16px;align-items:flex-start}
+.rest:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.05);border-color:var(--gold)}
+.rest-emoji{font-size:32px;flex-shrink:0}
+.rest-tags{display:flex;gap:6px;margin-bottom:6px}
+.rest-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;background:#eff6ff;color:#1e40af}
+.rest-tag.dist{background:#fef3c7;color:#92400e}
+.rest-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.rest-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* TAB NAV */
+.tabs{display:flex;gap:6px;margin-top:24px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--white);cursor:pointer;transition:.2s;color:var(--muted)}
+.tab:hover,.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+
+/* TRANSIT */
+.transit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:20px}
+.transit{background:var(--white);border-radius:10px;padding:18px;border:1px solid var(--border);text-align:center;transition:.2s}
+.transit:hover{border-color:var(--accent)}
+.transit-val{font-size:26px;font-weight:800;color:var(--navy)}
+.transit-lab{font-size:11px;color:var(--muted);margin-top:2px}
+.transit-sub{font-size:10px;color:var(--accent);font-weight:600;margin-top:4px}
+
+/* PARKS */
+.parks{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:20px}
+.park{background:var(--white);border-radius:10px;padding:20px;border:1px solid var(--border);transition:.2s}
+.park:hover{border-color:var(--green)}
+.park-icon{font-size:24px;margin-bottom:8px}
+.park-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.park-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* SCORES */
+.scores{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.score{background:var(--white);border-radius:12px;padding:24px;border:1px solid var(--border);text-align:center}
+.score-num{font-size:40px;font-weight:800;margin-bottom:4px}
+.score-lab{font-size:13px;font-weight:700;color:var(--navy)}
+.score-sub{font-size:11px;color:var(--muted);margin-top:2px}
+@media(max-width:640px){.scores{grid-template-columns:1fr}}
+
+/* CTA */
+.cta{background:linear-gradient(135deg,var(--navy),#162d5a);border-radius:16px;padding:clamp(28px,4vw,44px);color:white;text-align:center;margin:32px 0}
+.cta h2{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,28px);font-weight:700;margin-bottom:6px}
+.cta p{opacity:.7;margin-bottom:20px;font-size:14px}
+.cta-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn-o{background:var(--accent);color:white;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;transition:.2s;display:inline-block}
+.btn-o:hover{background:#c06830;transform:translateY(-2px)}
+.btn-g{background:var(--gold);color:var(--navy);padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;transition:.2s;display:inline-block}
+.btn-g:hover{transform:translateY(-2px)}
+.btn-ghost{border:1px solid rgba(255,255,255,.3);color:white;padding:11px 20px;border-radius:8px;font-weight:600;font-size:13px;transition:.2s;display:inline-block}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+/* FOOTER */
+.ft{background:var(--navy);color:white;padding:36px clamp(16px,3vw,40px) 24px}
+.ft-in{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px}
+.ft h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:8px}
+.ft p,.ft a{font-size:12px;color:rgba(255,255,255,.6);line-height:1.8}
+.ft a:hover{color:var(--accent)}
+.ft-bot{max-width:1100px;margin:16px auto 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);font-size:10px;color:rgba(255,255,255,.3);text-align:center}
+@media(max-width:768px){.ft-in{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="promo">🏠 <strong>NOW LEASING:</strong> Iron 65 — Up to 1 Month FREE · Iron Pointe — 2 Months FREE · <a href="iron-65.html">Iron 65</a> · <a href="iron-pointe.html">Iron Pointe</a></div>
+
+<nav class="nav"><div class="nav-in">
+  <a href="index.html" class="nav-logo">Emporion <span>Pros</span></a>
+  <div class="nav-links">
+    <a href="iron-65.html">Iron 65</a>
+    <a href="iron-pointe.html">Iron Pointe</a>
+    <a href="neighborhood.html" class="active">🗺️ Neighborhood</a>
+    <a href="tel:8622887972">🤖 Aria</a>
+    <a href="https://calendly.com/ana-rosaliagroup/iron-65-tour" class="nav-cta">📅 Schedule Tour</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-lab">Your Neighborhood</div>
+  <h1>Life in the <em>Ironbound</em></h1>
+  <p>Newark's most vibrant neighborhood — authentic Portuguese culture, world-class dining, riverside parks, and 20 minutes from Manhattan. Welcome home.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">🍽️ World-class dining</span>
+    <span class="hero-tag">🌳 Riverside parks</span>
+    <span class="hero-tag">🛒 Local markets</span>
+    <span class="hero-tag">🚆 20 min to NYC</span>
+    <span class="hero-tag">🇵🇹 Little Portugal</span>
+    <span class="hero-tag">🏙️ Walk Score 88</span>
+  </div>
+</section>
+
+<!-- FUN FACTS -->
+<section class="sec"><div class="sec-in">
+  <div class="sec-lab">Fun Facts</div>
+  <h2 class="sec-h">The Ironbound Story</h2>
+  <p class="sec-p">Six things you didn't know about Newark's most iconic neighborhood.</p>
+  <div class="facts">
+    <div class="fact"><div class="fact-icon">🇵🇹</div><div class="fact-title">Little Portugal</div><div class="fact-text">Over 50% of Ironbound residents are of Portuguese descent — making it one of the largest Portuguese communities in the US. Ferry Street is lined with authentic bakeries, restaurants, and cultural shops.</div></div>
+    <div class="fact"><div class="fact-icon">🎉</div><div class="fact-title">Portugal Day Festival</div><div class="fact-text">Every June, Ferry Street shuts down for Newark's biggest block party — grilled sardines, live music, parades, and accordion music. It's the neighborhood's Super Bowl.</div></div>
+    <div class="fact"><div class="fact-icon">🎬</div><div class="fact-title">Hollywood Moment</div><div class="fact-text">St. Stephan's Church on Ferry & Wilson — built in 1874 — was featured in the Tom Cruise film War of the Worlds. It's a neighborhood landmark serving the community in three languages.</div></div>
+    <div class="fact"><div class="fact-icon">🏗️</div><div class="fact-title">Neighborhood on the Rise</div><div class="fact-text">Ironbound is one of NJ's fastest-growing neighborhoods, with new luxury developments, revitalized parks, and a booming restaurant scene — while still holding its old-world charm.</div></div>
+    <div class="fact"><div class="fact-icon">🌍</div><div class="fact-title">Most Diverse ZIP Code</div><div class="fact-text">The 07105 ZIP code is one of the most ethnically diverse in New Jersey — Portuguese, Brazilian, Spanish, Latin American, and more cultures all coexist on the same block.</div></div>
+    <div class="fact"><div class="fact-icon">📍</div><div class="fact-title">Why 'Ironbound'?</div><div class="fact-text">The neighborhood gets its name from the railroad tracks that historically surrounded it on all sides — binding the community within an iron boundary. Today it's a badge of pride.</div></div>
+  </div>
+</div></section>
+
+<!-- RESTAURANTS -->
+<section class="sec sec-w"><div class="sec-in">
+  <div class="sec-lab">Dining & Nightlife</div>
+  <h2 class="sec-h">Eat Like a Local</h2>
+  <p class="sec-p">The Ironbound is a food destination — Portuguese seafood, Spanish tapas, Brazilian churrasco, Italian pasta, and more.</p>
+
+  <div class="rest-grid">
+    <div class="rest"><div class="rest-emoji">🦑</div><div><div class="rest-tags"><span class="rest-tag">Newark Legend</span><span class="rest-tag dist">📍 0.3 mi</span></div><div class="rest-name">Seabra's Marisqueira</div><div class="rest-desc">Newark's most iconic seafood restaurant — legendary grilled octopus, massive seafood platters, and sangria pitchers. Open 30+ years and still packing tables.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🥘</div><div><div class="rest-tags"><span class="rest-tag">Fine Dining</span><span class="rest-tag dist">📍 0.5 mi</span></div><div class="rest-name">Fornos of Spain</div><div class="rest-desc">Upscale Spanish dining with authentic paellas, rare wines, and an atmosphere that feels like a passport stamp. A Ferry Street institution.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🍢</div><div><div class="rest-tags"><span class="rest-tag">Tapas</span><span class="rest-tag dist">📍 0.4 mi</span></div><div class="rest-name">Casa d'Paco Tapas Bar</div><div class="rest-desc">Trendy yet authentic Galician tapas and Pulpo a Feira in a stylish setting. Locals swear by the small plates and the vibe.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🍝</div><div><div class="rest-tags"><span class="rest-tag">Brunch</span><span class="rest-tag dist">📍 0.6 mi</span></div><div class="rest-name">Five Corners Ristorante</div><div class="rest-desc">Italian-Iberian fusion at the heart of Ferry & Wilson. Light pasta, great wine list, and a hip minimalist space. Brunch on weekends.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🎶</div><div><div class="rest-tags"><span class="rest-tag">Live Music</span><span class="rest-tag dist">📍 0.4 mi</span></div><div class="rest-name">Sabor Unido</div><div class="rest-desc">New-wave Brazilian-Portuguese vibes with sharable plates and live music some nights. Romantic ambiance, perfect for date night.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🍕</div><div><div class="rest-tags"><span class="rest-tag">Local Fave</span><span class="rest-tag dist">📍 0.8 mi</span></div><div class="rest-name">Dickie Dee's Pizza</div><div class="rest-desc">Newark's beloved old-school pizza spot — thin-crust, perfectly charred, no-frills perfection. A neighborhood staple for decades.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🥐</div><div><div class="rest-tags"><span class="rest-tag">Bakery</span><span class="rest-tag dist">📍 0.3 mi</span></div><div class="rest-name">Teixeira's Bakery</div><div class="rest-desc">Authentic Portuguese pastéis de nata, fresh bread, and egg tarts. A morning ritual for Ironbound locals since the '80s.</div></div></div>
+    <div class="rest"><div class="rest-emoji">🍖</div><div><div class="rest-tags"><span class="rest-tag">Brazilian</span><span class="rest-tag dist">📍 0.5 mi</span></div><div class="rest-name">Brasilia Grill</div><div class="rest-desc">All-you-can-eat rodízio-style churrascaria with endless cuts of meat, a full salad bar, and caipirinha cocktails.</div></div></div>
+  </div>
+</div></section>
+
+<!-- TRANSIT -->
+<section class="sec"><div class="sec-in">
+  <div class="sec-lab">Getting Around</div>
+  <h2 class="sec-h">Connected to Everything</h2>
+  <p class="sec-p">The Ironbound's central location means you're minutes from Manhattan, the airport, and all of North Jersey.</p>
+  <div class="transit-grid">
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">🚆</div><div class="transit-val">20 min</div><div class="transit-lab">PATH to NYC Penn Station</div><div class="transit-sub">$2.75 one-way · $110/mo unlimited</div></div>
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">✈️</div><div class="transit-val">5 min</div><div class="transit-lab">To Newark Liberty (EWR)</div><div class="transit-sub">AirTrain + PATH connection</div></div>
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">🚌</div><div class="transit-val">Direct</div><div class="transit-lab">NJ Transit Bus Access</div><div class="transit-sub">Routes 1, 40, 62, 107 nearby</div></div>
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">🚗</div><div class="transit-val">10 min</div><div class="transit-lab">To I-78 / NJ Turnpike</div><div class="transit-sub">Easy highway access</div></div>
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">🚂</div><div class="transit-val">Newark Penn</div><div class="transit-lab">NJ Transit Rail Hub</div><div class="transit-sub">0.6 mi walk · All NJ lines</div></div>
+    <div class="transit"><div style="font-size:28px;margin-bottom:6px">🚲</div><div class="transit-val">Bike-Friendly</div><div class="transit-lab">Protected bike lanes</div><div class="transit-sub">Riverbank Park trail</div></div>
+  </div>
+</div></section>
+
+<!-- PARKS -->
+<section class="sec sec-w"><div class="sec-in">
+  <div class="sec-lab">Parks & Recreation</div>
+  <h2 class="sec-h">Green Spaces & Fresh Air</h2>
+  <p class="sec-p">The Ironbound is greener than you think — riverside trails, historic parks, and open spaces.</p>
+  <div class="parks">
+    <div class="park"><div class="park-icon">🏞️</div><div class="park-name">Riverbank Park</div><div class="park-desc">Waterfront green space along the Passaic River. Walking/jogging trails, fishing spots, playgrounds, and picnic areas. Perfect for morning runs.</div></div>
+    <div class="park"><div class="park-icon">⚽</div><div class="park-name">Independence Park</div><div class="park-desc">The neighborhood's main park — basketball courts, soccer fields, playground, and a popular summer splash pad for kids. Community events year-round.</div></div>
+    <div class="park"><div class="park-icon">🌸</div><div class="park-name">Branch Brook Park</div><div class="park-desc">Just north — home to the largest collection of cherry blossom trees in the US (more than DC!). Every April, the Cherry Blossom Festival draws 100,000+ visitors.</div></div>
+    <div class="park"><div class="park-icon">🛹</div><div class="park-name">Jesse Allen Park</div><div class="park-desc">Modern skate park, basketball courts, and open green space. Popular after-work hangout for young professionals in the neighborhood.</div></div>
+  </div>
+</div></section>
+
+<!-- WALK SCORES -->
+<section class="sec"><div class="sec-in">
+  <div class="sec-lab">Livability Scores</div>
+  <h2 class="sec-h">How Ironbound Rates</h2>
+  <div class="scores">
+    <div class="score"><div class="score-num" style="color:var(--green)">88</div><div class="score-lab">Walk Score</div><div class="score-sub">Very Walkable — daily errands on foot</div></div>
+    <div class="score"><div class="score-num" style="color:#2563eb">82</div><div class="score-lab">Transit Score</div><div class="score-sub">Excellent Transit — PATH, bus, rail</div></div>
+    <div class="score"><div class="score-num" style="color:var(--accent)">68</div><div class="score-lab">Bike Score</div><div class="score-sub">Bikeable — some infrastructure</div></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="sec"><div class="sec-in">
+  <div class="cta">
+    <h2>Ready to Call Ironbound Home?</h2>
+    <p>Two brand new luxury buildings — right in the heart of it all.</p>
+    <div class="cta-btns">
+      <a href="iron-65.html" class="btn-o">🏢 Iron 65 — Studios from $2,388</a>
+      <a href="iron-pointe.html" class="btn-g">🏢 Iron Pointe — 1BR from $2,400</a>
+      <a href="tel:8622887972" class="btn-ghost">🤖 Call Aria — (862) 288-7972</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- FOOTER -->
+<footer class="ft"><div class="ft-in">
+  <div>
+    <h4>Emporion Pros</h4>
+    <p>Real estate marketing, leasing, and AI-powered lead generation for the Ironbound and beyond.</p>
+    <p style="margin-top:8px">📍 Newark, NJ</p>
+    <p>🤖 <a href="tel:8622887972">(862) 288-7972</a> · 📧 <a href="mailto:info@emporionpros.com">info@emporionpros.com</a></p>
+  </div>
+  <div>
+    <h4>Properties</h4>
+    <p><a href="iron-65.html">Iron 65 Newark</a></p>
+    <p><a href="iron-pointe.html">Iron Pointe Newark</a></p>
+    <p><a href="listings.html">All Listings</a></p>
+    <p><a href="neighborhood.html">Neighborhood Guide</a></p>
+  </div>
+  <div>
+    <h4>Current Offers</h4>
+    <p style="color:var(--accent);font-weight:700">🎉 Iron 65 — Up to 1 Month FREE</p>
+    <p style="color:var(--gold);font-weight:700">🎉 Iron Pointe — 2 Months FREE</p>
+    <p style="margin-top:8px"><a href="https://calendly.com/ana-rosaliagroup/iron-65-tour">📅 Book a Tour</a></p>
+  </div>
+</div><div class="ft-bot">© 2026 Emporion Pros / Rosalia Group · Neighborhood data approximate · Walk Score® is a registered trademark</div></footer>
+
+</body>
+</html>
