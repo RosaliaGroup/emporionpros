@@ -127,7 +127,7 @@ function renderCampaign(p, contact, initials) {
   const bed = p.beds === 0 ? 'Studio' : p.beds + ' Bed';
   const ph = contact ? contact.phone : '';
   const phClean = ph.replace(/[^0-9]/g,'');
-  const calLink = 'https://calendly.com/ana-rosaliagroup/' + (is65 ? 'iron-65-tour' : isPointe ? '65-iron-tour-clone' : 'iron-65-tour');
+  const calLink = 'https://calendly.com/ana-rosaliagroup/' + (is65 ? '65-iron-tour?utm_source=property_detail&utm_content='+encodeURIComponent(p.title) : isPointe ? '65-iron-tour?utm_source=property_detail&utm_content='+encodeURIComponent(p.title) : '65-iron-tour?utm_source=property_detail&utm_content='+encodeURIComponent(p.title));
   const esc = s => s.replace(/'/g,"\\'");
 
   document.getElementById('detail-root').innerHTML = `
