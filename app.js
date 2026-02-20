@@ -262,14 +262,21 @@ const EP = {
       return "📞 I'm calling the agent now on your behalf! Watch the call simulation...";
     },
 
-    showAppointmentModal: function() {
+    showAppointmentModal: function(propTitle, propAddress) {
       setTimeout(() => {
+        const title = propTitle || 'a property';
+        const addr = propAddress || '';
         const m = document.createElement('div');
         m.id = 'appt-modal';
         m.innerHTML = `
           <div class="modal-box">
             <h3>📅 Book a Showing</h3>
-            <p style="color:#6b7280;margin-bottom:20px">Pick a date and time — I'll confirm with the agent instantly</p>
+            <p style="color:#6b7280;margin-bottom:12px">Pick a date and time — I'll confirm instantly</p>
+            ${addr ? `<div style="background:#eff6ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px;margin-bottom:16px">
+              <div style="font-size:12px;color:#6b7280;margin-bottom:2px">Property</div>
+              <div style="font-weight:700;font-size:14px;color:#1e3a8a">${title}</div>
+              <div style="font-size:13px;color:#374151">📍 ${addr}</div>
+            </div>` : ''}
             <input type="text" id="appt-name" placeholder="Your Name" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:10px;font-family:inherit">
             <input type="email" id="appt-email" placeholder="Your Email" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:10px;font-family:inherit">
             <input type="tel" id="appt-phone" placeholder="Your Phone" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:10px;font-family:inherit">
@@ -278,21 +285,26 @@ const EP = {
               <option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option>
               <option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option>
             </select>
-            <button onclick="EP.ai.confirmAppt()" style="width:100%;padding:12px;background:#1a56db;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit">Confirm Appointment</button>
+            <button onclick="EP.ai.confirmAppt('${title.replace(/'/g,"\\'")}','${addr.replace(/'/g,"\\'")}')" style="width:100%;padding:12px;background:#1a56db;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit">Confirm Appointment</button>
             <button onclick="document.getElementById('appt-modal').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:#6b7280;cursor:pointer;margin-top:8px;font-family:inherit">Cancel</button>
           </div>`;
         document.body.appendChild(m);
       }, 300);
     },
 
-    confirmAppt: function() {
+    confirmAppt: function(propTitle, propAddress) {
       const name = document.getElementById('appt-name')?.value;
+      const email = document.getElementById('appt-email')?.value;
+      const phone = document.getElementById('appt-phone')?.value;
       const date = document.getElementById('appt-date')?.value;
       const time = document.getElementById('appt-time')?.value;
-      if (!name || !date) { alert('Please fill in your name and date.'); return; }
-      EP.appointments.book({ name, date, time, type: 'showing' });
+      if (!name || !date || !phone) { alert('Please fill in your name, phone, and date.'); return; }
+      const appt = { name, email, phone, date, time, type: 'showing', property: propTitle || '', address: propAddress || '' };
+      EP.appointments.book(appt);
+      // Also capture as a lead
+      EP.leads.capture({ name, email, phone, message: `Showing request for ${propTitle || 'property'} at ${propAddress || 'TBD'} on ${date} at ${time}`, source: 'Appointment Booking' });
       document.getElementById('appt-modal')?.remove();
-      EP.ai.addMessage('assistant', `✅ Done! Appointment confirmed for **${date} at ${time}**. You'll receive a confirmation shortly. The agent will meet you at the property. See you then, ${name}!`);
+      EP.ai.addMessage('assistant', `✅ Done! Showing booked for **${propTitle || 'property'}**${propAddress ? ' at **' + propAddress + '**' : ''} on **${date} at ${time}**. We'll contact you at ${phone} to confirm. See you then, ${name}!`);
     },
 
     addMessage: function(role, content) {
