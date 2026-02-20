@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EmporionPros Campaign — 4BR Colonial in Maplewood, NJ | $649,000</title>
+<title>EmporionPros Campaign — 3BR Ironbound Classic | For Sale</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0a0f1a;--paper:#f7f5f0;--accent:#1a56db;--accent-l:#3b82f6;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff}
+:root{--ink:#0a0f1a;--paper:#f7f5f0;--accent:#1a56db;--accent-l:#3b82f6;--slate:#64748b;--border:rgba(10,15,26,.08);--copper:#c8622a}
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
 .nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
-.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800}.nav-logo span{color:#c8622a}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800}.nav-logo span{color:var(--copper)}
 .nav-r{margin-left:auto;display:flex;align-items:center;gap:14px}
 .nav-r a{font-size:12px;font-weight:600;color:var(--slate)}
 .nav-btn{background:var(--accent);color:white!important;padding:9px 16px;border-radius:8px}
@@ -17,32 +17,37 @@
 .hero h1{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;margin-bottom:6px}
 .hero-price{font-size:clamp(28px,4vw,42px);font-weight:900;color:#93c5fd;margin:8px 0}
 .hero-stats{display:flex;gap:20px;justify-content:center;margin:16px 0;flex-wrap:wrap}
-.hero-stat{font-size:13px;opacity:.8}
-.hero-stat strong{color:white}
+.hero-stat{font-size:13px;opacity:.8}.hero-stat strong{color:white}
 .sec{padding:clamp(32px,4vw,48px) clamp(16px,4vw,48px)}.sec-in{max-width:900px;margin:0 auto}
 .sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:8px}
 .sec-h{font-family:'Fraunces',serif;font-size:clamp(22px,3vw,30px);font-weight:800;margin-bottom:12px}
 .sec-white{background:white}
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0;border-radius:12px;overflow:hidden}
-.gallery div{height:180px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:40px}
-.gallery div:first-child{grid-column:span 2;height:280px}
+.gallery{display:grid;grid-template-columns:2fr 1fr;gap:6px;margin:20px auto;border-radius:12px;overflow:hidden;max-width:900px}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-main{grid-row:span 2;min-height:300px}
+.gallery-side{min-height:147px}
+@media(max-width:600px){.gallery{grid-template-columns:1fr}.gallery-main{grid-row:auto}}
 .features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
-@media(max-width:600px){.features{grid-template-columns:1fr}.gallery{grid-template-columns:1fr}.gallery div:first-child{grid-column:span 1;height:200px}}
+@media(max-width:600px){.features{grid-template-columns:1fr}}
 .feat{background:white;border-radius:10px;padding:16px;border:1px solid var(--border);text-align:center}
 .feat-i{font-size:24px;margin-bottom:6px}
 .feat h4{font-size:13px;font-weight:700}.feat p{font-size:11px;color:var(--slate)}
-.note{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:16px;font-size:13px;color:#92400e;margin:20px 0;text-align:center}
-.note strong{color:#78350f}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;font-size:13px;color:#1e40af;margin:20px auto;text-align:center;max-width:900px}
+.note strong{color:#1e3a8a}
 .cta-box{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:14px;padding:32px;text-align:center;color:white;margin:24px 0}
 .cta-box h3{font-family:'Fraunces',serif;font-size:22px;font-weight:800;margin-bottom:6px}
 .cta-box p{font-size:13px;opacity:.7;margin-bottom:16px}
-.cta-btn{display:inline-block;padding:12px 28px;background:var(--accent);color:white;border-radius:8px;font-weight:700;font-size:14px}
+.cta-btn{display:inline-block;padding:12px 28px;background:var(--accent);color:white;border-radius:8px;font-weight:700;font-size:14px;margin:4px}
 .cta-btn:hover{background:var(--accent-l)}
-.share-row{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .share-btn{padding:8px 16px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.2);color:white;cursor:pointer;background:transparent}
-.ft{padding:24px;text-align:center;font-size:11px;color:var(--slate);border-top:1px solid var(--border)}
-.ft a{color:#c8622a}
-.demo-badge{position:fixed;bottom:16px;right:16px;background:#c8622a;color:white;padding:10px 16px;border-radius:10px;font-size:11px;font-weight:700;z-index:99;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.nhood{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+@media(max-width:600px){.nhood{grid-template-columns:repeat(2,1fr)}}
+.nh{background:white;border-radius:8px;padding:12px;border:1px solid var(--border);text-align:center;font-size:11px}
+.nh-i{font-size:20px;margin-bottom:4px}
+.nh b{display:block;font-size:12px;margin-bottom:2px}
+.ft{padding:24px;text-align:center;font-size:11px;color:var(--slate);border-top:1px solid var(--border)}.ft a{color:var(--copper)}
+.demo-badge{position:fixed;bottom:80px;right:24px;background:var(--copper);color:white;padding:8px 14px;border-radius:8px;font-size:10px;font-weight:700;z-index:97;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 </style>
 </head>
 <body>
@@ -56,62 +61,75 @@
 </nav>
 
 <section class="hero">
-  <div class="hero-badge">📍 Maplewood, NJ · For Sale</div>
-  <h1 class="sr">Charming 4BR Colonial on a Tree-Lined Street</h1>
-  <div class="hero-price">$649,000</div>
+  <div class="hero-badge">📍 Ironbound, Newark NJ · For Sale · No Agent</div>
+  <h1 class="sr">Charming 3BR Classic in the Heart of the Ironbound</h1>
+  <div class="hero-price">$349,900</div>
   <div class="hero-stats">
-    <span class="hero-stat">🛏 <strong>4</strong> Beds</span>
-    <span class="hero-stat">🛁 <strong>2.5</strong> Baths</span>
-    <span class="hero-stat">📐 <strong>2,400</strong> sqft</span>
-    <span class="hero-stat">🏡 <strong>0.28</strong> acres</span>
-    <span class="hero-stat">📅 Built <strong>1928</strong></span>
+    <span class="hero-stat">🛏 <strong>3</strong> Beds</span>
+    <span class="hero-stat">🛁 <strong>1</strong> Bath</span>
+    <span class="hero-stat">📐 <strong>1,022</strong> sqft</span>
+    <span class="hero-stat">🏡 <strong>Historic</strong> 1857</span>
+    <span class="hero-stat">🔑 <strong>Move-In Ready</strong></span>
   </div>
 </section>
 
-<div class="sec-in" style="padding:20px clamp(16px,4vw,48px)">
+<div style="max-width:900px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 0">
   <div class="gallery">
-    <div style="background:#c7d2fe">🏠</div>
-    <div style="background:#dbeafe">🍳</div>
-    <div style="background:#e0e7ff">🛋️</div>
-    <div style="background:#ede9fe">🛏️</div>
-    <div style="background:#ddd6fe">🌳</div>
+    <img class="gallery-main" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80" alt="Home exterior">
+    <img class="gallery-side" src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" alt="Kitchen">
+    <img class="gallery-side" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" alt="Living room">
   </div>
-  <div class="note">📍 <strong>Exact address provided after inquiry.</strong> This listing is in the heart of Maplewood's sought-after Jefferson neighborhood — walkable to the village, Jitney to NYC, top-rated schools.</div>
+  <div class="note">📍 <strong>Address provided after inquiry only.</strong> Located on a quiet residential street in Newark's iconic Ironbound neighborhood — steps from Ferry Street restaurants, Newark Penn Station, and the PATH to NYC.</div>
 </div>
 
 <section class="sec sec-white"><div class="sec-in">
   <div class="sec-label">Property Highlights</div>
-  <h2 class="sec-h sr">Why you'll love this home.</h2>
+  <h2 class="sec-h sr">Ironbound charm meets modern living.</h2>
   <div class="features">
-    <div class="feat"><div class="feat-i">🍳</div><h4>Chef's Kitchen</h4><p>Fully renovated with quartz counters, SS appliances, large island</p></div>
-    <div class="feat"><div class="feat-i">🪵</div><h4>Hardwood Floors</h4><p>Original refinished hardwood throughout all levels</p></div>
-    <div class="feat"><div class="feat-i">🔥</div><h4>Fireplace</h4><p>Wood-burning fireplace in the living room</p></div>
-    <div class="feat"><div class="feat-i">🌳</div><h4>Private Backyard</h4><p>Fenced yard with patio, mature trees, garden beds</p></div>
-    <div class="feat"><div class="feat-i">🚂</div><h4>NYC Commute</h4><p>12 min to Maplewood Station, 45 min door-to-door to Penn</p></div>
-    <div class="feat"><div class="feat-i">🏫</div><h4>Top Schools</h4><p>Seth Boyden Elementary, Maplewood Middle — all rated 8+</p></div>
-    <div class="feat"><div class="feat-i">🅿️</div><h4>2-Car Garage</h4><p>Detached 2-car garage with storage loft</p></div>
-    <div class="feat"><div class="feat-i">🏠</div><h4>Finished Basement</h4><p>Full finished basement — office, gym, or rec room</p></div>
-    <div class="feat"><div class="feat-i">☀️</div><h4>Sun Room</h4><p>Enclosed 3-season sun porch off the kitchen</p></div>
+    <div class="feat"><div class="feat-i">🏠</div><h4>Historic Character</h4><p>Original 1857 architecture with exposed brick, high ceilings, and period details</p></div>
+    <div class="feat"><div class="feat-i">🍳</div><h4>Updated Kitchen</h4><p>Modern appliances, new countertops, tile backsplash, ample cabinet space</p></div>
+    <div class="feat"><div class="feat-i">🪵</div><h4>Hardwood Floors</h4><p>Beautiful hardwood throughout the main living areas</p></div>
+    <div class="feat"><div class="feat-i">🚂</div><h4>20 Min to NYC</h4><p>Walk to Newark Penn → PATH to WTC in 20 min. NJ Transit to Penn Station</p></div>
+    <div class="feat"><div class="feat-i">🍽️</div><h4>Restaurant Row</h4><p>Steps from Ferry St — Seabra's, Fornos, Casa d'Paco, Teixeira's Bakery</p></div>
+    <div class="feat"><div class="feat-i">📈</div><h4>Investment Potential</h4><p>Ironbound is Newark's fastest-growing neighborhood. Strong rental demand</p></div>
+    <div class="feat"><div class="feat-i">🏫</div><h4>Schools Nearby</h4><p>Multiple elementary and middle schools within walking distance</p></div>
+    <div class="feat"><div class="feat-i">🅿️</div><h4>Street Parking</h4><p>Residential permit parking available on the block</p></div>
+    <div class="feat"><div class="feat-i">✈️</div><h4>5 Min to EWR</h4><p>Newark Liberty Airport just minutes away — perfect for frequent travelers</p></div>
   </div>
 </div></section>
 
 <section class="sec"><div class="sec-in">
+  <div class="sec-label">The Neighborhood</div>
+  <h2 class="sec-h sr">Life in the Ironbound.</h2>
+  <div class="nhood">
+    <div class="nh"><div class="nh-i">🚶</div><b>Walk Score 88</b>Very Walkable</div>
+    <div class="nh"><div class="nh-i">🚇</div><b>Transit Score 82</b>Excellent Transit</div>
+    <div class="nh"><div class="nh-i">🚲</div><b>Bike Score 68</b>Bikeable</div>
+    <div class="nh"><div class="nh-i">🍽️</div><b>150+ Restaurants</b>Ferry Street</div>
+    <div class="nh"><div class="nh-i">🚂</div><b>Newark Penn</b>0.6 mi walk</div>
+    <div class="nh"><div class="nh-i">✈️</div><b>EWR Airport</b>5 min drive</div>
+    <div class="nh"><div class="nh-i">🌳</div><b>Riverbank Park</b>Waterfront trails</div>
+    <div class="nh"><div class="nh-i">🎉</div><b>Portugal Day</b>Annual festival</div>
+  </div>
+  <p style="text-align:center;margin-top:12px"><a href="neighborhood.html" style="color:var(--accent);font-weight:700;font-size:13px">📖 Read the full Ironbound Neighborhood Guide →</a></p>
+</div></section>
+
+<section class="sec sec-white"><div class="sec-in">
   <div class="cta-box">
-    <h3 class="sr">Interested? Get the full details.</h3>
-    <p>Exact address, additional photos, and private tour available upon request.</p>
+    <h3 class="sr">Interested? Get the address & schedule a showing.</h3>
+    <p>This home is being sold directly by the owner — no agent, no commission. Contact us for the full address and private tour.</p>
     <a href="tel:8622887972" class="cta-btn">📞 Call (862) 288-7972</a>
+    <a href="https://calendly.com/ana-rosaliagroup/65-iron-tour?utm_source=sale_listing_1" class="cta-btn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3)">📅 Schedule Showing</a>
     <div class="share-row">
       <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✅ Copied!'">🔗 Copy Link</button>
-      <a class="share-btn" href="mailto:?subject=Check out this home in Maplewood&body=4BR Colonial for $649K: ${window.location.href}">📧 Email</a>
+      <a class="share-btn" href="mailto:?subject=3BR Home in Newark Ironbound — $349,900&body=Check out this charming 3BR in the Ironbound!">📧 Email</a>
+      <button class="share-btn" onclick="window.open('sms:?body=Check out this 3BR in the Ironbound for $349K: '+window.location.href)">💬 Text</button>
     </div>
   </div>
 </div></section>
 
-<div class="demo-badge">🎯 EmporionPros Demo Campaign</div>
-
-<footer class="ft">
-  <p>This campaign was created with <a href="platform.html">EmporionPros</a> — the AI-powered real estate marketing platform. <a href="for-owners.html">List your home →</a></p>
-</footer>
+<div class="demo-badge">🎯 Demo Campaign</div>
+<footer class="ft"><p>Campaign by <a href="platform.html">EmporionPros</a> · No agent. No commission. <a href="for-owners.html">List your home for $29/mo →</a></p></footer>
 <script src="social-proof.js"></script>
 </body>
 </html>
