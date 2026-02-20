@@ -79,7 +79,7 @@
         <div class="stat-box"><div class="stat-box-val" id="ov-leads">0</div><div class="stat-box-label">Total Leads</div><div class="stat-box-delta">↑ Live counter</div></div>
         <div class="stat-box"><div class="stat-box-val" id="ov-new">0</div><div class="stat-box-label">New Leads</div></div>
         <div class="stat-box"><div class="stat-box-val" id="ov-appts">0</div><div class="stat-box-label">Appointments</div></div>
-        <div class="stat-box"><div class="stat-box-val">3</div><div class="stat-box-label">Active Listings</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="ov-listings">0</div><div class="stat-box-label">Active Listings</div></div>
         <div class="stat-box"><div class="stat-box-val">$897</div><div class="stat-box-label">Revenue (MTD)</div><div class="stat-box-delta">3 transactions</div></div>
       </div>
       <div class="section-card">
@@ -105,25 +105,14 @@
       </div>
     </div>
 
-    <!-- LISTINGS -->
+    <!-- LISTINGS (now rendered by JS) -->
     <div class="tab-content" id="tab-listings">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <h1 style="font-size:24px;font-weight:800">My Listings</h1>
         <a href="post-property.html" class="ep-btn ep-btn-primary">+ Add Listing</a>
       </div>
-      <div class="section-card">
-        ${EP.properties.filter(p => p.agentId === 1).map(p => `
-          <div class="listing-row">
-            <img src="${p.img}" class="listing-thumb">
-            <div>
-              <div style="font-weight:600;font-size:14px">${p.title}</div>
-              <div style="font-size:12px;color:#6b7280">${p.address} · $${p.price.toLocaleString()} · ${p.daysListed}d listed</div>
-              <span class="ep-tag ep-tag-green">Active</span>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="ep-btn ep-btn-outline" style="font-size:12px;padding:6px 12px" onclick="window.open('property-details.html?id=${p.id}')">View</button>
-            </div>
-          </div>`).join('')}
+      <div class="section-card" id="my-listings-container">
+        <!-- Rendered by JavaScript in refreshDashboard() -->
       </div>
     </div>
 
@@ -143,7 +132,7 @@
         <p style="opacity:.85;font-size:14px;margin-bottom:4px">She auto-responds to leads, books showings, calls clients, and drafts messages.</p>
         <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
           <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('Draft a follow-up message for my latest lead')">✉️ Draft Follow-up</button>
-          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('What are my leads today?')">📥 Today\'s Leads</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('What are my leads today?')">📥 Today's Leads</button>
           <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.simulatePhoneCall()">📞 Call a Lead</button>
           <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
         </div>
@@ -175,25 +164,14 @@
     <!-- PROFILE -->
     <div class="tab-content" id="tab-profile">
       <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">My Agent Profile</h1>
-      <div class="section-card">
-        <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
-          <div style="width:80px;height:80px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">CR</div>
-          <div><h2 style="font-size:22px;font-weight:700;margin:0">Carlos Rivera</h2><p style="color:#6b7280">Senior Listing Agent</p></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="ep-form-group"><label class="ep-label">First Name</label><input class="ep-input" value="Carlos"></div>
-          <div class="ep-form-group"><label class="ep-label">Last Name</label><input class="ep-input" value="Rivera"></div>
-          <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" value="(973) 555-0101"></div>
-          <div class="ep-form-group"><label class="ep-label">License #</label><input class="ep-input" value="NJ-RE-001234"></div>
-          <div class="ep-form-group" style="grid-column:1/-1"><label class="ep-label">Bio</label><textarea class="ep-textarea">12+ years helping buyers and sellers in Essex County. Specializes in investment properties and first-time buyers.</textarea></div>
-        </div>
-        <button class="ep-btn ep-btn-primary" onclick="EP.notify('Profile updated!','success')">Save Changes</button>
+      <div class="section-card" id="profile-card">
+        <!-- Rendered by JavaScript -->
       </div>
       <div class="section-card">
         <h2>Your Public Profile Link</h2>
         <div style="display:flex;gap:10px;align-items:center">
-          <input class="ep-input" value="emporionpros.com/agent/carlos-rivera" readonly style="flex:1">
-          <button class="ep-btn ep-btn-outline" onclick="EP.notify('Link copied!','success')">Copy</button>
+          <input class="ep-input" id="profile-link" value="emporionpros.com/agent/" readonly style="flex:1">
+          <button class="ep-btn ep-btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('profile-link').value);EP.notify('Link copied!','success')">Copy</button>
         </div>
       </div>
     </div>
@@ -208,29 +186,59 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!user) { window.location.href = 'login.html'; return; }
   if (user.role !== 'agent') { window.location.href = user.role === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; return; }
   document.getElementById('header-mount').innerHTML = EP.renderHeader('');
-  // Role guard — redirect vendors/buyers away
-  const _u = EP.auth.user();
-  if (_u && _u.role === 'vendor') { window.location.href = 'vendor-dashboard.html'; return; }
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+
   // Update name in sidebar
   const uName = user.name || 'Agent';
-  const uInitials = uName.split(' ').map(n=>n[0]).join('').toUpperCase();
+  const uInitials = uName.split(' ').map(n => n[0]).join('').toUpperCase();
   document.querySelector('.sidebar-av').textContent = uInitials;
   document.querySelector('.sidebar-name').textContent = uName;
+  document.getElementById('sidebar-role').textContent = 'Agent · License ' + (user.license || 'NJ-RE-001234');
+
+  // Render profile
+  renderProfile(user, uName, uInitials);
+
+  // Profile link
+  const slug = uName.toLowerCase().replace(/\s+/g, '-');
+  document.getElementById('profile-link').value = 'emporionpros.com/agent/' + slug;
+
   refreshDashboard();
   setInterval(refreshDashboard, 5000);
-  addDashMsg('assistant', 'Hi ${uName.split(" ")[0]}! I\'m Aria. I\'m monitoring your leads and ready to help. You have ' + (EP.leads.getForAgent(1).length) + ' leads so far.');
+
+  // FIX: Use backticks so template literal is evaluated
+  addDashMsg('assistant', `Hi ${uName.split(' ')[0]}! I'm Aria. I'm monitoring your leads and ready to help. You have ${EP.leads.getForAgent(1).length} leads so far.`);
 });
+
+function renderProfile(user, uName, uInitials) {
+  const names = uName.split(' ');
+  const firstName = names[0] || '';
+  const lastName = names.slice(1).join(' ') || '';
+  document.getElementById('profile-card').innerHTML = `
+    <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
+      <div style="width:80px;height:80px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">${uInitials}</div>
+      <div><h2 style="font-size:22px;font-weight:700;margin:0">${uName}</h2><p style="color:#6b7280">${user.title || 'Agent'}</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="ep-form-group"><label class="ep-label">First Name</label><input class="ep-input" value="${firstName}"></div>
+      <div class="ep-form-group"><label class="ep-label">Last Name</label><input class="ep-input" value="${lastName}"></div>
+      <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" value="${user.phone || ''}"></div>
+      <div class="ep-form-group"><label class="ep-label">License #</label><input class="ep-input" value="${user.license || 'NJ-RE-001234'}"></div>
+      <div class="ep-form-group" style="grid-column:1/-1"><label class="ep-label">Bio</label><textarea class="ep-textarea">${user.bio || ''}</textarea></div>
+    </div>
+    <button class="ep-btn ep-btn-primary" onclick="EP.notify('Profile updated!','success')">Save Changes</button>`;
+}
 
 function refreshDashboard() {
   const allLeads = EP.leads.getAll();
   const myLeads = allLeads.filter(l => l.agentId === 1 || !l.vendorId);
   const newLeads = myLeads.filter(l => l.status === 'new');
   const appts = EP.appointments.getAll();
+  const myListings = EP.properties.filter(p => p.agentId === 1);
 
   document.getElementById('ov-leads').textContent = myLeads.length;
   document.getElementById('ov-new').textContent = newLeads.length;
   document.getElementById('ov-appts').textContent = appts.length;
+  document.getElementById('ov-listings').textContent = myListings.length;
   document.getElementById('lead-badge').textContent = newLeads.length;
 
   // Recent leads overview
@@ -259,6 +267,27 @@ function refreshDashboard() {
       </div>
     </div>
   </div>`).join('') : '<p style="color:#6b7280;padding:20px">No leads yet.</p>';
+
+  // FIX: Render listings via JavaScript
+  const listingsContainer = document.getElementById('my-listings-container');
+  if (listingsContainer) {
+    if (myListings.length) {
+      listingsContainer.innerHTML = myListings.map(p => `
+        <div class="listing-row">
+          <img src="${p.img}" class="listing-thumb" onerror="this.style.background='#e5e7eb';this.alt='No image'">
+          <div>
+            <div style="font-weight:600;font-size:14px">${p.title}</div>
+            <div style="font-size:12px;color:#6b7280">${p.address} · $${p.price.toLocaleString()}${p.type === 'rent' ? '/mo' : ''} · ${p.daysListed}d listed</div>
+            <span class="ep-tag ep-tag-green">Active</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="ep-btn ep-btn-outline" style="font-size:12px;padding:6px 12px" onclick="window.open('property-details.html?id=${p.id}')">View</button>
+          </div>
+        </div>`).join('');
+    } else {
+      listingsContainer.innerHTML = '<p style="color:#6b7280;padding:20px">No listings yet. <a href="post-property.html" style="color:#1a56db;font-weight:600">Add your first listing</a></p>';
+    }
+  }
 
   // Appointments
   const ua = document.getElementById('upcoming-appts');
