@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EmporionPros — Developer Intelligence | Market Research & Investment Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0f1a;--paper:#f7f5f0;--accent:#7c3aed;--accent-l:#8b5cf6;--green:#059669;--red:#dc2626;--copper:#c8622a;--slate:#64748b;--border:rgba(10,15,26,.08)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
+.nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800}.nav-logo span{color:var(--copper)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:20px}.nav-r a{font-size:13px;font-weight:500;color:var(--slate)}.nav-r a:hover{color:var(--ink)}
+.nav-btn{background:var(--accent);color:white!important;padding:9px 18px;border-radius:8px;font-weight:700!important;font-size:12px!important}
+@media(max-width:768px){.nav-r a:not(.nav-btn){display:none}}
+.hero{background:linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95);color:white;padding:clamp(48px,6vw,80px) clamp(16px,4vw,48px);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23fff' opacity='.03'/%3E%3C/svg%3E")}
+.hero-badge{display:inline-flex;padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;background:rgba(139,92,246,.2);color:#c4b5fd;margin-bottom:20px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:800;margin-bottom:12px;line-height:1.15}
+.hero h1 em{font-style:italic;color:var(--copper)}
+.hero-p{font-size:clamp(14px,1.5vw,16px);opacity:.75;max-width:640px;margin:0 auto 28px;line-height:1.6}
+.btn{display:inline-block;padding:13px 28px;border-radius:10px;font-weight:700;font-size:14px;transition:.2s;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:var(--copper);color:white}.btn-primary:hover{background:#e8813f;transform:translateY(-2px)}
+.btn-outline{background:rgba(255,255,255,.08);color:white;border:1px solid rgba(255,255,255,.2)}.btn-outline:hover{background:rgba(255,255,255,.15)}
+/* SEARCH BOX */
+.search-box{max-width:600px;margin:0 auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:6px;display:flex;gap:6px;backdrop-filter:blur(10px)}
+.search-box input{flex:1;padding:14px 18px;border:none;background:white;border-radius:10px;font-size:15px;font-family:inherit;color:var(--ink);outline:none}
+.search-box input::placeholder{color:#94a3b8}
+.search-box button{padding:14px 24px;border:none;background:var(--accent);color:white;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.search-box button:hover{background:var(--accent-l)}
+.search-tags{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.search-tag{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,.08);color:#c4b5fd;cursor:pointer;border:1px solid rgba(255,255,255,.1)}
+.search-tag:hover{background:rgba(255,255,255,.15)}
+/* HERO MOCKUP */
+.hero-mockup{max-width:700px;margin:28px auto 0;position:relative}
+.hero-card{background:var(--ink);border-radius:14px;padding:28px 24px;text-align:left;position:relative;overflow:hidden}
+.hero-card-label{font-size:10px;opacity:.4;text-transform:uppercase;letter-spacing:2px}
+.hero-card h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin:6px 0 2px;color:white}
+.hero-card p{font-size:11px;opacity:.5;color:white}
+.hero-card-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.hero-card-tag{padding:4px 10px;border-radius:12px;font-size:9px;font-weight:600}
+.float-card{position:absolute;background:white;border-radius:10px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:10px;z-index:2;color:var(--ink)}
+.float-card strong{display:block;font-weight:700;margin-bottom:1px}
+@keyframes f1{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes f2{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes f3{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* SECTIONS */
+.sec{padding:clamp(40px,5vw,60px) clamp(16px,4vw,48px)}.sec-in{max-width:960px;margin:0 auto}
+.sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:8px}
+.sec-h{font-family:'Fraunces',serif;font-size:clamp(24px,3vw,32px);font-weight:800;margin-bottom:8px}
+.sec-p{color:var(--slate);font-size:14px;max-width:600px;margin-bottom:24px;line-height:1.6}
+.sec-white{background:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:white;border-radius:12px;padding:24px;border:1.5px solid var(--border);transition:.3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.06)}
+.card-i{font-size:28px;margin-bottom:10px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.card p{font-size:12px;color:var(--slate);line-height:1.5}
+/* DEMO REPORT */
+.report{background:white;border-radius:14px;border:1.5px solid var(--border);overflow:hidden;margin-top:24px}
+.report-hd{background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:white;padding:20px 24px}
+.report-hd h4{font-size:16px;font-weight:800}.report-hd p{font-size:11px;opacity:.6;margin-top:2px}
+.report-bd{padding:24px}
+.report-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.report-row:last-child{border:none}
+.report-row .label{color:var(--slate)}.report-row .val{font-weight:700}
+.report-row .val.g{color:var(--green)}.report-row .val.r{color:var(--red)}
+.report-sect{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin:16px 0 8px;padding-top:10px;border-top:1px solid #f1f5f9}
+.report-chart{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:12px 0}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--accent);min-height:10px;transition:.3s}
+.bar-label{font-size:9px;color:var(--slate)}
+.bar-val{font-size:9px;font-weight:700}
+.aria-box{background:linear-gradient(135deg,#faf5ff,#f3e8ff);border:1.5px solid #ddd6fe;border-radius:12px;padding:16px;margin-top:16px}
+.aria-box h5{font-size:12px;font-weight:700;color:#5b21b6;margin-bottom:6px}.aria-box p{font-size:11px;color:#6b21a8;line-height:1.5}
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
+.price-card{background:white;border-radius:14px;padding:28px 24px;border:1.5px solid var(--border);text-align:center;position:relative;transition:.3s}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.08)}
+.price-card.pop{border-color:var(--accent);box-shadow:0 8px 30px rgba(124,58,237,.1)}
+.price-card.pop::before{content:'MOST POPULAR';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:3px 12px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:1px}
+.price-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:6px}
+.price-amt{font-family:'Fraunces',serif;font-size:32px;font-weight:800}
+.price-per{font-size:12px;color:var(--slate)}
+.price-feat{list-style:none;text-align:left;margin:16px 0;padding:0}
+.price-feat li{padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px;display:flex;align-items:center;gap:6px}
+.price-feat li::before{content:'✅';font-size:10px}
+.price-cta{display:block;width:100%;padding:12px;border-radius:8px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit;text-align:center;transition:.2s}
+.price-cta-fill{background:var(--accent);color:white}.price-cta-fill:hover{background:var(--accent-l)}
+.price-cta-out{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.price-cta-out:hover{background:#f8fafc}
+/* SIGNUP */
+.signup{background:linear-gradient(135deg,#1e1b4b,#4c1d95);border-radius:16px;padding:40px;text-align:center;color:white;margin:24px 0}
+.signup h3{font-family:'Fraunces',serif;font-size:24px;font-weight:800;margin-bottom:6px}
+.signup p{font-size:13px;opacity:.7;margin-bottom:20px}
+.signup-form{display:flex;gap:8px;max-width:500px;margin:0 auto;flex-wrap:wrap}
+.signup-form input{flex:1;min-width:180px;padding:12px 16px;border-radius:8px;border:none;font-size:14px;font-family:inherit}
+.signup-form button{padding:12px 24px;border-radius:8px;border:none;background:var(--copper);color:white;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.ft{padding:32px clamp(16px,4vw,48px);text-align:center;font-size:11px;color:var(--slate);border-top:1px solid var(--border)}
+.ft a{color:var(--copper);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="platform.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <div class="nav-r">
+    <a href="platform.html">Platform</a>
+    <a href="for-agents.html">For Agents</a>
+    <a href="for-managers.html">For Managers</a>
+    <a href="for-owners.html">For Owners</a>
+    <a href="vendors.html">Marketplace</a>
+    <a href="for-developers.html" style="color:var(--accent);font-weight:700">For Developers</a>
+    <a href="#signup" class="nav-btn">Start Free Trial →</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-badge">🏗️ Built for Real Estate Developers & Investors</div>
+  <h1 class="sr">Invest smarter with<br>real-time <em>market intelligence.</em></h1>
+  <p class="hero-p">Search any address, ZIP code, or town in New Jersey. Get instant market data — rental comps, development costs, zoning news, approved plans, and AI-powered investment projections. Aria AI monitors the market 24/7 and alerts you to opportunities.</p>
+
+  <div class="search-box">
+    <input type="text" id="devSearch" placeholder="Enter address, ZIP code, or town name..." autofocus>
+    <button onclick="runSearch()">🔍 Analyze Market</button>
+  </div>
+  <div class="search-tags">
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='Newark, NJ 07105';runSearch()">Ironbound, Newark</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='Jersey City 07302';runSearch()">Downtown JC</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='Montclair, NJ';runSearch()">Montclair</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='Harrison, NJ';runSearch()">Harrison</span>
+    <span class="search-tag" onclick="document.getElementById('devSearch').value='07102';runSearch()">Newark Downtown</span>
+  </div>
+
+  <!-- HERO MOCKUP -->
+  <div class="hero-mockup">
+    <div class="hero-card">
+      <div class="hero-card-label">Market Intelligence Report</div>
+      <h3>📊 Ironbound, Newark NJ 07105</h3>
+      <p>Avg Rent: $2,400/mo · Cap Rate: 6.2% · Appreciation: +8.3%/yr · 14 approved projects</p>
+      <div class="hero-card-tags">
+        <span class="hero-card-tag" style="background:rgba(5,150,105,.15);color:#6ee7b7">📈 High Growth</span>
+        <span class="hero-card-tag" style="background:rgba(200,98,42,.15);color:#e8813f">🏗️ 14 Projects</span>
+        <span class="hero-card-tag" style="background:rgba(124,58,237,.15);color:#c4b5fd">🤖 Aria Monitoring</span>
+      </div>
+    </div>
+    <div class="float-card" style="top:-8px;right:-10px;animation:f1 3s ease-in-out infinite">
+      <strong>🤖 Aria AI Alert</strong>
+      <span style="color:var(--accent);font-weight:600">New zoning variance approved — Ferry St</span>
+    </div>
+    <div class="float-card" style="bottom:-8px;right:20px;animation:f2 3.5s ease-in-out infinite">
+      <strong>📈 Market Shift Detected</strong>
+      <span style="color:var(--green)">Rents up 4.2% in 90 days</span>
+    </div>
+    <div class="float-card" style="bottom:30px;left:-10px;animation:f3 4s ease-in-out infinite">
+      <strong>🏗️ Opportunity Flagged</strong>
+      <span style="color:var(--slate)">Vacant lot — mixed-use potential</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ WHAT YOU GET ═══════════════ -->
+<section class="sec sec-white"><div class="sec-in">
+  <div class="sec-label">Developer Intelligence</div>
+  <h2 class="sec-h sr">Everything you need before you break ground.</h2>
+  <p class="sec-p">EmporionPros gives developers and investors the data, context, and AI analysis that used to require a team of analysts.</p>
+  <div class="grid">
+    <div class="card"><div class="card-i">📊</div><h3>Rental Comps & Revenue Projections</h3><p>Current rental rates by unit type (studio, 1BR, 2BR, 3BR+). Occupancy rates, vacancy trends, and projected rental income for your planned units.</p></div>
+    <div class="card"><div class="card-i">🏗️</div><h3>Development Cost Estimates</h3><p>Per-square-foot construction costs, land values, permitting timelines, and total project cost modeling based on your area and building type.</p></div>
+    <div class="card"><div class="card-i">📐</div><h3>Highest & Best Use Analysis</h3><p>AI analyzes zoning, demographics, transit access, and demand signals to recommend the optimal use — residential, mixed-use, commercial, or multifamily.</p></div>
+    <div class="card"><div class="card-i">📰</div><h3>Local News & Market Signals</h3><p>Aggregated news, council meeting decisions, infrastructure projects, tax incentive programs, and economic development announcements that affect your investment.</p></div>
+    <div class="card"><div class="card-i">📋</div><h3>Approved Plans & Pipeline</h3><p>Track every approved, pending, and proposed development project in the area. Know what's being built, by whom, and when it's coming online.</p></div>
+    <div class="card"><div class="card-i">🤖</div><h3>Aria AI — Opportunity Alerts</h3><p>Aria monitors zoning changes, tax sales, variance approvals, and market shifts 24/7. Get instant alerts when an opportunity matches your investment criteria.</p></div>
+    <div class="card"><div class="card-i">📈</div><h3>5-Year Appreciation Projections</h3><p>Based on historical trends, transit investment, and development pipeline — see where values are headed before everyone else does.</p></div>
+    <div class="card"><div class="card-i">🗺️</div><h3>Demographic & Transit Analysis</h3><p>Population growth, income levels, commute patterns, Walk Score, Transit Score — everything that drives rental demand in a specific market.</p></div>
+  </div>
+</div></section>
+
+<!-- ═══════════════ DEMO REPORT ═══════════════ -->
+<section class="sec" id="demo-report"><div class="sec-in">
+  <div class="sec-label">Sample Report</div>
+  <h2 class="sec-h sr">Ironbound, Newark NJ — Market Intelligence</h2>
+  <p class="sec-p">This is what a Developer Intelligence report looks like. Search any area to generate yours.</p>
+
+  <div class="report" id="reportCard">
+    <div class="report-hd">
+      <h4>📊 Market Report — Ironbound, Newark NJ 07105</h4>
+      <p>Generated Feb 2026 · Data sources: Public records, Census, NJ Transit, local news, zoning board</p>
+    </div>
+    <div class="report-bd">
+      <!-- RENTAL MARKET -->
+      <div class="report-sect">🏠 Rental Market Overview</div>
+      <div class="report-row"><span class="label">Avg Rent — Studio</span><span class="val">$2,150/mo</span></div>
+      <div class="report-row"><span class="label">Avg Rent — 1BR</span><span class="val">$2,400/mo</span></div>
+      <div class="report-row"><span class="label">Avg Rent — 2BR</span><span class="val">$3,100/mo</span></div>
+      <div class="report-row"><span class="label">Avg Rent — 3BR</span><span class="val">$3,600/mo</span></div>
+      <div class="report-row"><span class="label">Occupancy Rate</span><span class="val g">96.2%</span></div>
+      <div class="report-row"><span class="label">Avg Days on Market</span><span class="val">18 days</span></div>
+      <div class="report-row"><span class="label">YoY Rent Growth</span><span class="val g">+8.3%</span></div>
+
+      <!-- RENT TREND CHART -->
+      <div style="margin:16px 0 8px;font-size:11px;font-weight:700;color:var(--slate)">📈 Avg 1BR Rent — Last 5 Years</div>
+      <div class="report-chart">
+        <div class="bar-col"><div class="bar-val">$1,650</div><div class="bar" style="height:50px;background:#c4b5fd"></div><div class="bar-label">2022</div></div>
+        <div class="bar-col"><div class="bar-val">$1,850</div><div class="bar" style="height:62px;background:#a78bfa"></div><div class="bar-label">2023</div></div>
+        <div class="bar-col"><div class="bar-val">$2,100</div><div class="bar" style="height:74px;background:#8b5cf6"></div><div class="bar-label">2024</div></div>
+        <div class="bar-col"><div class="bar-val">$2,250</div><div class="bar" style="height:82px;background:#7c3aed"></div><div class="bar-label">2025</div></div>
+        <div class="bar-col"><div class="bar-val">$2,400</div><div class="bar" style="height:90px;background:var(--accent)"></div><div class="bar-label">2026</div></div>
+      </div>
+
+      <!-- SALES & VALUES -->
+      <div class="report-sect">💰 Sales & Property Values</div>
+      <div class="report-row"><span class="label">Median Sale Price</span><span class="val">$425,000</span></div>
+      <div class="report-row"><span class="label">Price per Sq Ft</span><span class="val">$315/sqft</span></div>
+      <div class="report-row"><span class="label">5-Year Appreciation</span><span class="val g">+42.6%</span></div>
+      <div class="report-row"><span class="label">Projected 5-Year (2026-2031)</span><span class="val g">+35-45%</span></div>
+      <div class="report-row"><span class="label">Avg Cap Rate (Multi-Family)</span><span class="val">5.8-6.5%</span></div>
+      <div class="report-row"><span class="label">Avg Property Tax</span><span class="val r">$9,200/yr</span></div>
+
+      <!-- DEVELOPMENT COSTS -->
+      <div class="report-sect">🏗️ Development Cost Estimates</div>
+      <div class="report-row"><span class="label">Land Cost (per lot)</span><span class="val">$150,000-300,000</span></div>
+      <div class="report-row"><span class="label">New Construction — Wood Frame</span><span class="val">$180-220/sqft</span></div>
+      <div class="report-row"><span class="label">New Construction — Steel/Concrete</span><span class="val">$280-350/sqft</span></div>
+      <div class="report-row"><span class="label">Renovation (gut rehab)</span><span class="val">$120-180/sqft</span></div>
+      <div class="report-row"><span class="label">Permitting Timeline</span><span class="val">4-8 months</span></div>
+      <div class="report-row"><span class="label">Impact / Dev Fees</span><span class="val">$5,000-15,000</span></div>
+
+      <!-- BEST USE -->
+      <div class="report-sect">📐 Highest & Best Use</div>
+      <div class="report-row"><span class="label">Current Zoning</span><span class="val">R-3 / Mixed-Use Overlay</span></div>
+      <div class="report-row"><span class="label">Max Density Allowed</span><span class="val">40 units/acre</span></div>
+      <div class="report-row"><span class="label">AI Recommended Use</span><span class="val g">Mid-Rise Mixed-Use (5-7 stories)</span></div>
+      <div class="report-row"><span class="label">Ground Floor</span><span class="val">Retail / Restaurant</span></div>
+      <div class="report-row"><span class="label">Upper Floors</span><span class="val">1BR + 2BR Residential</span></div>
+      <div class="report-row"><span class="label">Demand Driver</span><span class="val">NYC commuters, young professionals</span></div>
+
+      <!-- PIPELINE -->
+      <div class="report-sect">📋 Development Pipeline (Approved / Proposed)</div>
+      <div class="report-row"><span class="label">Iron 65 — 65 McWhorter St</span><span class="val g">Completed 2025</span></div>
+      <div class="report-row"><span class="label">Iron Pointe — 39 Madison St</span><span class="val g">Leasing Now (80 units)</span></div>
+      <div class="report-row"><span class="label">Ferry Street Mixed-Use</span><span class="val" style="color:var(--accent)">Approved · 120 units</span></div>
+      <div class="report-row"><span class="label">Passaic Ave Redevelopment</span><span class="val" style="color:var(--accent)">Proposed · 200+ units</span></div>
+      <div class="report-row"><span class="label">Ironbound Station TOD</span><span class="val" style="color:var(--accent)">Under Review · Mixed-Use</span></div>
+      <div class="report-row"><span class="label">Total Pipeline Units</span><span class="val">450+ units in next 3 years</span></div>
+
+      <!-- LOCAL NEWS -->
+      <div class="report-sect">📰 Recent News & Market Signals</div>
+      <div style="font-size:12px;color:var(--ink);line-height:1.6;padding:8px 0">
+        <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">📌 <strong>NJ Transit Gateway Tunnel</strong> — $16B project will improve Newark Penn connectivity to NYC. Expected to boost Ironbound property values 10-15%. <span style="color:var(--slate);font-size:10px">NJ.com · Jan 2026</span></div>
+        <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">📌 <strong>Newark Opportunity Zone Extended</strong> — Tax incentives for investment in qualified areas including parts of the Ironbound. Capital gains deferral through 2028. <span style="color:var(--slate);font-size:10px">Newark City Council · Dec 2025</span></div>
+        <div style="padding:8px 0;border-bottom:1px solid #f1f5f9">📌 <strong>Ferry Street BID Expansion</strong> — Business improvement district expanding east, adding streetscape improvements, lighting, and signage. <span style="color:var(--slate);font-size:10px">Ironbound BID · Nov 2025</span></div>
+        <div style="padding:8px 0">📌 <strong>Multi-Family Permit Activity Up 22%</strong> — Newark issued 22% more multi-family building permits in 2025 vs 2024, concentrated in Ironbound and Downtown. <span style="color:var(--slate);font-size:10px">US Census Building Permits · 2025</span></div>
+      </div>
+
+      <!-- DEMOGRAPHICS -->
+      <div class="report-sect">👥 Demographics & Transit</div>
+      <div class="report-row"><span class="label">Population (07105)</span><span class="val">42,500</span></div>
+      <div class="report-row"><span class="label">Median Household Income</span><span class="val">$55,400</span></div>
+      <div class="report-row"><span class="label">Median Age</span><span class="val">34.2 years</span></div>
+      <div class="report-row"><span class="label">Population Growth (5yr)</span><span class="val g">+6.8%</span></div>
+      <div class="report-row"><span class="label">Walk Score</span><span class="val g">88 — Very Walkable</span></div>
+      <div class="report-row"><span class="label">Transit Score</span><span class="val g">82 — Excellent</span></div>
+      <div class="report-row"><span class="label">Avg Commute to NYC</span><span class="val">22 min (PATH)</span></div>
+
+      <!-- ARIA AI SUGGESTION -->
+      <div class="aria-box">
+        <h5>🤖 Aria AI — Investment Recommendation</h5>
+        <p><strong>Strong Buy Signal.</strong> The Ironbound is in the early-to-mid growth phase of a 10-year upward cycle driven by: (1) Gateway Tunnel project improving NYC access, (2) Opportunity Zone tax incentives, (3) Ferry Street commercial vitality, and (4) 96%+ occupancy with 8% annual rent growth. <strong>Best play:</strong> Mid-rise mixed-use with 1BR-dominant unit mix targeting NYC commuters ($2,200-$2,600/mo). Ground-floor retail on Ferry-adjacent streets. Expected stabilized yield: 6.0-6.8% on cost.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="sec sec-white"><div class="sec-in">
+  <div class="sec-label">How It Works</div>
+  <h2 class="sec-h sr">From search to strategy in 60 seconds.</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    <div style="text-align:center;padding:16px"><div style="width:40px;height:40px;background:var(--accent);color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin-bottom:10px">1</div><h4 style="font-size:13px;font-weight:700;margin-bottom:4px">Search Any Area</h4><p style="font-size:11px;color:var(--slate)">Enter an address, ZIP code, town name, or neighborhood</p></div>
+    <div style="text-align:center;padding:16px"><div style="width:40px;height:40px;background:var(--accent);color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin-bottom:10px">2</div><h4 style="font-size:13px;font-weight:700;margin-bottom:4px">Get Instant Report</h4><p style="font-size:11px;color:var(--slate)">Rental comps, costs, zoning, pipeline, news — all in one view</p></div>
+    <div style="text-align:center;padding:16px"><div style="width:40px;height:40px;background:var(--accent);color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin-bottom:10px">3</div><h4 style="font-size:13px;font-weight:700;margin-bottom:4px">Aria Analyzes</h4><p style="font-size:11px;color:var(--slate)">AI recommends best use, projects returns, and flags opportunities</p></div>
+    <div style="text-align:center;padding:16px"><div style="width:40px;height:40px;background:var(--accent);color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin-bottom:10px">4</div><h4 style="font-size:13px;font-weight:700;margin-bottom:4px">Monitor & Alert</h4><p style="font-size:11px;color:var(--slate)">Subscribe to get alerts when zoning, sales, or news affect your area</p></div>
+  </div>
+</div></section>
+
+<!-- ═══════════════ PRICING ═══════════════ -->
+<section class="sec" id="pricing"><div class="sec-in">
+  <div class="sec-label">Pricing</div>
+  <h2 class="sec-h sr">Pay per report or subscribe for continuous intelligence.</h2>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-name">Single Report</div>
+      <div class="price-amt">$49</div>
+      <div class="price-per">per report</div>
+      <ul class="price-feat">
+        <li>Full market analysis for any area</li>
+        <li>Rental comps & revenue projections</li>
+        <li>Development cost estimates</li>
+        <li>Highest & best use analysis</li>
+        <li>Approved plans & pipeline</li>
+        <li>Local news & market signals</li>
+        <li>Aria AI investment recommendation</li>
+        <li>PDF export & print-ready</li>
+      </ul>
+      <button class="price-cta price-cta-out" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Buy Single Report</button>
+    </div>
+    <div class="price-card pop">
+      <div class="price-name">Pro Monitor</div>
+      <div class="price-amt">$199</div>
+      <div class="price-per">per month</div>
+      <ul class="price-feat">
+        <li>Everything in Single Report</li>
+        <li><strong>Unlimited reports</strong> — any area</li>
+        <li>Real-time Aria AI opportunity alerts</li>
+        <li>Zoning change notifications</li>
+        <li>New permit & variance tracking</li>
+        <li>Market shift detection</li>
+        <li>Weekly email digest</li>
+        <li>Custom watchlist (up to 10 areas)</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="price-cta price-cta-fill" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Start 14-Day Free Trial →</button>
+    </div>
+    <div class="price-card">
+      <div class="price-name">Enterprise</div>
+      <div class="price-amt">Custom</div>
+      <div class="price-per">for firms & portfolios</div>
+      <ul class="price-feat">
+        <li>Everything in Pro Monitor</li>
+        <li>Unlimited watchlists</li>
+        <li>Team access (up to 10 users)</li>
+        <li>API access for integrations</li>
+        <li>Custom scoring models</li>
+        <li>Dedicated account manager</li>
+        <li>Quarterly market briefings</li>
+        <li>White-label reports</li>
+      </ul>
+      <a href="mailto:info@emporionpros.com?subject=Enterprise Developer Intelligence" class="price-cta price-cta-out" style="display:block;text-decoration:none">Contact Sales</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══════════════ SIGNUP ═══════════════ -->
+<section class="sec sec-white" id="signup"><div class="sec-in">
+  <div class="signup">
+    <h3 class="sr">Start finding opportunities today.</h3>
+    <p>14-day free trial. Cancel anytime. No credit card required to start.</p>
+    <div class="signup-form">
+      <input type="email" placeholder="Your email address">
+      <button onclick="var e=this.previousElementSibling.value;if(e&&e.includes('@')){this.textContent='✅ Welcome!';this.disabled=true}else{this.textContent='Enter valid email'}">Start Free Trial →</button>
+    </div>
+  </div>
+</div></section>
+
+<footer class="ft">
+  <p><a href="platform.html">EmporionPros</a> · <a href="for-agents.html">For Agents</a> · <a href="for-managers.html">For Managers</a> · <a href="for-owners.html">For Owners</a> · <a href="for-vendors.html">For Vendors</a> · <a href="for-developers.html">For Developers</a> · <a href="vendors.html">Marketplace</a></p>
+  <p style="margin-top:8px">© 2026 EmporionPros · <a href="mailto:info@emporionpros.com">info@emporionpros.com</a> · (862) 288-7972</p>
+</footer>
+
+<script>
+function runSearch(){
+  var v=document.getElementById('devSearch').value.trim();
+  if(!v)return;
+  var el=document.getElementById('demo-report');
+  el.scrollIntoView({behavior:'smooth'});
+  // Flash the report card to show "loading"
+  var rc=document.getElementById('reportCard');
+  rc.style.opacity='.4';
+  setTimeout(function(){rc.style.opacity='1';rc.style.transition='opacity .5s'},800);
+}
+document.getElementById('devSearch').addEventListener('keydown',function(e){if(e.key==='Enter')runSearch()});
+</script>
+<script src="social-proof.js"></script>
+</body>
+</html>
