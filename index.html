@@ -2,6 +2,17 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Emporion Pros — Real Estate Reimagined</title>
+<meta name="description" content="NJ real estate platform for agents, property managers, homeowners, vendors and developers. AI-powered campaigns, lead generation, vendor marketplace.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://emporionpros.com/index.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://emporionpros.com/index.html">
+<meta property="og:title" content="Emporion Pros — Real Estate Reimagined">
+<meta property="og:description" content="NJ real estate platform for agents, property managers, homeowners, vendors and developers. AI-powered campaigns, lead generation, vendor marketplace.">
+<meta property="og:site_name" content="EmporionPros">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Emporion Pros — Real Estate Reimagined">
+<meta name="twitter:description" content="NJ real estate platform for agents, property managers, homeowners, vendors and developers. AI-powered campaigns, lead generation, vendor marketplace.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="app.js"></script>
 <style>
@@ -47,6 +58,9 @@
 .prop-heart-special{right:auto;left:auto}
 @media(max-width:768px){.search-row{flex-direction:column}.footer-grid{grid-template-columns:1fr;gap:24px}.stats-strip{grid-template-columns:repeat(2,1fr)}}
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"EmporionPros","url":"https://emporionpros.com","description":"NJ real estate platform connecting agents, property managers, homeowners, vendors, and developers.","areaServed":{"@type":"State","name":"New Jersey"}}
+</script>
 </head>
 <body>
 <div id="header-mount"></div>
@@ -246,5 +260,24 @@ function doSearch() {
 }
 </script>
 <script src="social-proof.js"></script>
+<script src="ep-leads.js"></script>
+
+<!-- Netlify Forms — hidden definitions (required for detection) -->
+<form name="ep-signup" data-netlify="true" hidden>
+  <input name="email"><input name="source"><input name="role"><input name="page"><input name="timestamp">
+</form>
+<form name="ep-vendor" data-netlify="true" hidden>
+  <input name="business_name"><input name="contact_name"><input name="email"><input name="phone">
+  <input name="city"><input name="zip"><input name="category"><input name="source"><input name="page"><input name="timestamp">
+</form>
+<form name="ep-vendor-full" data-netlify="true" hidden>
+  <input name="business_name"><input name="contact_name"><input name="email"><input name="phone">
+  <input name="city"><input name="zip"><input name="category"><input name="subtypes"><input name="service_area">
+  <input name="source"><input name="page"><input name="timestamp">
+</form>
+<form name="ep-property" data-netlify="true" hidden>
+  <input name="title"><input name="address"><input name="type"><input name="price"><input name="beds"><input name="baths">
+  <input name="email"><input name="phone"><input name="source"><input name="page"><input name="timestamp">
+</form>
 </body>
 </html>
