@@ -26,6 +26,7 @@ var isManager=pg.indexOf('manager')>-1;
 var isOwner=pg.indexOf('owner')>-1;
 var isVendor=pg.indexOf('vendor')>-1||pg.indexOf('marketplace')>-1||pg.indexOf('inspection')>-1||pg.indexOf('title')>-1;
 var isDev=pg.indexOf('developer')>-1;
+var isGrants=pg.indexOf('grant')>-1;
 var isProp=pg.indexOf('iron')>-1||pg.indexOf('property')>-1||pg.indexOf('listing')>-1||pg.indexOf('sale')>-1||pg.indexOf('colonial')>-1||pg.indexOf('condo')>-1||pg.indexOf('merchant')>-1;
 var isPlatform=pg.indexOf('platform')>-1||pg.indexOf('index')>-1||location.pathname==='/';
 var isNeighborhood=pg.indexOf('neighborhood')>-1;
@@ -88,6 +89,48 @@ a.push(
 {i:'🤖',h:'Aria handled '+(RI(30)+15)+' calls today',s:'24/7 AI assistant'},
 {i:'🎉',h:N()+' just signed up',s:R(['Agent','Manager','Owner','Vendor','Developer'])+' from '+R(ct)}
 );}
+if(isGrants){
+var grantTypes=[
+{i:'💰',h:'{n} received $15K NJEDA Small Business Grant',s:'{cat} · {city}'},
+{i:'🏆',h:'{n} got MBE Certified',s:'Opens Fortune 500 contracts · {city}'},
+{i:'☀️',h:'{n} saved $8,400 with Solar Tax Credit',s:'30% ITC · Residential · {city}'},
+{i:'🏛',h:'{n} approved for SBA 8(a) Program',s:'Sole-source contracts up to $4M · {city}'},
+{i:'⚡',h:'{n} got $2,800 NJ Clean Energy Rebate',s:'Heat pump installation · {city}'},
+{i:'💵',h:'{n} received $12K down payment assistance',s:'NJ HMFA First-Time Buyer · {city}'},
+{i:'📋',h:'{n} registered on NJSTART',s:'Now bidding on state contracts · {city}'},
+{i:'🔨',h:'{n} got $18K facade improvement grant',s:'Downtown revitalization · {city}'},
+{i:'🏠',h:'{n} claimed $1,500 ANCHOR benefit',s:'NJ Property Tax Relief · {city}'},
+{i:'🔬',h:'{n} awarded $50K SBIR Phase I Grant',s:'Tech innovation · {city}'},
+{i:'👩‍💼',h:'{n} certified as WBE',s:'Women Business Enterprise · {city}'},
+{i:'🎖️',h:'{n} approved VOSB Certification',s:'Veteran-owned business · {city}'},
+{i:'📍',h:'{n} invested in Opportunity Zone',s:'Capital gains tax elimination · {city}'},
+{i:'🏢',h:'{n} received LIHTC allocation',s:'Affordable housing tax credits · {city}'},
+{i:'💡',h:'{n} got 70% covered via Direct Install',s:'NJ Clean Energy · Lighting + HVAC · {city}'},
+{i:'🏙️',h:'{n} activated UEZ benefits',s:'3.5% sales tax (vs 6.625%) · {city}'},
+{i:'👥',h:'{n} claimed $9,600 WOTC credit',s:'Hiring tax credit · {city}'},
+{i:'🌡️',h:'{n} received free weatherization',s:'DOE program · Low-income household · {city}'},
+{i:'🔑',h:'{n} got VA Home Loan approved',s:'Zero down payment · {city}'},
+{i:'🏦',h:'{n} received SBA Microloan — $35K',s:'Startup funding · {city}'},
+{i:'📊',h:'{n} earned $4,200 in SRECs',s:'Solar renewable energy credits · {city}'},
+{i:'🏛',h:'{n} got NJ Public Works Registration',s:'Now eligible for public construction · {city}'},
+{i:'⚡',h:'{n} received $40K EV charger grant',s:'NEVI infrastructure program · {city}'},
+{i:'🏠',h:'{n} approved for FHA 203(k) loan',s:'Purchase + renovation combined · {city}'},
+{i:'💰',h:'{n} saved $22K with Historic Tax Credits',s:'20% federal + 25% NJ · {city}'},
+{i:'👴',h:'{n} claimed Senior Freeze benefit',s:'Property tax reimbursement · {city}'},
+{i:'🔄',h:'{n} completed 1031 Exchange',s:'$180K capital gains deferred · {city}'},
+{i:'🏗️',h:'{n} approved for NJ Aspire incentive',s:'Development tax credit · {city}'},
+{i:'📋',h:'{n} registered on SAM.gov',s:'Federal contracting access · {city}'},
+{i:'⚡',h:'{n} became NJ Trade Ally certified',s:'Utility rebate contractor · {city}'}
+];
+var gCats=['Plumber','Electrician','Contractor','HVAC Tech','Solar Installer','Restaurant Owner','Salon Owner','IT Consultant','Trucking Co.','Landscaper','Cleaning Svc.','Attorney','Accountant','Photographer','Homeowner','First-Time Buyer','Property Manager','Developer','Small Business','Startup'];
+var usedGrantIdx=[];
+grantTypes.sort(function(){return Math.random()-.5});
+a=[];
+for(var gi=0;gi<grantTypes.length;gi++){
+var gt=grantTypes[gi];
+a.push({i:gt.i,h:gt.h.replace('{n}',N()).replace('{cat}',R(gCats)).replace('{city}',R(ct)),s:gt.s.replace('{n}',N()).replace('{cat}',R(gCats)).replace('{city}',R(ct))});
+}
+}
 if(isNeighborhood){
 a.push(
 {i:'🗺️',h:N()+' exploring the Ironbound',s:'Checking restaurants & transit'},
@@ -103,9 +146,19 @@ return a;
 }
 
 var showing=false;
+var shownIdx=[];
+function getNext(){
+var pool=getN();
+if(shownIdx.length>=pool.length)shownIdx=[];
+var avail=[];
+for(var si=0;si<pool.length;si++){if(shownIdx.indexOf(si)===-1)avail.push(si);}
+var pick=avail[Math.floor(Math.random()*avail.length)];
+shownIdx.push(pick);
+return pool[pick];
+}
 function show(){
 if(showing)return;showing=true;
-var n=R(getN());
+var n=getNext();
 var el=document.createElement('div');el.className='ep-t';
 el.innerHTML='<div class="ep-t-i">'+n.i+'</div><div class="ep-t-b"><div class="ep-t-h">'+n.h+'</div><div class="ep-t-s">'+n.s+'</div><div class="ep-t-m">'+R(tm)+'</div></div><button class="ep-t-x" onclick="this.parentElement.classList.replace(\'in\',\'out\');var e=this.parentElement;setTimeout(function(){e.remove()},400)">✕</button>';
 box.appendChild(el);
