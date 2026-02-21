@@ -2,11 +2,22 @@
 // SUPABASE CLIENT - EmporionPros
 // ============================================
 
-const SUPABASE_URL = 'https://nfwxruzhgzkhklvzmfsw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3hydXpoZ3praGtsdnptZnN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDEwODEsImV4cCI6MjA4NzI3NzA4MX0.djKBfVTxZf6M-To9fnmbukAXxvVckDD1SO-Bx_tJwvM';
+const EP_SUPABASE_URL = 'https://nfwxruzhgzkhklvzmfsw.supabase.co';
+const EP_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3hydXpoZ3praGtsdnptZnN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDEwODEsImV4cCI6MjA4NzI3NzA4MX0.djKBfVTxZf6M-To9fnmbukAXxvVckDD1SO-Bx_tJwvM';
 
-// Initialize Supabase client
-const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Initialize Supabase client (lazy - creates on first use)
+var _epSupabaseClient = null;
+function getSupabase() {
+  if (_epSupabaseClient) return _epSupabaseClient;
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      _epSupabaseClient = window.supabase.createClient(EP_SUPABASE_URL, EP_SUPABASE_ANON_KEY);
+    }
+  } catch(e) { console.error('Supabase init error:', e); }
+  return _epSupabaseClient;
+}
+// Alias for backward compat
+Object.defineProperty(window, 'epSupabase', { get: function() { return getSupabase(); } });
 
 // ============================================
 // AUTH MODULE
@@ -14,15 +25,15 @@ const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SU
 const EPAuth = {
   // Get current user
   async getUser() {
-    if (!supabase) return null;
-    const { data: { user } } = await supabase.auth.getUser();
+    if (!getSupabase()) return null;
+    const { data: { user } } = await getSupabase().auth.getUser();
     return user;
   },
 
   // Get current session
   async getSession() {
-    if (!supabase) return null;
-    const { data: { session } } = await supabase.auth.getSession();
+    if (!getSupabase()) return null;
+    const { data: { session } } = await getSupabase().auth.getSession();
     return session;
   },
 
@@ -30,7 +41,7 @@ const EPAuth = {
   async getProfile() {
     const user = await this.getUser();
     if (!user) return null;
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -41,8 +52,8 @@ const EPAuth = {
 
   // Sign up
   async signUp(email, password, metadata = {}) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase.auth.signUp({
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase().auth.signUp({
       email,
       password,
       options: {
@@ -54,7 +65,7 @@ const EPAuth = {
     });
     if (!error && data.user) {
       // Update profile with additional info
-      await supabase.from('profiles').update({
+      await getSupabase().from('profiles').update({
         full_name: metadata.full_name || '',
         phone: metadata.phone || '',
         role: metadata.role || 'user',
@@ -66,22 +77,22 @@ const EPAuth = {
 
   // Sign in
   async signIn(email, password) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase().auth.signInWithPassword({ email, password });
     return { data, error };
   },
 
   // Sign out
   async signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    if (!getSupabase()) return;
+    await getSupabase().auth.signOut();
     window.location.href = '/';
   },
 
   // Reset password
   async resetPassword(email) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase().auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/login.html'
     });
     return { data, error };
@@ -89,8 +100,8 @@ const EPAuth = {
 
   // Listen for auth changes
   onAuthChange(callback) {
-    if (!supabase) return;
-    supabase.auth.onAuthStateChange((event, session) => {
+    if (!getSupabase()) return;
+    getSupabase().auth.onAuthStateChange((event, session) => {
       callback(event, session);
     });
   },
@@ -99,7 +110,7 @@ const EPAuth = {
   async updateProfile(updates) {
     const user = await this.getUser();
     if (!user) return { error: { message: 'Not logged in' } };
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
@@ -115,11 +126,11 @@ const EPAuth = {
 const EPLeads = {
   // Submit a lead (public - no auth required)
   async submit(leadData) {
-    if (!supabase) {
+    if (!getSupabase()) {
       // Fallback to Netlify forms if Supabase not available
       return this.submitNetlify(leadData);
     }
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('leads')
       .insert({
         name: leadData.name || '',
@@ -154,8 +165,8 @@ const EPLeads = {
 
   // Get leads (for agents/admins)
   async getLeads(filters = {}) {
-    if (!supabase) return { data: [], error: null };
-    let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
+    if (!getSupabase()) return { data: [], error: null };
+    let query = getSupabase().from('leads').select('*').order('created_at', { ascending: false });
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.limit) query = query.limit(filters.limit);
     const { data, error } = await query;
@@ -164,8 +175,8 @@ const EPLeads = {
 
   // Update lead status
   async updateStatus(leadId, status) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('leads')
       .update({ status })
       .eq('id', leadId)
@@ -181,8 +192,8 @@ const EPLeads = {
 const EPListings = {
   // Get all active listings
   async getAll(filters = {}) {
-    if (!supabase) return { data: [], error: null };
-    let query = supabase.from('listings').select('*').eq('status', 'active').order('created_at', { ascending: false });
+    if (!getSupabase()) return { data: [], error: null };
+    let query = getSupabase().from('listings').select('*').eq('status', 'active').order('created_at', { ascending: false });
     if (filters.type) query = query.eq('type', filters.type);
     if (filters.city) query = query.ilike('city', `%${filters.city}%`);
     if (filters.minPrice) query = query.gte('price', filters.minPrice);
@@ -195,8 +206,8 @@ const EPListings = {
 
   // Get single listing
   async getById(id) {
-    if (!supabase) return { data: null, error: null };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { data: null, error: null };
+    const { data, error } = await getSupabase()
       .from('listings')
       .select('*, profiles(*)')
       .eq('id', id)
@@ -208,7 +219,7 @@ const EPListings = {
   async create(listingData) {
     const user = await EPAuth.getUser();
     if (!user) return { error: { message: 'Not logged in' } };
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('listings')
       .insert({ ...listingData, agent_id: user.id })
       .select()
@@ -218,8 +229,8 @@ const EPListings = {
 
   // Update listing
   async update(id, updates) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('listings')
       .update(updates)
       .eq('id', id)
@@ -230,8 +241,8 @@ const EPListings = {
 
   // Delete listing
   async delete(id) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { error } = await supabase.from('listings').delete().eq('id', id);
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { error } = await getSupabase().from('listings').delete().eq('id', id);
     return { error };
   },
 
@@ -239,7 +250,7 @@ const EPListings = {
   async getMyListings() {
     const user = await EPAuth.getUser();
     if (!user) return { data: [], error: null };
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('listings')
       .select('*')
       .eq('agent_id', user.id)
@@ -249,10 +260,10 @@ const EPListings = {
 
   // Increment view count
   async incrementViews(id) {
-    if (!supabase) return;
-    await supabase.rpc('increment_views', { listing_id: id }).catch(() => {
+    if (!getSupabase()) return;
+    await getSupabase().rpc('increment_views', { listing_id: id }).catch(() => {
       // Fallback: direct update
-      supabase.from('listings').update({ views_count: supabase.sql`views_count + 1` }).eq('id', id);
+      getSupabase().from('listings').update({ views_count: getSupabase().sql`views_count + 1` }).eq('id', id);
     });
   }
 };
@@ -263,8 +274,8 @@ const EPListings = {
 const EPAppointments = {
   // Book an appointment (public)
   async book(appointmentData) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('appointments')
       .insert({
         listing_id: appointmentData.listing_id || null,
@@ -287,7 +298,7 @@ const EPAppointments = {
   async getMyAppointments(filters = {}) {
     const user = await EPAuth.getUser();
     if (!user) return { data: [], error: null };
-    let query = supabase
+    let query = getSupabase()
       .from('appointments')
       .select('*, listings(*)')
       .eq('agent_id', user.id)
@@ -300,8 +311,8 @@ const EPAppointments = {
 
   // Update appointment status
   async updateStatus(id, status) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('appointments')
       .update({ status })
       .eq('id', id)
@@ -312,8 +323,8 @@ const EPAppointments = {
 
   // Get available time slots for a date
   async getAvailableSlots(agentId, date) {
-    if (!supabase) return { data: [], error: null };
-    const { data: booked } = await supabase
+    if (!getSupabase()) return { data: [], error: null };
+    const { data: booked } = await getSupabase()
       .from('appointments')
       .select('appointment_time')
       .eq('agent_id', agentId)
@@ -337,7 +348,7 @@ const EPCampaigns = {
   async create(campaignData) {
     const user = await EPAuth.getUser();
     if (!user) return { error: { message: 'Not logged in' } };
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('campaigns')
       .insert({
         listing_id: campaignData.listing_id || null,
@@ -358,7 +369,7 @@ const EPCampaigns = {
   async getMyCampaigns(filters = {}) {
     const user = await EPAuth.getUser();
     if (!user) return { data: [], error: null };
-    let query = supabase
+    let query = getSupabase()
       .from('campaigns')
       .select('*, listings(*)')
       .eq('agent_id', user.id)
@@ -370,8 +381,8 @@ const EPCampaigns = {
 
   // Update campaign
   async update(id, updates) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('campaigns')
       .update(updates)
       .eq('id', id)
@@ -392,8 +403,8 @@ const EPCampaigns = {
 const EPVendors = {
   // Get all active vendors
   async getAll(filters = {}) {
-    if (!supabase) return { data: [], error: null };
-    let query = supabase.from('vendors').select('*').eq('status', 'active').order('rating', { ascending: false });
+    if (!getSupabase()) return { data: [], error: null };
+    let query = getSupabase().from('vendors').select('*').eq('status', 'active').order('rating', { ascending: false });
     if (filters.category) query = query.eq('category', filters.category);
     if (filters.city) query = query.ilike('city', `%${filters.city}%`);
     if (filters.limit) query = query.limit(filters.limit);
@@ -403,8 +414,8 @@ const EPVendors = {
 
   // Submit vendor application
   async apply(vendorData) {
-    if (!supabase) return { error: { message: 'Supabase not loaded' } };
-    const { data, error } = await supabase
+    if (!getSupabase()) return { error: { message: 'Supabase not loaded' } };
+    const { data, error } = await getSupabase()
       .from('vendors')
       .insert({
         business_name: vendorData.business_name,
@@ -431,7 +442,7 @@ const EPNotifications = {
   async getAll() {
     const user = await EPAuth.getUser();
     if (!user) return { data: [], error: null };
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
@@ -441,14 +452,14 @@ const EPNotifications = {
   },
 
   async markRead(id) {
-    if (!supabase) return;
-    await supabase.from('notifications').update({ read: true }).eq('id', id);
+    if (!getSupabase()) return;
+    await getSupabase().from('notifications').update({ read: true }).eq('id', id);
   },
 
   async getUnreadCount() {
     const user = await EPAuth.getUser();
     if (!user) return 0;
-    const { count } = await supabase
+    const { count } = await getSupabase()
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
