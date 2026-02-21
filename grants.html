@@ -97,6 +97,7 @@
     <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏠 Homeowners</span>
     <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🔑 Buyers & Renters</span>
     <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏗️ Developers</span>
+    <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏢 Commercial</span>
   </div>
 </section>
 
@@ -112,6 +113,7 @@
   <div class="aud-tab" data-panel="homeowner" onclick="switchAud(this)"><span class="tab-icon">🏠</span> Homeowners</div>
   <div class="aud-tab" data-panel="buyer" onclick="switchAud(this)"><span class="tab-icon">🔑</span> Buyers & Renters</div>
   <div class="aud-tab" data-panel="developer" onclick="switchAud(this)"><span class="tab-icon">🏗️</span> Developers</div>
+  <div class="aud-tab" data-panel="commercial" onclick="switchAud(this)"><span class="tab-icon">🏢</span> Commercial Properties</div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -193,9 +195,31 @@
 <!-- HOMEOWNER PANEL -->
 <!-- ═══════════════════════════════════════ -->
 <div class="aud-panel" id="panel-homeowner">
+<div style="background:linear-gradient(135deg,#0a0f1a,#162d5a);border-radius:16px;padding:clamp(18px,3vw,24px);color:white;margin-bottom:20px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+    <span style="font-size:24px">🏠</span>
+    <div>
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.5">Featured Program</div>
+      <div style="font-family:'Fraunces',serif;font-size:clamp(16px,2vw,20px);font-weight:800">NJ Building Decarbonization — Up to $16,000+ in Rebates</div>
+    </div>
+  </div>
+  <p style="font-size:12px;opacity:.65;line-height:1.6;max-width:650px;margin-bottom:12px">Stack federal IRA rebates (HEAR — up to $14,000) with NJ utility rebates (PSE&G, JCP&L, NJNG) and 25C tax credits ($3,200/yr). Heat pumps, water heaters, electrical panels, insulation, wiring. Income-qualifying households: 100% covered.</p>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+    <span style="padding:4px 10px;border-radius:10px;font-size:9px;font-weight:700;background:rgba(14,159,110,.2);color:#6ee7b7">HEAR up to $14K</span>
+    <span style="padding:4px 10px;border-radius:10px;font-size:9px;font-weight:700;background:rgba(200,98,42,.2);color:#e8813f">Utility Rebates</span>
+    <span style="padding:4px 10px;border-radius:10px;font-size:9px;font-weight:700;background:rgba(26,86,219,.2);color:#93c5fd">25C Tax Credit $3,200/yr</span>
+    <span style="padding:4px 10px;border-radius:10px;font-size:9px;font-weight:700;background:rgba(201,169,110,.2);color:#c9a96e">ALL STACKABLE</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <a href="https://homeenergy.pseg.com/heatingandcooling" target="_blank" style="padding:8px 14px;background:var(--copper);color:white;border-radius:8px;font-size:11px;font-weight:700">PSE&G →</a>
+    <a href="https://www.nj.gov/bpu/assistance/incentives/" target="_blank" style="padding:8px 14px;background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:11px;font-weight:700">NJ BPU →</a>
+    <a href="https://www.savegreen.com/" target="_blank" style="padding:8px 14px;background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:11px;font-weight:700">NJNG SAVEGREEN →</a>
+  </div>
+</div>
 <div class="g-section">
   <div class="g-section-title"><span class="gs-icon">🏠</span> Homeowner Grants & Rebates</div>
   <div class="g-grid">
+    <div class="g-card" data-search="decarbonization rebate utility pseg jcpl heat pump electrification 16000" style="border-color:var(--copper)"><div class="g-card-head"><div class="g-card-icon">🏠</div><div><div class="g-card-title">NJ Building Decarbonization Rebate — Up to $16K <span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;background:rgba(200,98,42,.15);color:var(--copper);margin-left:4px">NEW</span></div></div></div><div class="g-card-desc">Up to $16,000 from PSE&G, JCP&L, and NJ utilities for switching to heat pumps, heat pump water heaters, and electric systems. Replace fossil fuel heating with clean electric. Plus up to $75K in 0% interest on-bill financing. Stackable with federal tax credits.</div><div class="g-card-meta"><span class="g-tag tag-state">UTILITY</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://homeenergy.pseg.com/heatingandcooling" target="_blank" class="g-card-link">PSE&G Decarbonization Program →</a></div>
     <div class="g-card" data-search="solar tax credit homeowner residential 30% itc"><div class="g-card-head"><div class="g-card-icon">☀️</div><div><div class="g-card-title">Residential Solar Tax Credit — 30%</div></div></div><div class="g-card-desc">30% federal tax credit on solar panel installation costs. No maximum limit. Through 2032.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.energy.gov/eere/solar/homeowners-guide-federal-tax-credit-solar-photovoltaics" target="_blank" class="g-card-link">IRS details →</a></div>
     <div class="g-card" data-search="energy efficient home improvement credit 25c insulation windows"><div class="g-card-head"><div class="g-card-icon">🏡</div><div><div class="g-card-title">Energy Efficient Home Improvement Credit</div></div></div><div class="g-card-desc">Up to $3,200/year for insulation, windows, doors, HVAC, heat pumps. IRA Section 25C.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit" target="_blank" class="g-card-link">IRS details →</a></div>
     <div class="g-card" data-search="nj clean energy rebate homeowner hvac heat pump water heater"><div class="g-card-head"><div class="g-card-icon">⚡</div><div><div class="g-card-title">NJ Clean Energy Residential Rebates</div></div></div><div class="g-card-desc">Rebates for HVAC ($300-$2,000), heat pumps ($1,000-$4,000), water heaters, insulation for NJ homeowners.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://njcleanenergy.com/residential" target="_blank" class="g-card-link">Find rebates →</a></div>
@@ -208,9 +232,92 @@
     <div class="g-card" data-search="flood mitigation elevation grant fema nfip"><div class="g-card-head"><div class="g-card-icon">🌊</div><div><div class="g-card-title">FEMA Flood Mitigation Grants</div></div></div><div class="g-card-desc">Grants for home elevation, flood-proofing, and property buyouts in flood-prone areas.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.fema.gov/grants/mitigation" target="_blank" class="g-card-link">Check eligibility →</a></div>
   </div>
 </div>
+
+<!-- PSE&G & UTILITY REBATES -->
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">⚡</span> PSE&G & Utility Rebates — Up to $16,000+ in Benefits</div>
+  <div style="background:linear-gradient(135deg,#ecfdf5,#f0fdf4);border:1.5px solid #86efac;border-radius:12px;padding:16px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:#059669;margin-bottom:4px">💰 Stack these together and save $10,000–$16,000+ on home upgrades!</div>
+    <div style="font-size:12px;color:#064e3b;line-height:1.6">NJ homeowners can combine federal tax credits + state rebates + utility rebates on the same project. Example: Heat pump install = $2,000 IRA credit + $4,000 NJ rebate + $900 PSE&G rebate = <b>$6,900 in savings on one project</b>.</div>
+  </div>
+  <div class="g-grid">
+    <div class="g-card" data-search="pseg hvac instant rebate heat pump furnace boiler mini split air conditioner"><div class="g-card-head"><div class="g-card-icon">🔥</div><div><div class="g-card-title">PSE&G HVAC Instant Rebates</div></div></div><div class="g-card-desc">Up to $900 instant rebate on heat pumps, mini-splits, furnaces, boilers, central AC. Plus $25,000 in 0% interest on-bill financing.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://homeenergy.pseg.com/heatingandcooling" target="_blank" class="g-card-link">PSE&G HVAC Rebates →</a></div>
+    <div class="g-card" data-search="pseg heat pump water heater rebate 750 energy star"><div class="g-card-head"><div class="g-card-icon">🚿</div><div><div class="g-card-title">PSE&G Heat Pump Water Heater — $750</div></div></div><div class="g-card-desc">$750 rebate for ENERGY STAR certified heat pump water heater. Uses 70% less energy than conventional. Submit rebate within 120 days of purchase.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">$750 REBATE</span></div><a href="https://homeenergy.pseg.com/heat-pump-water-heaters" target="_blank" class="g-card-link">Apply for rebate →</a></div>
+    <div class="g-card" data-search="pseg whole house incentive program insulation air sealing 6000"><div class="g-card-head"><div class="g-card-icon">🏡</div><div><div class="g-card-title">PSE&G Whole House Program — Up to $6,000</div></div></div><div class="g-card-desc">Up to $6,000 in rebates for insulation, air sealing, HVAC, water heating, and smart home tech. Plus $25,000 in 0% financing. Requires energy audit.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">UP TO $6,000</span></div><a href="https://homeenergy.pseg.com" target="_blank" class="g-card-link">Schedule energy audit →</a></div>
+    <div class="g-card" data-search="pseg smart thermostat rebate 100 nest ecobee"><div class="g-card-head"><div class="g-card-icon">🌡️</div><div><div class="g-card-title">PSE&G Smart Thermostat — Up to $100</div></div></div><div class="g-card-desc">Up to $100 rebate for ENERGY STAR smart thermostat (Nest, Ecobee, etc.). Automates energy savings.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://homeenergy.pseg.com/rebates" target="_blank" class="g-card-link">Claim rebate →</a></div>
+    <div class="g-card" data-search="pseg appliance rebate washer dryer refrigerator dishwasher induction cooktop"><div class="g-card-head"><div class="g-card-icon">🧊</div><div><div class="g-card-title">PSE&G Appliance Rebates</div></div></div><div class="g-card-desc">Rebates on ENERGY STAR appliances: washer ($100), electric dryer ($300), refrigerator ($100), dishwasher ($30), induction cooktop ($250).</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://homeenergy.pseg.com/rebates" target="_blank" class="g-card-link">All appliance rebates →</a></div>
+    <div class="g-card" data-search="pseg electrical panel upgrade circuit wiring rebate decarbonization"><div class="g-card-head"><div class="g-card-icon">🔌</div><div><div class="g-card-title">PSE&G Electrical Panel Upgrade Rebate</div></div></div><div class="g-card-desc">Rebates for panel upgrades, adding circuits, and wiring to support heat pumps, EV chargers, and electrification.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://homeenergy.pseg.com/heatingandcooling" target="_blank" class="g-card-link">Details →</a></div>
+    <div class="g-card" data-search="pseg on bill repayment financing 25000 0% interest free loan"><div class="g-card-head"><div class="g-card-icon">💳</div><div><div class="g-card-title">PSE&G 0% On-Bill Financing — $25,000</div></div></div><div class="g-card-desc">Up to $25,000 at 0% interest, repaid through your monthly PSE&G bill. For HVAC, insulation, and whole-house upgrades. No credit check.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-loan">0% FINANCING</span></div><a href="https://homeenergy.pseg.com/heatingandcooling" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-search="jcpl jersey central power light rebate heat pump appliance"><div class="g-card-head"><div class="g-card-icon">💡</div><div><div class="g-card-title">JCP&L Residential Rebates</div></div></div><div class="g-card-desc">Jersey Central Power & Light: rebates on heat pumps, smart thermostats, water heaters, and ENERGY STAR appliances. Plus recycling incentives.</div><div class="g-card-meta"><span class="g-tag tag-state">JCP&L</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://www.firstenergycorp.com/save_energy/save_energy_new_jersey.html" target="_blank" class="g-card-link">JCP&L rebates →</a></div>
+  </div>
+</div>
+
+<!-- STACKING EXAMPLE -->
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">📊</span> Example: Stack $16K+ in Savings on a Home Upgrade</div>
+  <div style="background:white;border:1.5px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🔥 Heat Pump + Insulation + Water Heater Project</div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:13px;line-height:2">
+      <span style="color:var(--slate)">Cold Climate Heat Pump Install</span><span style="font-weight:700">$12,000</span>
+      <span style="color:var(--slate)">Attic Insulation + Air Sealing</span><span style="font-weight:700">$4,000</span>
+      <span style="color:var(--slate)">Heat Pump Water Heater</span><span style="font-weight:700">$3,500</span>
+      <span style="color:var(--slate);border-top:1px solid var(--border);padding-top:4px"><b>Total Project Cost</b></span><span style="font-weight:800;border-top:1px solid var(--border);padding-top:4px">$19,500</span>
+    </div>
+    <div style="margin-top:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px">
+      <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Your Savings Stack</div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:2px 16px;font-size:12px;line-height:2">
+        <span>🏛 Federal 25C Tax Credit (heat pump)</span><span style="font-weight:700;color:#059669">−$2,000</span>
+        <span>🏛 Federal 25C Tax Credit (insulation)</span><span style="font-weight:700;color:#059669">−$1,200</span>
+        <span>⚡ NJ Clean Energy Rebate (heat pump)</span><span style="font-weight:700;color:#059669">−$4,000</span>
+        <span>⚡ PSE&G HVAC Instant Rebate</span><span style="font-weight:700;color:#059669">−$900</span>
+        <span>⚡ PSE&G Whole House Rebate</span><span style="font-weight:700;color:#059669">−$2,000</span>
+        <span>⚡ PSE&G Water Heater Rebate</span><span style="font-weight:700;color:#059669">−$750</span>
+        <span>💳 PSE&G 0% On-Bill Financing</span><span style="font-weight:700;color:#059669">for remainder</span>
+      </div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #86efac;display:flex;justify-content:space-between;font-size:14px">
+        <span style="font-weight:800;color:#059669">Total Savings</span>
+        <span style="font-weight:900;color:#059669;font-size:18px">$10,850+</span>
+      </div>
+      <div style="font-size:11px;color:#064e3b;margin-top:4px">You pay ~$8,650 out of pocket (or $0 upfront with PSE&G 0% financing)</div>
+    </div>
+  </div>
+</div>
+
 <div class="cta-box">
   <h3 class="sr">Need a contractor for your project?</h3>
-  <p>Find vetted, certified contractors on the EmporionPros Marketplace.</p>
+  <p>Find PSE&G participating contractors and certified energy pros on the EmporionPros Marketplace.</p>
+  <a href="vendors.html" class="cta-btn">Browse Vendor Marketplace →</a>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- COMMERCIAL PROPERTY PANEL (new) -->
+<!-- ═══════════════════════════════════════ -->
+<div class="aud-panel" id="panel-commercial">
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🏢</span> Commercial Property Direct Install & Rebates</div>
+  <div style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1.5px solid #93c5fd;border-radius:12px;padding:16px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:4px">💡 Up to 80% of project costs covered — for lighting, HVAC, refrigeration, and more</div>
+    <div style="font-size:12px;color:#1e3a5f;line-height:1.6">NJ commercial properties under 300kW demand qualify for Direct Install. Turnkey process: free assessment → proposal → installation → rebate applied instantly. 0% on-bill financing for the rest.</div>
+  </div>
+  <div class="g-grid">
+    <div class="g-card" data-search="direct install commercial lighting led hvac 70% 80% small business"><div class="g-card-head"><div class="g-card-icon">💡</div><div><div class="g-card-title">NJ Direct Install Program — Up to 80% Off</div></div></div><div class="g-card-desc">Turnkey upgrades for commercial properties under 300kW: LED lighting, HVAC, refrigeration, controls, water heating. Up to 70-80% of costs covered. 0% financing for the rest.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">UP TO 80%</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Apply — Small Business Direct Install →</a></div>
+    <div class="g-card" data-search="commercial led lighting upgrade retrofit replacement fluorescent energy"><div class="g-card-head"><div class="g-card-icon">🔦</div><div><div class="g-card-title">Commercial LED Lighting Upgrades</div></div></div><div class="g-card-desc">Replace fluorescent/HID with LEDs. Interior and exterior. Includes occupancy sensors, daylight controls, dimming. 70-80% covered via Direct Install.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Get free assessment →</a></div>
+    <div class="g-card" data-search="commercial hvac rooftop unit boiler furnace chiller split system replacement"><div class="g-card-head"><div class="g-card-icon">❄️</div><div><div class="g-card-title">Commercial HVAC Replacement</div></div></div><div class="g-card-desc">Rooftop units, split systems, boilers, furnaces, chillers, heat pumps, VFDs, programmable thermostats. 70-80% covered via Direct Install.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Schedule assessment →</a></div>
+    <div class="g-card" data-search="commercial refrigeration upgrade cooler freezer walk-in case"><div class="g-card-head"><div class="g-card-icon">🧊</div><div><div class="g-card-title">Commercial Refrigeration Upgrades</div></div></div><div class="g-card-desc">Walk-in coolers/freezers, display cases, anti-sweat heater controls. Critical for restaurants, grocery, convenience stores. Up to 80% covered.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="commercial on bill financing 0% interest 250000 5 year repayment"><div class="g-card-head"><div class="g-card-icon">💳</div><div><div class="g-card-title">Commercial 0% On-Bill Financing</div></div></div><div class="g-card-desc">Up to $250,000 at 0% interest, repaid on your utility bill over 5 years. For JCP&L, PSE&G, and other NJ utilities. No credit check required.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ UTILITIES</span><span class="g-tag tag-loan">0% FINANCING</span></div><a href="https://www.firstenergycorp.com/save_energy/save_energy_new_jersey/for-your-business.html" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-search="pseg commercial prescriptive incentive custom equipment large building"><div class="g-card-head"><div class="g-card-icon">🏗️</div><div><div class="g-card-title">PSE&G Prescriptive & Custom Incentives</div></div></div><div class="g-card-desc">For larger commercial/industrial buildings. Incentives for high-efficiency electric and gas equipment: lighting, HVAC, food service, motors, and more.</div><div class="g-card-meta"><span class="g-tag tag-state">PSE&G</span><span class="g-tag tag-rebate">INCENTIVE</span></div><a href="https://bizsave.pseg.com/" target="_blank" class="g-card-link">PSE&G Business Programs →</a></div>
+    <div class="g-card" data-search="building tune up medium commercial over 300kw"><div class="g-card-head"><div class="g-card-icon">🔧</div><div><div class="g-card-title">Building Tune-Up Program</div></div></div><div class="g-card-desc">For medium-sized commercial buildings over 300kW. Same turnkey approach as Direct Install — lighting, HVAC, controls. Up to 70-80% covered.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://bt.energysavenj.com/" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="multifamily apartment common area lighting hvac direct install"><div class="g-card-head"><div class="g-card-icon">🏢</div><div><div class="g-card-title">Multifamily Common Area Upgrades</div></div></div><div class="g-card-desc">Apartment buildings (3+ units) qualify for Direct Install: common area lighting, hallway LEDs, lobby HVAC, parking garage lights. Up to 80% covered.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="urban enterprise zone uez overburdened community 80% tier 1"><div class="g-card-head"><div class="g-card-icon">🏙️</div><div><div class="g-card-title">UEZ / Overburdened Community Bonus — 80%</div></div></div><div class="g-card-desc">Buildings in Urban Enterprise Zones, Opportunity Zones, or Overburdened Communities get the highest tier: up to 80% covered (vs 70% standard).</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">BONUS TIER</span></div><a href="https://sbdi.energysavenj.com/" target="_blank" class="g-card-link">Check eligibility →</a></div>
+    <div class="g-card" data-search="section 179d commercial energy efficient building tax deduction 5 sqft"><div class="g-card-head"><div class="g-card-icon">📊</div><div><div class="g-card-title">Section 179D — $5/sqft Tax Deduction</div></div></div><div class="g-card-desc">Up to $5/sqft federal deduction for energy-efficient commercial buildings. IRA enhanced. Applies to HVAC, lighting, and envelope upgrades.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX DEDUCTION</span></div><a href="https://www.energy.gov/eere/buildings/179d-commercial-buildings-energy-efficiency-tax-deduction" target="_blank" class="g-card-link">IRS details →</a></div>
+    <div class="g-card" data-search="commercial solar investment tax credit 30% itc business"><div class="g-card-head"><div class="g-card-icon">☀️</div><div><div class="g-card-title">Commercial Solar ITC — 30%</div></div></div><div class="g-card-desc">30% federal tax credit for commercial solar installations. Can be combined with accelerated depreciation for 50%+ effective savings.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.energy.gov/eere/solar/federal-solar-tax-credits-businesses" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-search="ev charging station commercial workplace parking lot nevi grant"><div class="g-card-head"><div class="g-card-icon">🔌</div><div><div class="g-card-title">Commercial EV Charging Grants</div></div></div><div class="g-card-desc">Federal + NJ grants for workplace/commercial EV charging. NEVI program ($7.5B nationwide) + NJ It Pay$ to Plug In incentives.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.drivegreen.nj.gov/" target="_blank" class="g-card-link">NJ EV programs →</a></div>
+  </div>
+</div>
+<div class="cta-box">
+  <h3 class="sr">Find a Direct Install contractor</h3>
+  <p>Connect with certified NJ Clean Energy contractors on EmporionPros.</p>
   <a href="vendors.html" class="cta-btn">Browse Vendor Marketplace →</a>
 </div>
 </div>
