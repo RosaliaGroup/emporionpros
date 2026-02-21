@@ -1,0 +1,17 @@
+{
+  "name": "emporionpros",
+  "version": "1.0.0",
+  "description": "EmporionPros - Real Estate Platform with Developer Intelligence",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site - no build step needed'",
+    "test:functions": "node test-functions.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
