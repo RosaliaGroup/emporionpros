@@ -438,7 +438,7 @@ if(zipMatch){
 '07055':'Passaic','07057':'Wallington','07058':'Pine Brook','07059':'Warren','07060':'Plainfield','07062':'Plainfield','07063':'Plainfield','07064':'Port Reading',
 '07065':'Rahway','07066':'Clark','07067':'Colonia','07068':'Roseland','07069':'Watchung','07070':'Rutherford','07071':'Lyndhurst','07072':'Carlstadt',
 '07073':'East Rutherford','07074':'Moonachie','07075':'Wood-Ridge','07076':'Scotch Plains','07077':'Sewaren','07078':'Short Hills','07079':'South Orange','07080':'South Plainfield',
-'07081':'Springfield','07082':'Towaco','07083':'Union','07086':'Weehawken','07087':'Union City','07088':'Vauxhall','07089':'Mountainside','07090':'Westfield',
+'07081':'Springfield','07082':'Towaco','07083':'Union','07086':'Weehawken','07087':'Union City','07088':'Vauxhall','07090':'Westfield',
 '07091':'Westfield','07092':'Mountainside','07093':'West New York','07094':'Secaucus','07095':'Woodbridge','07096':'Secaucus','07097':'Jersey City','07099':'Kearny',
 '07101':'Newark','07102':'Newark','07103':'Newark','07104':'Newark','07105':'Newark','07106':'Newark','07107':'Newark','07108':'Newark',
 '07109':'Belleville','07110':'Nutley','07111':'Irvington','07112':'Newark','07114':'Newark','07175':'Newark','07182':'Newark','07184':'Newark',
@@ -690,7 +690,7 @@ fetch('/api/market-report?address='+encodeURIComponent(v)+'&size='+activeCat)
     rc.innerHTML='<div class="report-hd"><h4>📊 '+result.town+', NJ '+result.zip+'</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🏗️</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">Report Coming Soon for '+result.town+'</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">We are building the full market intelligence report for <b>'+result.town+', NJ '+result.zip+'</b>. This will include rental comps, development costs, zoning, pipeline, demographics, and Aria AI analysis.</p><p style="font-size:12px;color:#64748b;margin-top:12px">Subscribe to <b>Pro Monitor ($199/mo)</b> to get notified when this market goes live, plus unlimited reports for all available markets.</p><div style="margin-top:20px"><a href="#signup" style="padding:12px 24px;background:#7c3aed;color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Get Notified When Ready</a></div></div>';
   }else{
     st.textContent=v+' — Market Intelligence';
-    rc.innerHTML='<div class="report-hd"><h4>📊 Report Request</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🔍</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">ZIP Code Not Recognized</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">Please enter a valid New Jersey address with ZIP code.<br>Example: <b>475 Main St, Orange NJ 07050</b></p></div>';
+    rc.innerHTML='<div class="report-hd"><h4>📊 Report Request</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🔍</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">ZIP Code Not Found</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">That ZIP code was not recognized as a New Jersey ZIP. Please enter a valid NJ address with ZIP code.<br><br>Example: <b>475 Main St, Orange NJ 07050</b><br>Or just a ZIP: <b>07302</b></p></div>';
   }
 });
 }
