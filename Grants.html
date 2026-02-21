@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EmporionPros — Grants, Rebates & Benefits Hub | NJ Business & Homeowner Incentives</title>
+<meta name="description" content="Find grants, rebates, tax credits, certifications, and incentives for NJ businesses, homeowners, buyers, renters, and real estate developers. Federal, state, and local programs.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0f1a;--paper:#f7f5f0;--copper:#c8622a;--copper-light:#e8813f;--gold:#c9a96e;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff;--green:#0e9f6e;--blue:#1a56db}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
+.nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(247,245,240,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:800}.nav-logo span{color:var(--copper)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:16px}.nav-r a{font-size:13px;font-weight:500;color:var(--slate)}.nav-r a:hover{color:var(--ink)}
+.nav-btn{background:var(--copper);color:white!important;padding:9px 18px;border-radius:8px;font-weight:600;font-size:12px}
+@media(max-width:768px){.nav-r a:not(.nav-btn){display:none}}
+.hero{background:var(--ink);color:white;padding:100px clamp(16px,4vw,48px) 48px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 120%,rgba(14,159,110,.12),transparent 50%),radial-gradient(ellipse at 70% 120%,rgba(200,98,42,.12),transparent 50%)}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:800;line-height:1.1;margin-bottom:12px;position:relative}
+.hero h1 em{font-style:italic;color:var(--copper-light)}
+.hero-p{font-size:16px;opacity:.65;max-width:580px;margin:0 auto 28px;line-height:1.6;position:relative}
+.sec{padding:clamp(40px,5vw,60px) clamp(16px,4vw,48px)}.sec-in{max-width:1100px;margin:0 auto}
+.sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--copper);font-weight:700;margin-bottom:6px}
+.sec-h{font-family:'Fraunces',serif;font-size:clamp(24px,3vw,36px);font-weight:800;line-height:1.1;margin-bottom:10px}
+.sec-p{font-size:14px;color:var(--slate);max-width:520px;line-height:1.6}
+.sec-white{background:white}
+/* AUDIENCE TABS */
+.aud-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px;position:relative}
+.aud-tab{padding:12px 20px;border-radius:24px;font-size:13px;font-weight:700;border:1.5px solid var(--border);cursor:pointer;transition:.25s;background:white;display:flex;align-items:center;gap:6px}
+.aud-tab:hover{border-color:var(--copper)}
+.aud-tab.active{background:var(--copper);color:white;border-color:var(--copper)}
+.aud-tab .tab-icon{font-size:16px}
+.aud-panel{display:none}.aud-panel.active{display:block}
+/* CATEGORY PILLS */
+.cat-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.cat-pill{padding:7px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;transition:.2s;background:white}
+.cat-pill:hover{border-color:var(--copper)}.cat-pill.active{background:var(--ink);color:white;border-color:var(--ink)}
+/* CARDS */
+.g-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:700px){.g-grid{grid-template-columns:1fr}}
+.g-card{background:white;border:1.5px solid var(--border);border-radius:12px;padding:16px;transition:.25s}
+.g-card:hover{border-color:var(--copper);box-shadow:0 4px 16px rgba(0,0,0,.04);transform:translateY(-2px)}
+.g-card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.g-card-icon{font-size:24px;flex-shrink:0}
+.g-card-title{font-size:14px;font-weight:700;line-height:1.3}
+.g-card-desc{font-size:12px;color:var(--slate);line-height:1.5;margin-bottom:6px}
+.g-card-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.g-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
+.tag-fed{background:rgba(26,86,219,.1);color:var(--blue)}
+.tag-state{background:rgba(14,159,110,.1);color:var(--green)}
+.tag-local{background:rgba(200,98,42,.1);color:var(--copper)}
+.tag-grant{background:rgba(14,159,110,.08);color:var(--green)}
+.tag-tax{background:rgba(26,86,219,.08);color:var(--blue)}
+.tag-rebate{background:rgba(200,98,42,.08);color:var(--copper)}
+.tag-cert{background:rgba(201,169,110,.15);color:#8b6914}
+.tag-loan{background:rgba(100,116,139,.1);color:var(--slate)}
+.g-card-link{font-size:11px;color:var(--copper);font-weight:600;display:inline-block;margin-top:4px}
+.g-card-link:hover{text-decoration:underline}
+/* SECTION DIVIDER */
+.g-section{margin-bottom:28px}
+.g-section-title{font-size:15px;font-weight:800;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.g-section-title .gs-icon{font-size:20px}
+/* SEARCH */
+.search-box{max-width:500px;margin:0 auto 32px;position:relative}
+.search-box input{width:100%;padding:14px 16px 14px 44px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;background:white}
+.search-box input:focus{outline:none;border-color:var(--copper)}
+.search-box::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+/* CTA */
+.cta-box{background:var(--ink);border-radius:16px;padding:32px;text-align:center;color:white;margin-top:40px}
+.cta-box h3{font-family:'Fraunces',serif;font-size:22px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:.6;margin-bottom:16px}
+.cta-btn{display:inline-block;padding:12px 24px;background:var(--copper);color:white;border-radius:10px;font-weight:700;font-size:14px;transition:.2s}
+.cta-btn:hover{background:var(--copper-light);transform:translateY(-2px)}
+.ft{padding:32px clamp(16px,4vw,48px) 20px;border-top:1px solid var(--border);text-align:center}
+.ft p{font-size:11px;color:var(--slate)}.ft a{color:var(--copper)}
+.count-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(200,98,42,.1);color:var(--copper);margin-left:4px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="platform.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <div class="nav-r">
+    <a href="platform.html">Platform</a>
+    <a href="for-vendors.html">For Vendors</a>
+    <a href="vendors.html">Marketplace</a>
+    <a href="for-developers.html">Developer Intel</a>
+    <a href="vendor-signup.html" class="nav-btn">List Free →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(14,159,110,.12);border:1px solid rgba(14,159,110,.2);padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;color:#6ee7b7;margin-bottom:16px;position:relative">💰 Grants & Benefits Hub</div>
+  <h1 class="sr">Free money you're <em>leaving on the table.</em></h1>
+  <p class="hero-p">Federal, state, and local grants, rebates, tax credits, and certifications for NJ businesses, homeowners, buyers, renters, and real estate developers. All in one place.</p>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;position:relative">
+    <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏢 Businesses</span>
+    <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏠 Homeowners</span>
+    <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🔑 Buyers & Renters</span>
+    <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7)">🏗️ Developers</span>
+  </div>
+</section>
+
+<section class="sec">
+<div class="sec-in">
+
+<!-- SEARCH -->
+<div class="search-box"><input type="text" id="grantSearch" placeholder="Search grants, rebates, credits..." oninput="filterCards(this.value)"></div>
+
+<!-- AUDIENCE TABS -->
+<div class="aud-tabs">
+  <div class="aud-tab active" data-panel="business" onclick="switchAud(this)"><span class="tab-icon">🏢</span> Businesses</div>
+  <div class="aud-tab" data-panel="homeowner" onclick="switchAud(this)"><span class="tab-icon">🏠</span> Homeowners</div>
+  <div class="aud-tab" data-panel="buyer" onclick="switchAud(this)"><span class="tab-icon">🔑</span> Buyers & Renters</div>
+  <div class="aud-tab" data-panel="developer" onclick="switchAud(this)"><span class="tab-icon">🏗️</span> Developers</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- BUSINESS PANEL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="aud-panel active" id="panel-business">
+
+<div class="cat-pills">
+  <div class="cat-pill active" onclick="filterBiz(this,'all')">All</div>
+  <div class="cat-pill" onclick="filterBiz(this,'construction')">🔨 Construction</div>
+  <div class="cat-pill" onclick="filterBiz(this,'energy')">⚡ Energy</div>
+  <div class="cat-pill" onclick="filterBiz(this,'professional')">💼 Professional</div>
+  <div class="cat-pill" onclick="filterBiz(this,'technology')">💻 Technology</div>
+  <div class="cat-pill" onclick="filterBiz(this,'food')">🍽️ Food</div>
+  <div class="cat-pill" onclick="filterBiz(this,'healthcare')">🏥 Healthcare</div>
+  <div class="cat-pill" onclick="filterBiz(this,'retail')">🛍️ Retail</div>
+  <div class="cat-pill" onclick="filterBiz(this,'transport')">🚛 Transport</div>
+</div>
+
+<!-- GRANTS -->
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">💰</span> Grants & Funding</div>
+  <div class="g-grid" id="biz-grants">
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="sba 7a loan small business"><div class="g-card-head"><div class="g-card-icon">🏦</div><div><div class="g-card-title">SBA 7(a) Loan Program</div></div></div><div class="g-card-desc">Up to $5M for working capital, equipment, real estate. SBA's most popular loan program for all industries.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.sba.gov/funding-programs/loans/7a-loans" target="_blank" class="g-card-link">Apply at SBA.gov →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="sba microloan startup small"><div class="g-card-head"><div class="g-card-icon">💵</div><div><div class="g-card-title">SBA Microloan Program</div></div></div><div class="g-card-desc">Up to $50K for startups and small businesses. Lower barrier than traditional bank loans.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.sba.gov/funding-programs/loans/microloans" target="_blank" class="g-card-link">Apply at SBA.gov →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="njeda small business fund new jersey"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">NJEDA Small Business Fund</div></div></div><div class="g-card-desc">Loans and grants for NJ small businesses with less than $5M revenue. Multiple programs available.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.njeda.gov/small-business/" target="_blank" class="g-card-link">Apply at NJEDA.gov →</a></div>
+    <div class="g-card" data-cat="all construction energy" data-search="clean energy program rebate hvac solar insulation nj"><div class="g-card-head"><div class="g-card-icon">⚡</div><div><div class="g-card-title">NJ Clean Energy Program</div></div></div><div class="g-card-desc">Rebates for energy-efficient construction: HVAC, insulation, windows, solar, EV charging. For contractors and businesses.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://njcleanenergy.com/" target="_blank" class="g-card-link">Explore programs →</a></div>
+    <div class="g-card" data-cat="all construction" data-search="hud lead hazard paint abatement healthy homes"><div class="g-card-head"><div class="g-card-icon">🏠</div><div><div class="g-card-title">HUD Lead Hazard Control Grants</div></div></div><div class="g-card-desc">Federal grants for lead paint abatement and healthy homes work. For qualified contractors.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.hud.gov/program_offices/healthy_homes/lbp/lhc" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all technology" data-search="sbir sttr nsf innovation research grant"><div class="g-card-head"><div class="g-card-icon">🔬</div><div><div class="g-card-title">NSF SBIR/STTR Grants</div></div></div><div class="g-card-desc">Up to $2M for technology innovation research. For tech startups with R&D activities.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.nsf.gov/funding/pgm_summ.jsp?pims_id=505784" target="_blank" class="g-card-link">Apply at NSF.gov →</a></div>
+    <div class="g-card" data-cat="all technology" data-search="njeda innovation evergreen fund startup nj"><div class="g-card-head"><div class="g-card-icon">🚀</div><div><div class="g-card-title">NJ Innovation Evergreen Fund</div></div></div><div class="g-card-desc">$500M state fund investing in NJ innovation economy. For tech and innovation companies.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-grant">GRANT/INVEST</span></div><a href="https://www.njeda.gov/" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all energy" data-search="solar srec renewable energy credit income"><div class="g-card-head"><div class="g-card-icon">☀️</div><div><div class="g-card-title">NJ Solar SRECs</div></div></div><div class="g-card-desc">Earn $200-$400 per SREC for every megawatt-hour of solar energy produced. Ongoing income for solar installers.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">INCOME</span></div><a href="https://njcleanenergy.com/renewable-energy/programs/solar-renewable-energy-certificates-srec" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all healthcare" data-search="hrsa health center community clinic grant"><div class="g-card-head"><div class="g-card-icon">🏥</div><div><div class="g-card-title">HRSA Health Center Grants</div></div></div><div class="g-card-desc">Federal funding for community health centers and qualifying healthcare practices.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.hrsa.gov/grants" target="_blank" class="g-card-link">Apply at HRSA.gov →</a></div>
+    <div class="g-card" data-cat="all food retail" data-search="facade improvement storefront downtown main street"><div class="g-card-head"><div class="g-card-icon">🏪</div><div><div class="g-card-title">Façade Improvement Grants</div></div></div><div class="g-card-desc">$5K-$25K municipal grants for storefront and exterior improvements. Available in most NJ downtowns.</div><div class="g-card-meta"><span class="g-tag tag-local">LOCAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="#" class="g-card-link">Check your municipality →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="minority business mbda capital access"><div class="g-card-head"><div class="g-card-icon">🌍</div><div><div class="g-card-title">MBDA Business Center Grants</div></div></div><div class="g-card-desc">Technical assistance and capital access for minority-owned firms through the Minority Business Development Agency.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.mbda.gov/" target="_blank" class="g-card-link">Find your MBDA center →</a></div>
+    <div class="g-card" data-cat="all construction" data-search="fema hazard mitigation disaster recovery"><div class="g-card-head"><div class="g-card-icon">🌊</div><div><div class="g-card-title">FEMA Hazard Mitigation Grants</div></div></div><div class="g-card-desc">Post-disaster construction and mitigation project funding. For contractors doing resilience work.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.fema.gov/grants/mitigation" target="_blank" class="g-card-link">Learn more →</a></div>
+  </div>
+</div>
+
+<!-- CERTIFICATIONS -->
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🏆</span> Business Certifications</div>
+  <div class="g-grid" id="biz-certs">
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="mbe minority business enterprise nmsdc"><div class="g-card-head"><div class="g-card-icon">🌍</div><div><div class="g-card-title">MBE – Minority Business Enterprise</div></div></div><div class="g-card-desc">NMSDC certification. Opens doors to Fortune 500 supplier diversity programs and government contracts.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span></div><a href="https://nmsdc.org/" target="_blank" class="g-card-link">Apply at NMSDC.org →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="wbe women business enterprise wbenc"><div class="g-card-head"><div class="g-card-icon">👩‍💼</div><div><div class="g-card-title">WBE – Women Business Enterprise</div></div></div><div class="g-card-desc">WBENC certification. Access to corporate and government contracts set aside for women-owned businesses.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span></div><a href="https://www.wbenc.org/" target="_blank" class="g-card-link">Apply at WBENC.org →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="sba 8a disadvantaged business development program"><div class="g-card-head"><div class="g-card-icon">📋</div><div><div class="g-card-title">SBA 8(a) Program</div></div></div><div class="g-card-desc">9-year business development program. Sole-source federal contracts up to $4M ($7M for manufacturing).</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span><span class="g-tag tag-fed">FEDERAL</span></div><a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" target="_blank" class="g-card-link">Apply at SBA.gov →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology" data-search="hubzone historically underutilized business zone"><div class="g-card-head"><div class="g-card-icon">📍</div><div><div class="g-card-title">HUBZone Certification</div></div></div><div class="g-card-desc">10% price preference on federal bids for businesses in Historically Underutilized Business Zones.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span><span class="g-tag tag-fed">FEDERAL</span></div><a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program" target="_blank" class="g-card-link">Check eligibility →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology transport" data-search="veteran owned vosb sdvosb service disabled"><div class="g-card-head"><div class="g-card-icon">🎖️</div><div><div class="g-card-title">VOSB / SDVOSB</div></div></div><div class="g-card-desc">Veteran-Owned / Service-Disabled Veteran-Owned Small Business. 3% federal contracting goal.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span><span class="g-tag tag-fed">FEDERAL</span></div><a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/veteran-assistance-programs" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="nj sbe small business enterprise state"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">NJ Small Business Enterprise (SBE)</div></div></div><div class="g-card-desc">NJ state certification for public procurement preference. Required for many NJ government contracts.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span><span class="g-tag tag-state">NJ STATE</span></div><a href="https://www.njportal.com/DOR/SBERegistry/" target="_blank" class="g-card-link">Register at NJPortal →</a></div>
+    <div class="g-card" data-cat="all construction" data-search="public works contractor registration prevailing wage"><div class="g-card-head"><div class="g-card-icon">🔨</div><div><div class="g-card-title">NJ Public Works Contractor Registration</div></div></div><div class="g-card-desc">REQUIRED for all public works construction in NJ. Annual renewal. Ensures prevailing wage compliance.</div><div class="g-card-meta"><span class="g-tag tag-cert">LICENSE</span><span class="g-tag tag-state">NJ STATE</span></div><a href="https://www.nj.gov/labor/employer/laws/publicworks.shtml" target="_blank" class="g-card-link">Register →</a></div>
+    <div class="g-card" data-cat="all energy" data-search="trade ally certification utility clean energy contractor"><div class="g-card-head"><div class="g-card-icon">⚡</div><div><div class="g-card-title">NJ Trade Ally Certification</div></div></div><div class="g-card-desc">REQUIRED to participate in NJ Clean Energy rebate programs. Connects you with utility company referrals.</div><div class="g-card-meta"><span class="g-tag tag-cert">CERTIFICATION</span><span class="g-tag tag-state">NJ STATE</span></div><a href="https://njcleanenergy.com/" target="_blank" class="g-card-link">Apply →</a></div>
+  </div>
+</div>
+
+<!-- TAX & BENEFITS -->
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🎯</span> Tax Credits, Rebates & Incentives</div>
+  <div class="g-grid" id="biz-benefits">
+    <div class="g-card" data-cat="all professional technology healthcare manufacturing" data-search="r&d research development tax credit innovation"><div class="g-card-head"><div class="g-card-icon">🔬</div><div><div class="g-card-title">Federal R&D Tax Credit</div></div></div><div class="g-card-desc">Up to $250K/year for qualifying research and development activities. Critical for tech and innovation companies.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.irs.gov/businesses/small-businesses-self-employed/research-credits" target="_blank" class="g-card-link">IRS details →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="opportunity zone capital gains deferral oz"><div class="g-card-head"><div class="g-card-icon">📍</div><div><div class="g-card-title">Opportunity Zone Tax Benefits</div></div></div><div class="g-card-desc">Capital gains deferral and potential elimination for investments in designated Opportunity Zone areas.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX BENEFIT</span></div><a href="https://www.irs.gov/credits-deductions/businesses/opportunity-zones" target="_blank" class="g-card-link">Find OZ areas →</a></div>
+    <div class="g-card" data-cat="all construction energy" data-search="section 179d energy efficient commercial building deduction"><div class="g-card-head"><div class="g-card-icon">🏢</div><div><div class="g-card-title">Section 179D Deduction</div></div></div><div class="g-card-desc">Up to $5/sqft deduction for energy-efficient commercial buildings. For builders and building owners.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX DEDUCTION</span></div><a href="https://www.energy.gov/eere/buildings/179d-commercial-buildings-energy-efficiency-tax-deduction" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all construction" data-search="historic preservation tax credit rehabilitation rehab"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">Historic Preservation Tax Credits</div></div></div><div class="g-card-desc">20% federal + 25% NJ state credits for qualifying historic building rehabilitations.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.nps.gov/subjects/taxincentives/index.htm" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-cat="all food retail" data-search="urban enterprise zone uez sales tax reduced 3.5"><div class="g-card-head"><div class="g-card-icon">🏙️</div><div><div class="g-card-title">NJ Urban Enterprise Zone</div></div></div><div class="g-card-desc">3.5% sales tax (vs 6.625% standard) in UEZ areas. Business incentives and reduced taxes in 32 NJ zones.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-tax">TAX BENEFIT</span></div><a href="https://www.nj.gov/dca/affiliates/uez/" target="_blank" class="g-card-link">Check UEZ zones →</a></div>
+    <div class="g-card" data-cat="all energy" data-search="investment tax credit itc solar storage ev charging 30%"><div class="g-card-head"><div class="g-card-icon">☀️</div><div><div class="g-card-title">Investment Tax Credit (ITC) — 30%</div></div></div><div class="g-card-desc">30% federal tax credit for solar, battery storage, and EV charging installations. From Inflation Reduction Act.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.energy.gov/eere/solar/federal-solar-tax-credits-businesses" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="wotc work opportunity tax credit hiring employee"><div class="g-card-head"><div class="g-card-icon">👥</div><div><div class="g-card-title">Work Opportunity Tax Credit (WOTC)</div></div></div><div class="g-card-desc">Up to $9,600/employee for hiring from target groups (veterans, ex-offenders, SNAP recipients, etc.).</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.dol.gov/agencies/eta/wotc" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-cat="all construction energy" data-search="direct install 70% lighting hvac equipment upgrade"><div class="g-card-head"><div class="g-card-icon">💡</div><div><div class="g-card-title">NJ Clean Energy Direct Install</div></div></div><div class="g-card-desc">Up to 70% covered for lighting, HVAC, and equipment upgrades for small/medium businesses.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://njcleanenergy.com/commercial-industrial/programs/direct-install" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="sam.gov federal contracting registration bid"><div class="g-card-head"><div class="g-card-icon">📝</div><div><div class="g-card-title">SAM.gov — Federal Contracting</div></div></div><div class="g-card-desc">Free registration required for all federal contracts. Opens access to billions in government spending.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-cert">REGISTRATION</span></div><a href="https://sam.gov/" target="_blank" class="g-card-link">Register free →</a></div>
+    <div class="g-card" data-cat="all construction energy professional technology food healthcare retail transport" data-search="njstart state procurement bid portal nj"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">NJSTART — NJ State Procurement</div></div></div><div class="g-card-desc">State procurement portal. Register to bid on all NJ government contracts. Free registration.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-cert">REGISTRATION</span></div><a href="https://www.njstart.gov/" target="_blank" class="g-card-link">Register free →</a></div>
+  </div>
+</div>
+
+<div class="cta-box">
+  <h3 class="sr">List your business on EmporionPros</h3>
+  <p>Get matched with real estate clients + unlock industry-specific grants and certifications.</p>
+  <a href="vendor-signup.html" class="cta-btn">Register Your Business Free →</a>
+</div>
+</div><!-- end panel-business -->
+
+<!-- ═══════════════════════════════════════ -->
+<!-- HOMEOWNER PANEL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="aud-panel" id="panel-homeowner">
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🏠</span> Homeowner Grants & Rebates</div>
+  <div class="g-grid">
+    <div class="g-card" data-search="solar tax credit homeowner residential 30% itc"><div class="g-card-head"><div class="g-card-icon">☀️</div><div><div class="g-card-title">Residential Solar Tax Credit — 30%</div></div></div><div class="g-card-desc">30% federal tax credit on solar panel installation costs. No maximum limit. Through 2032.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.energy.gov/eere/solar/homeowners-guide-federal-tax-credit-solar-photovoltaics" target="_blank" class="g-card-link">IRS details →</a></div>
+    <div class="g-card" data-search="energy efficient home improvement credit 25c insulation windows"><div class="g-card-head"><div class="g-card-icon">🏡</div><div><div class="g-card-title">Energy Efficient Home Improvement Credit</div></div></div><div class="g-card-desc">Up to $3,200/year for insulation, windows, doors, HVAC, heat pumps. IRA Section 25C.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit" target="_blank" class="g-card-link">IRS details →</a></div>
+    <div class="g-card" data-search="nj clean energy rebate homeowner hvac heat pump water heater"><div class="g-card-head"><div class="g-card-icon">⚡</div><div><div class="g-card-title">NJ Clean Energy Residential Rebates</div></div></div><div class="g-card-desc">Rebates for HVAC ($300-$2,000), heat pumps ($1,000-$4,000), water heaters, insulation for NJ homeowners.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">REBATE</span></div><a href="https://njcleanenergy.com/residential" target="_blank" class="g-card-link">Find rebates →</a></div>
+    <div class="g-card" data-search="ev charger home electric vehicle tax credit"><div class="g-card-head"><div class="g-card-icon">🔌</div><div><div class="g-card-title">EV Charger Tax Credit</div></div></div><div class="g-card-desc">30% tax credit (up to $1,000) for home EV charging station installation. IRA extension.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.irs.gov/credits-deductions/alternative-fuel-vehicle-refueling-property-credit" target="_blank" class="g-card-link">IRS details →</a></div>
+    <div class="g-card" data-search="anchor property tax relief nj homeowner benefit"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">NJ ANCHOR Property Tax Relief</div></div></div><div class="g-card-desc">Up to $1,500 for homeowners, $450 for renters. Annual benefit based on income and property taxes paid.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">TAX RELIEF</span></div><a href="https://www.nj.gov/treasury/taxation/anchor/index.shtml" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="senior freeze property tax reimbursement elderly 65"><div class="g-card-head"><div class="g-card-icon">👴</div><div><div class="g-card-title">NJ Senior Freeze Program</div></div></div><div class="g-card-desc">Reimburses eligible seniors (65+) and disabled for property tax increases. Income limits apply.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">TAX RELIEF</span></div><a href="https://www.nj.gov/treasury/taxation/ptr/index.shtml" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="weatherization assistance low income home energy"><div class="g-card-head"><div class="g-card-icon">🌡️</div><div><div class="g-card-title">Weatherization Assistance Program</div></div></div><div class="g-card-desc">Free home weatherization for low-income households. Insulation, air sealing, heating system repair.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">FREE SERVICE</span></div><a href="https://www.energy.gov/scep/wap/weatherization-assistance-program" target="_blank" class="g-card-link">Check eligibility →</a></div>
+    <div class="g-card" data-search="fha 203k renovation loan rehab mortgage"><div class="g-card-head"><div class="g-card-icon">🔨</div><div><div class="g-card-title">FHA 203(k) Renovation Loan</div></div></div><div class="g-card-desc">Finance home purchase + renovation in one mortgage. 3.5% down. Great for fixer-uppers.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.hud.gov/program_offices/housing/sfh/203k" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-search="lead paint abatement grant homeowner nj"><div class="g-card-head"><div class="g-card-icon">🎨</div><div><div class="g-card-title">NJ Lead-Safe Home Grants</div></div></div><div class="g-card-desc">Free or subsidized lead paint removal for qualifying NJ homeowners. County-administered programs.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.nj.gov/health/childhoodlead/" target="_blank" class="g-card-link">Find your county program →</a></div>
+    <div class="g-card" data-search="flood mitigation elevation grant fema nfip"><div class="g-card-head"><div class="g-card-icon">🌊</div><div><div class="g-card-title">FEMA Flood Mitigation Grants</div></div></div><div class="g-card-desc">Grants for home elevation, flood-proofing, and property buyouts in flood-prone areas.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">GRANT</span></div><a href="https://www.fema.gov/grants/mitigation" target="_blank" class="g-card-link">Check eligibility →</a></div>
+  </div>
+</div>
+<div class="cta-box">
+  <h3 class="sr">Need a contractor for your project?</h3>
+  <p>Find vetted, certified contractors on the EmporionPros Marketplace.</p>
+  <a href="vendors.html" class="cta-btn">Browse Vendor Marketplace →</a>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- BUYER/RENTER PANEL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="aud-panel" id="panel-buyer">
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🔑</span> Buyer & Renter Programs</div>
+  <div class="g-grid">
+    <div class="g-card" data-search="first time homebuyer fha low down payment"><div class="g-card-head"><div class="g-card-icon">🏠</div><div><div class="g-card-title">FHA First-Time Homebuyer Loans</div></div></div><div class="g-card-desc">3.5% down payment. Lower credit score requirements. Most popular first-time buyer program.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.hud.gov/buying/loans" target="_blank" class="g-card-link">Learn more →</a></div>
+    <div class="g-card" data-search="nj hmfa first time buyer down payment assistance dpa"><div class="g-card-head"><div class="g-card-icon">💵</div><div><div class="g-card-title">NJ HMFA Down Payment Assistance</div></div></div><div class="g-card-desc">Up to $15,000 in down payment and closing cost assistance for NJ first-time buyers. Income limits apply.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-grant">GRANT/LOAN</span></div><a href="https://www.nj.gov/dca/hmfa/homeownership/" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="va loan veteran zero down payment"><div class="g-card-head"><div class="g-card-icon">🎖️</div><div><div class="g-card-title">VA Home Loan — Zero Down</div></div></div><div class="g-card-desc">No down payment, no PMI for eligible veterans and active military. Best mortgage deal available.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.va.gov/housing-assistance/home-loans/" target="_blank" class="g-card-link">Check eligibility →</a></div>
+    <div class="g-card" data-search="usda rural development loan zero down"><div class="g-card-head"><div class="g-card-icon">🌾</div><div><div class="g-card-title">USDA Rural Development Loan</div></div></div><div class="g-card-desc">Zero down payment for homes in eligible rural areas. Some NJ areas qualify. Income limits apply.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-loan">LOAN</span></div><a href="https://www.rd.usda.gov/programs-services/single-family-housing-programs" target="_blank" class="g-card-link">Check area eligibility →</a></div>
+    <div class="g-card" data-search="anchor renter tax relief nj 450"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">NJ ANCHOR Renter Relief</div></div></div><div class="g-card-desc">Up to $450 annual benefit for NJ renters. Based on income. Applied to property tax relief.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-rebate">TAX RELIEF</span></div><a href="https://www.nj.gov/treasury/taxation/anchor/index.shtml" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="section 8 housing choice voucher rental assistance"><div class="g-card-head"><div class="g-card-icon">🏘️</div><div><div class="g-card-title">Section 8 Housing Choice Voucher</div></div></div><div class="g-card-desc">Federal rental assistance program covering a portion of rent for qualifying low-income families.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">VOUCHER</span></div><a href="https://www.hud.gov/topics/housing_choice_voucher_program_section_8" target="_blank" class="g-card-link">Apply through local PHA →</a></div>
+    <div class="g-card" data-search="mortgage credit certificate mcc first time buyer tax"><div class="g-card-head"><div class="g-card-icon">💰</div><div><div class="g-card-title">Mortgage Credit Certificate (MCC)</div></div></div><div class="g-card-desc">Tax credit of 20-25% of annual mortgage interest for first-time buyers. Saves thousands over loan life.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.nj.gov/dca/hmfa/" target="_blank" class="g-card-link">Apply through NJHMFA →</a></div>
+    <div class="g-card" data-search="liheap energy assistance utility bill help heating cooling"><div class="g-card-head"><div class="g-card-icon">🌡️</div><div><div class="g-card-title">LIHEAP Utility Bill Assistance</div></div></div><div class="g-card-desc">Federal assistance for heating/cooling costs for low-income households. NJ administers through DCA.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-grant">ASSISTANCE</span></div><a href="https://www.nj.gov/dca/divisions/dhcr/offices/hea.html" target="_blank" class="g-card-link">Apply →</a></div>
+  </div>
+</div>
+<div class="cta-box">
+  <h3 class="sr">Looking for your next home?</h3>
+  <p>Browse listings and connect with agents on EmporionPros.</p>
+  <a href="platform.html" class="cta-btn">Explore Platform →</a>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- DEVELOPER PANEL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="aud-panel" id="panel-developer">
+<div class="g-section">
+  <div class="g-section-title"><span class="gs-icon">🏗️</span> Developer & Investor Incentives</div>
+  <div class="g-grid">
+    <div class="g-card" data-search="opportunity zone capital gains deferral developer"><div class="g-card-head"><div class="g-card-icon">📍</div><div><div class="g-card-title">Opportunity Zone Tax Benefits</div></div></div><div class="g-card-desc">Defer and potentially eliminate capital gains taxes. 10-year hold = zero tax on OZ investment appreciation.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX BENEFIT</span></div><a href="https://www.irs.gov/credits-deductions/businesses/opportunity-zones" target="_blank" class="g-card-link">Find NJ OZ tracts →</a></div>
+    <div class="g-card" data-search="lihtc low income housing tax credit affordable 4% 9%"><div class="g-card-head"><div class="g-card-icon">🏢</div><div><div class="g-card-title">LIHTC — Low-Income Housing Tax Credits</div></div></div><div class="g-card-desc">4% or 9% tax credits for affordable housing development. Most common affordable housing financing tool.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.nj.gov/dca/hmfa/developers/lihtc/" target="_blank" class="g-card-link">NJ HMFA application →</a></div>
+    <div class="g-card" data-search="historic preservation tax credit 20% 25% nj rehabilitation"><div class="g-card-head"><div class="g-card-icon">🏛</div><div><div class="g-card-title">Historic Preservation Tax Credits</div></div></div><div class="g-card-desc">20% federal + 25% NJ state = up to 45% tax credit for qualifying historic building rehabilitations.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.nps.gov/subjects/taxincentives/index.htm" target="_blank" class="g-card-link">NPS application →</a></div>
+    <div class="g-card" data-search="njeda aspire tax incentive economic development"><div class="g-card-head"><div class="g-card-icon">🏗️</div><div><div class="g-card-title">NJ Aspire Tax Incentive Program</div></div></div><div class="g-card-desc">NJ's main economic development incentive. Tax credits for qualifying real estate development projects.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.njeda.gov/aspire/" target="_blank" class="g-card-link">Apply at NJEDA →</a></div>
+    <div class="g-card" data-search="payment in lieu of taxes pilot tax abatement"><div class="g-card-head"><div class="g-card-icon">💰</div><div><div class="g-card-title">PILOT / Tax Abatement Programs</div></div></div><div class="g-card-desc">Payment In Lieu Of Taxes. Negotiate reduced property taxes for 10-30 years on new development.</div><div class="g-card-meta"><span class="g-tag tag-local">LOCAL</span><span class="g-tag tag-tax">TAX ABATEMENT</span></div><a href="#" class="g-card-link">Negotiate with municipality →</a></div>
+    <div class="g-card" data-search="section 179d energy efficient commercial building"><div class="g-card-head"><div class="g-card-icon">⚡</div><div><div class="g-card-title">Section 179D — Energy Deduction</div></div></div><div class="g-card-desc">Up to $5/sqft deduction for energy-efficient commercial/multifamily buildings. IRA enhanced rates.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX DEDUCTION</span></div><a href="https://www.energy.gov/eere/buildings/179d-commercial-buildings-energy-efficiency-tax-deduction" target="_blank" class="g-card-link">Details →</a></div>
+    <div class="g-card" data-search="njhmfa financing affordable housing construction fund"><div class="g-card-head"><div class="g-card-icon">🏦</div><div><div class="g-card-title">NJHMFA Housing Construction Fund</div></div></div><div class="g-card-desc">Low-cost financing for affordable and workforce housing construction in NJ.</div><div class="g-card-meta"><span class="g-tag tag-state">NJ STATE</span><span class="g-tag tag-loan">FINANCING</span></div><a href="https://www.nj.gov/dca/hmfa/developers/" target="_blank" class="g-card-link">Apply →</a></div>
+    <div class="g-card" data-search="1031 exchange defer capital gains like kind"><div class="g-card-head"><div class="g-card-icon">🔄</div><div><div class="g-card-title">1031 Like-Kind Exchange</div></div></div><div class="g-card-desc">Defer capital gains taxes indefinitely by exchanging investment property for like-kind property.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX DEFERRAL</span></div><a href="https://www.irs.gov/newsroom/like-kind-exchanges-real-estate-tax-tips" target="_blank" class="g-card-link">IRS guidelines →</a></div>
+    <div class="g-card" data-search="cost segregation accelerated depreciation bonus"><div class="g-card-head"><div class="g-card-icon">📊</div><div><div class="g-card-title">Cost Segregation / Bonus Depreciation</div></div></div><div class="g-card-desc">Accelerate depreciation deductions in year 1. Can offset 30-50% of building cost in tax savings.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX STRATEGY</span></div><a href="#" class="g-card-link">Consult a CPA →</a></div>
+    <div class="g-card" data-search="new markets tax credit nmtc low income community 39%"><div class="g-card-head"><div class="g-card-icon">🏙️</div><div><div class="g-card-title">New Markets Tax Credit (NMTC)</div></div></div><div class="g-card-desc">39% tax credit over 7 years for investments in low-income communities. For commercial real estate.</div><div class="g-card-meta"><span class="g-tag tag-fed">FEDERAL</span><span class="g-tag tag-tax">TAX CREDIT</span></div><a href="https://www.cdfifund.gov/programs-training/programs/new-markets-tax-credit" target="_blank" class="g-card-link">Apply →</a></div>
+  </div>
+</div>
+<div class="cta-box">
+  <h3 class="sr">Run market intelligence on any NJ ZIP</h3>
+  <p>Rental comps, development costs, zoning, demographics, and AI analysis for every NJ ZIP code.</p>
+  <a href="for-developers.html" class="cta-btn">Developer Intelligence Tool →</a>
+</div>
+</div>
+
+</div>
+</section>
+
+<footer class="ft">
+  <p>© 2026 <a href="platform.html">EmporionPros</a> — <a href="for-vendors.html">For Vendors</a> · <a href="vendors.html">Marketplace</a> · <a href="for-developers.html">Developer Intel</a> · <a href="vendor-signup.html">List Your Business</a></p>
+</footer>
+
+<script>
+function switchAud(el){
+  document.querySelectorAll('.aud-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.aud-panel').forEach(function(p){p.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('panel-'+el.dataset.panel).classList.add('active');
+  document.getElementById('grantSearch').value='';
+  showAllCards();
+}
+function filterBiz(el,cat){
+  document.querySelectorAll('.cat-pill').forEach(function(p){p.classList.remove('active')});
+  el.classList.add('active');
+  var panels=['biz-grants','biz-certs','biz-benefits'];
+  panels.forEach(function(pid){
+    var cards=document.querySelectorAll('#'+pid+' .g-card');
+    cards.forEach(function(c){
+      if(cat==='all'||c.dataset.cat.indexOf(cat)>-1){c.style.display='';}
+      else{c.style.display='none';}
+    });
+  });
+}
+function filterCards(q){
+  q=q.toLowerCase().trim();
+  var activePanel=document.querySelector('.aud-panel.active');
+  if(!activePanel)return;
+  var cards=activePanel.querySelectorAll('.g-card');
+  cards.forEach(function(c){
+    var text=(c.textContent+(c.dataset.search||'')).toLowerCase();
+    c.style.display=(!q||text.indexOf(q)>-1)?'':'none';
+  });
+}
+function showAllCards(){
+  document.querySelectorAll('.g-card').forEach(function(c){c.style.display='';});
+  document.querySelectorAll('.cat-pill').forEach(function(p,i){p.classList.toggle('active',i===0);});
+}
+</script>
+<script src="social-proof.js"></script>
+</body>
+</html>
