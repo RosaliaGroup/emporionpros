@@ -2,99 +2,202 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign Up — Emporion Pros</title>
+<meta name="description" content="Create your free Emporion Pros account.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<script src="ep-supabase.js"></script>
 <style>
-body{background:linear-gradient(135deg,#1e3a8a,#1a56db);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-box{background:white;border-radius:20px;padding:40px;width:100%;max-width:480px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
-.auth-logo{font-size:24px;font-weight:800;color:#1a56db;margin-bottom:6px}.auth-logo span{color:#f97316}
-.auth-title{font-size:26px;font-weight:800;margin-bottom:6px}
-.auth-sub{color:#6b7280;font-size:14px;margin-bottom:28px}
-.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
-.role-card{border:2px solid #e5e7eb;border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;transition:.2s}
-.role-card:hover{border-color:#1a56db}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh}
+.auth-page{display:flex;min-height:100vh}
+.auth-left{flex:1;background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 60%,#1e40af 100%);color:white;display:flex;align-items:center;justify-content:center;padding:60px}
+.auth-left-content{max-width:480px}
+.auth-left h1{font-size:42px;font-weight:800;margin-bottom:16px;line-height:1.2}
+.auth-left h1 em{color:#fbbf24;font-style:normal}
+.auth-left p{font-size:18px;opacity:.85;line-height:1.7;margin-bottom:32px}
+.auth-features{list-style:none}
+.auth-features li{padding:8px 0;font-size:15px;opacity:.9}
+.auth-features li::before{content:'✓';margin-right:10px;color:#fbbf24;font-weight:700}
+.auth-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.auth-card{background:white;border-radius:16px;padding:48px;max-width:440px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.auth-logo{font-size:24px;font-weight:800;color:#1a56db;margin-bottom:8px}
+.auth-logo span{color:#f97316}
+.auth-subtitle{color:#6b7280;font-size:15px;margin-bottom:32px}
+.auth-form label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
+.auth-form input,.auth-form select{width:100%;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px;transition:.2s;background:white}
+.auth-form input:focus,.auth-form select:focus{outline:none;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.auth-submit{width:100%;padding:14px;background:#1a56db;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.auth-submit:hover{background:#1e3a8a}
+.auth-submit:disabled{background:#93c5fd;cursor:not-allowed}
+.auth-link{text-align:center;margin-top:24px;font-size:14px;color:#6b7280}
+.auth-link a{color:#1a56db;font-weight:600;text-decoration:none}
+.auth-link a:hover{text-decoration:underline}
+.auth-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.auth-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#059669;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.name-row{display:flex;gap:12px}
+.name-row>div{flex:1}
+.role-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.role-card{padding:14px;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;text-align:center;transition:.2s}
+.role-card:hover{border-color:#93c5fd}
 .role-card.selected{border-color:#1a56db;background:#eff6ff}
-.role-icon{font-size:28px;margin-bottom:6px}
-.role-name{font-size:12px;font-weight:700}
-.divider{text-align:center;color:#9ca3af;font-size:13px;margin:16px 0;position:relative}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#e5e7eb}
-.divider::before{left:0}.divider::after{right:0}
-.auth-switch{text-align:center;font-size:13px;margin-top:20px;color:#6b7280}
-.auth-switch a{color:#1a56db;font-weight:600;text-decoration:none}
+.role-card .role-icon{font-size:24px;margin-bottom:4px}
+.role-card .role-name{font-size:13px;font-weight:600;color:#374151}
+.terms{font-size:12px;color:#9ca3af;margin-top:12px;text-align:center;line-height:1.6}
+.terms a{color:#1a56db;text-decoration:none}
+@media(max-width:768px){.auth-left{display:none}.auth-right{padding:20px}.name-row{flex-direction:column;gap:0}}
 </style>
 </head>
 <body>
-<div class="auth-box">
-  <div class="auth-logo">Emporion<span>Pros</span></div>
-  <div class="auth-title">Create your account</div>
-  <div class="auth-sub">Join thousands of real estate professionals</div>
-
-  <div class="role-grid" id="role-grid">
-    <div class="role-card selected" onclick="selectRole('buyer',this)"><div class="role-icon">🏠</div><div class="role-name">Buyer / Renter</div></div>
-    <div class="role-card" onclick="selectRole('agent',this)"><div class="role-icon">🤝</div><div class="role-name">Agent</div></div>
-    <div class="role-card" onclick="selectRole('vendor',this)"><div class="role-icon">🔧</div><div class="role-name">Vendor</div></div>
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <h1>Join<br><em>Emporion Pros</em></h1>
+      <p>Create your free account and access the most powerful real estate platform in New Jersey.</p>
+      <ul class="auth-features">
+        <li>Free 14-day trial — no credit card required</li>
+        <li>AI-powered campaigns for every listing</li>
+        <li>Lead capture & CRM built in</li>
+        <li>Appointment booking & calendar</li>
+        <li>Vendor marketplace access</li>
+        <li>24/7 AI assistant (Aria)</li>
+      </ul>
+    </div>
   </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-logo">Emporion<span>Pros</span></div>
+      <div class="auth-subtitle">Create your free account</div>
 
-  <form onsubmit="doSignup(event)">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-      <input class="ep-input" name="firstName" placeholder="First Name" required>
-      <input class="ep-input" name="lastName" placeholder="Last Name" required>
+      <div class="auth-error" id="auth-error"></div>
+      <div class="auth-success" id="auth-success"></div>
+
+      <form class="auth-form" id="signup-form" onsubmit="handleSignup(event)">
+        <label>I am a...</label>
+        <div class="role-cards" id="role-cards">
+          <div class="role-card" data-role="agent" onclick="selectRole(this)">
+            <div class="role-icon">🏠</div>
+            <div class="role-name">Agent</div>
+          </div>
+          <div class="role-card" data-role="manager" onclick="selectRole(this)">
+            <div class="role-icon">🏢</div>
+            <div class="role-name">Manager</div>
+          </div>
+          <div class="role-card" data-role="owner" onclick="selectRole(this)">
+            <div class="role-icon">🔑</div>
+            <div class="role-name">Homeowner</div>
+          </div>
+          <div class="role-card" data-role="vendor" onclick="selectRole(this)">
+            <div class="role-icon">🔧</div>
+            <div class="role-name">Vendor</div>
+          </div>
+        </div>
+        <input type="hidden" id="role" value="user">
+
+        <div class="name-row">
+          <div>
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" placeholder="John Smith" required>
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="(555) 123-4567">
+          </div>
+        </div>
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+
+        <label for="company">Company / Brokerage <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+        <input type="text" id="company" placeholder="Your company name">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Minimum 6 characters" required minlength="6">
+
+        <button type="submit" class="auth-submit" id="signup-btn">Create Free Account</button>
+
+        <div class="terms">
+          By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </div>
+      </form>
+
+      <div class="auth-link">
+        Already have an account? <a href="/login.html">Log in</a>
+      </div>
     </div>
-    <div class="ep-form-group"><input class="ep-input" name="email" type="email" placeholder="Email Address" required></div>
-    <div class="ep-form-group"><input class="ep-input" name="phone" type="tel" placeholder="Phone Number" required></div>
-    <div class="ep-form-group"><input class="ep-input" name="password" type="password" placeholder="Create Password" required></div>
-    <div id="agent-fields" style="display:none">
-      <div class="ep-form-group"><input class="ep-input" name="license" placeholder="License Number (Agents)"></div>
-    </div>
-    <div id="vendor-fields" style="display:none">
-      <div class="ep-form-group"><input class="ep-input" name="bizName" placeholder="Business Name"></div>
-      <div class="ep-form-group"><select class="ep-select" name="category"><option>Plumbing</option><option>HVAC</option><option>Electrical</option><option>Mortgage</option><option>Insurance</option><option>Title</option><option>Inspection</option><option>Real Estate Attorney</option><option>General Contractor</option></select></div>
-    </div>
-    <button type="submit" class="ep-btn ep-btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:8px">Create Account →</button>
-  </form>
-  <div class="auth-switch">Already have an account? <a href="login.html">Sign in</a></div>
+  </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  EP.injectStyles();
-  const params = new URLSearchParams(window.location.search);
-  const role = params.get('role');
-  if (role) { const btn = document.querySelector(`.role-card:nth-child(${role==='agent'?2:role==='vendor'?3:1})`); if(btn) selectRole(role, btn); }
-});
 
-let selectedRole = 'buyer';
-function selectRole(role, card) {
-  selectedRole = role;
+<script>
+let selectedRole = 'user';
+
+function selectRole(card) {
   document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
-  document.getElementById('agent-fields').style.display = role === 'agent' ? 'block' : 'none';
-  document.getElementById('vendor-fields').style.display = role === 'vendor' ? 'block' : 'none';
+  selectedRole = card.dataset.role;
+  document.getElementById('role').value = selectedRole;
 }
 
-function doSignup(e) {
+async function handleSignup(e) {
   e.preventDefault();
-  const fd = new FormData(e.target);
-  const email = fd.get('email').trim().toLowerCase();
-  const password = fd.get('password');
-  const name = `${fd.get('firstName')} ${fd.get('lastName')}`;
+  const btn = document.getElementById('signup-btn');
+  const errorEl = document.getElementById('auth-error');
+  const successEl = document.getElementById('auth-success');
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
 
-  // Check if email already exists
-  const users = EP.store.get('ep_users') || [];
-  if (users.find(u => u.email.toLowerCase() === email)) {
-    alert('An account with this email already exists. Please sign in instead.');
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const metadata = {
+    full_name: document.getElementById('full_name').value,
+    phone: document.getElementById('phone').value,
+    role: selectedRole,
+    company: document.getElementById('company').value
+  };
+
+  const { data, error } = await EPAuth.signUp(email, password, metadata);
+
+  if (error) {
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Free Account';
     return;
   }
 
-  // Save user to persistent storage (with password for login)
-  const newUser = { name, email, phone: fd.get('phone'), password, role: selectedRole, createdAt: new Date().toISOString() };
-  users.push(newUser);
-  EP.store.set('ep_users', users);
+  // Also submit as a lead
+  await EPLeads.submit({
+    name: metadata.full_name,
+    email: email,
+    phone: metadata.phone,
+    role: selectedRole,
+    source: 'signup',
+    page: '/signup.html'
+  });
 
-  // Log them in (without storing password in session)
-  EP.auth.login({ name, email, role: selectedRole, loggedIn: true });
-  EP.notify('Account created! Welcome to Emporion Pros 🎉', 'success');
-  setTimeout(() => { window.location.href = selectedRole === 'agent' ? 'agent-dashboard.html' : selectedRole === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; }, 1000);
+  if (data.user && !data.user.confirmed_at) {
+    successEl.textContent = 'Account created! Please check your email to confirm your account.';
+    successEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Free Account';
+  } else {
+    successEl.textContent = 'Account created! Redirecting...';
+    successEl.style.display = 'block';
+    setTimeout(() => {
+      if (selectedRole === 'agent') window.location.href = '/agent-dashboard.html';
+      else if (selectedRole === 'vendor') window.location.href = '/vendor-dashboard.html';
+      else window.location.href = '/';
+    }, 800);
+  }
 }
+
+// Redirect if already logged in
+(async () => {
+  const user = await EPAuth.getUser();
+  if (user) window.location.href = '/';
+})();
 </script>
 </body>
 </html>
