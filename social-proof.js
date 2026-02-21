@@ -93,7 +93,8 @@ a.push(
 {i:'🔨',h:N()+' got FHA 203(k) renovation loan',s:'Purchase + rehab combined · '+R(ct)},
 {i:'🌡️',h:N()+' received free weatherization',s:'DOE program · '+R(ct)},
 {i:'🎨',h:N()+' got lead paint removal grant',s:'NJ Lead-Safe Homes · '+R(ct)},
-{i:'💰',h:N()+' saved $'+(RI(15)+5)+'K with historic tax credits',s:'20% federal + 25% NJ · '+R(ct)}
+{i:'💰',h:N()+' saved $'+(RI(15)+5)+'K with historic tax credits',s:'20% federal + 25% NJ · '+R(ct)},
+{i:'🏡',h:N()+' received $'+(RI(3)+10)+'K decarbonization rebate',s:'NJ Whole-Home program · OBR financing · '+R(ct)}
 );}
 if(isDev){
 a.push(
