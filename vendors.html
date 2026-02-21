@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EmporionPros — Vendor Signup | List Your Business & Unlock Grants, Certifications & Benefits</title>
-<meta name="description" content="Register your business on EmporionPros. Get matched with real estate clients, discover grants, certifications, tax incentives, and contracting opportunities specific to your industry.">
+<title>EmporionPros — Vendor Marketplace | Find Real Estate Professionals Near You</title>
+<meta name="description" content="Find plumbers, inspectors, title companies, electricians, movers, mortgage lenders and more. For agents, homeowners, property managers, landlords, buyers, and renters. Connect and chat directly.">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0a0f1a;--paper:#f7f5f0;--copper:#c8622a;--copper-light:#e8813f;--gold:#c9a96e;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff;--green:#0e9f6e;--blue:#1a56db}
@@ -18,90 +18,107 @@
 @media(max-width:768px){.nav-r a:not(.nav-btn){display:none}}
 
 /* HERO */
-.hero{background:var(--ink);color:white;padding:100px clamp(16px,4vw,48px) 48px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(200,98,42,.15),transparent 70%)}
-.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:800;line-height:1.1;margin-bottom:12px;position:relative}
-.hero h1 em{font-style:italic;color:var(--copper-light)}
-.hero-p{font-size:16px;opacity:.65;max-width:560px;margin:0 auto 32px;line-height:1.6;position:relative}
+.hero{background:var(--ink);color:white;padding:clamp(36px,5vw,56px) clamp(16px,4vw,48px);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(200,98,42,.12),transparent 70%)}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:800;line-height:1.1;margin-bottom:10px;position:relative}
+.hero h1 em{font-style:italic;color:var(--copper)}
+.hero p{font-size:15px;opacity:.7;max-width:500px;margin:0 auto 24px;position:relative}
 
-/* SECTIONS */
-.sec{padding:clamp(40px,5vw,64px) clamp(16px,4vw,48px)}
-.sec-in{max-width:1100px;margin:0 auto}
-.sec-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--copper);font-weight:700;margin-bottom:6px}
-.sec-h{font-family:'Fraunces',serif;font-size:clamp(24px,3vw,36px);font-weight:800;line-height:1.1;margin-bottom:10px}
-.sec-p{font-size:14px;color:var(--slate);max-width:520px;line-height:1.6}
-.sec-white{background:white}
+/* SEARCH */
+.search-wrap{max-width:700px;margin:0 auto;position:relative}
+.search-bar{display:flex;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px}
+.search-bar input,.search-bar select{padding:12px 14px;border:none;border-radius:8px;font-size:14px;font-family:inherit;background:white;color:var(--ink)}
+.search-bar input{flex:1;min-width:0}
+.search-bar select{width:160px;cursor:pointer}
+.search-bar button{padding:12px 24px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.search-bar button:hover{background:var(--copper-light)}
+@media(max-width:600px){.search-bar{flex-wrap:wrap}.search-bar input,.search-bar select{width:100%}}
 
-/* FORM */
-.form-wrap{max-width:680px;margin:0 auto;background:white;border-radius:16px;border:1.5px solid var(--border);padding:clamp(24px,4vw,40px);box-shadow:0 8px 32px rgba(0,0,0,.04)}
-.form-step{display:none}.form-step.active{display:block}
-.form-progress{display:flex;gap:8px;margin-bottom:28px}
-.form-progress .dot{flex:1;height:4px;border-radius:4px;background:rgba(10,15,26,.08);transition:.3s}
-.form-progress .dot.done{background:var(--copper)}
-.form-progress .dot.current{background:var(--copper);box-shadow:0 0 8px rgba(200,98,42,.3)}
-.step-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--copper);font-weight:700;margin-bottom:6px}
-.step-title{font-family:'Fraunces',serif;font-size:22px;font-weight:800;margin-bottom:16px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:var(--ink)}
-.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:var(--paper);transition:.2s}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--copper);background:white}
-.field textarea{min-height:80px;resize:vertical}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.field-row{grid-template-columns:1fr}}
-.btn-row{display:flex;gap:10px;margin-top:24px}
-.btn{padding:13px 24px;border-radius:10px;font-weight:700;font-size:14px;transition:.25s;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit}
-.btn-primary{background:var(--copper);color:white}.btn-primary:hover{background:var(--copper-light);transform:translateY(-1px)}
-.btn-secondary{background:transparent;color:var(--ink);border:1.5px solid var(--border)}.btn-secondary:hover{border-color:var(--copper)}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* CATEGORIES */
+.cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:20px;position:relative}
+.cat-pill{padding:7px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);cursor:pointer;transition:.2s;background:transparent}
+.cat-pill:hover,.cat-pill.active{background:var(--copper);color:white;border-color:var(--copper)}
 
-/* CATEGORY GRID */
-.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-@media(max-width:600px){.cat-grid{grid-template-columns:repeat(2,1fr)}}
-.cat-card{border:1.5px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:.25s;background:var(--paper)}
-.cat-card:hover{border-color:var(--copper);background:white}
-.cat-card.selected{border-color:var(--copper);background:rgba(200,98,42,.04);box-shadow:0 0 0 3px rgba(200,98,42,.1)}
-.cat-card .cat-icon{font-size:28px;margin-bottom:6px}
-.cat-card .cat-name{font-size:13px;font-weight:700}
-.cat-card .cat-sub{font-size:10px;color:var(--slate);margin-top:3px;line-height:1.4}
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:28px clamp(16px,4vw,48px)}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.results-count{font-size:14px;color:var(--slate)}.results-count strong{color:var(--ink)}
+.sort-sel{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:white}
 
-/* SUBTYPE CHIPS */
-.subtype-wrap{margin-top:16px}
-.subtype-wrap label{display:block;font-size:12px;font-weight:600;margin-bottom:8px}
-.chip-grid{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;transition:.2s;background:white}
-.chip:hover{border-color:var(--copper)}
-.chip.selected{background:var(--copper);color:white;border-color:var(--copper)}
+/* VENDOR CARDS */
+.vendors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.v-card{background:var(--card);border-radius:14px;border:1.5px solid var(--border);overflow:hidden;transition:.3s}
+.v-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.06);border-color:var(--copper)}
+.v-card.featured{border-color:var(--gold);position:relative}
+.v-card.featured::before{content:'⭐ FEATURED';position:absolute;top:12px;right:12px;background:var(--gold);color:var(--ink);font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;z-index:2;letter-spacing:.5px}
+.v-header{padding:20px 20px 0;display:flex;gap:14px;align-items:flex-start}
+.v-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.v-info{flex:1;min-width:0}
+.v-name{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:2px}
+.v-cat{font-size:11px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.v-body{padding:12px 20px}
+.v-desc{font-size:12px;color:var(--slate);line-height:1.6;margin-bottom:10px}
+.v-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.v-tag{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(200,98,42,.06);color:var(--copper)}
+.v-meta{display:flex;gap:12px;font-size:11px;color:var(--slate);margin-bottom:10px;flex-wrap:wrap}
+.v-meta span{display:flex;align-items:center;gap:3px}
+.v-rating{color:var(--gold);font-weight:700}
+.v-footer{padding:0 20px 16px;display:flex;gap:8px}
+.v-btn{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:.2s;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px}
+.v-btn-primary{background:var(--copper);color:white}.v-btn-primary:hover{background:var(--copper-light)}
+.v-btn-chat{background:var(--ink);color:white}.v-btn-chat:hover{background:#1e293b}
+.v-btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.v-btn-outline:hover{border-color:var(--ink)}
 
-/* RESULTS PANEL (grants/certs/benefits) */
-.results-panel{margin-top:24px;display:none}
-.results-panel.show{display:block}
-.rp-tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:16px}
-.rp-tab{padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;color:var(--slate)}
-.rp-tab:hover{color:var(--ink)}
-.rp-tab.active{color:var(--copper);border-color:var(--copper)}
-.rp-content{display:none}.rp-content.active{display:block}
+/* CHAT MODAL */
+#chat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
+#chat-modal.open{display:flex}
+.chat-box{background:white;border-radius:16px;width:min(440px,95vw);max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.chat-header{padding:16px 20px;background:var(--ink);color:white;display:flex;align-items:center;gap:12px}
+.chat-header-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,.1)}
+.chat-header-info h4{font-size:14px;font-weight:700}.chat-header-info p{font-size:11px;opacity:.6}
+.chat-close{margin-left:auto;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px}
+.chat-messages{flex:1;padding:16px;overflow-y:auto;min-height:280px;background:#f9fafb}
+.chat-msg{margin-bottom:12px;max-width:80%}
+.chat-msg.them{margin-right:auto}.chat-msg.me{margin-left:auto}
+.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.chat-msg.them .chat-bubble{background:white;border:1px solid var(--border);border-bottom-left-radius:4px}
+.chat-msg.me .chat-bubble{background:var(--copper);color:white;border-bottom-right-radius:4px}
+.chat-time{font-size:9px;color:var(--slate);margin-top:3px;padding:0 4px}
+.chat-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;background:white}
+.chat-input-row input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+.chat-input-row input:focus{outline:none;border-color:var(--copper)}
+.chat-input-row button{padding:10px 16px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 
-.rp-section{margin-bottom:20px}
-.rp-section-head{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.rp-section-head .rp-icon{font-size:16px}
-.rp-card{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:6px;transition:.2s}
-.rp-card:hover{border-color:var(--copper);background:white}
-.rp-card-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.rp-card-desc{font-size:11px;color:var(--slate);line-height:1.5}
-.rp-card-link{font-size:11px;color:var(--copper);font-weight:600;margin-top:4px;display:inline-block}
-.rp-card-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;margin-left:6px}
-.tag-federal{background:rgba(26,86,219,.1);color:var(--blue)}
-.tag-state{background:rgba(14,159,110,.1);color:var(--green)}
-.tag-local{background:rgba(200,98,42,.1);color:var(--copper)}
-.tag-cert{background:rgba(201,169,110,.15);color:#8b6914}
+/* VENDOR DETAIL MODAL */
+#vendor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center}
+#vendor-modal.open{display:flex}
+.vm-box{background:white;border-radius:16px;width:min(560px,95vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.vm-header{padding:24px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid var(--border)}
+.vm-av{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.vm-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--slate)}
+.vm-body{padding:24px}
+.vm-section{margin-bottom:20px}
+.vm-section h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);margin-bottom:8px}
+.vm-services{display:flex;gap:6px;flex-wrap:wrap}
+.vm-service{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(200,98,42,.06);color:var(--copper)}
+.vm-reviews{border-top:1px solid var(--border);padding-top:16px}
+.vm-review{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.vm-review:last-child{border:none}
+.vm-review-stars{color:var(--gold);font-size:12px;margin-bottom:3px}
+.vm-review-text{font-size:12px;color:var(--slate);line-height:1.6}
+.vm-review-author{font-size:11px;font-weight:600;margin-top:4px}
+.vm-actions{padding:0 24px 24px;display:flex;gap:8px}
+.vm-btn{flex:1;padding:12px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
 
-/* CONFIRMATION */
-.confirm-wrap{text-align:center;padding:40px 20px}
-.confirm-icon{font-size:64px;margin-bottom:16px}
-.confirm-wrap h3{font-family:'Fraunces',serif;font-size:24px;font-weight:800;margin-bottom:8px}
-.confirm-wrap p{font-size:14px;color:var(--slate);line-height:1.6}
+/* NO RESULTS */
+.no-results{text-align:center;padding:60px 20px;color:var(--slate)}
+.no-results h3{font-family:'Fraunces',serif;font-size:22px;color:var(--ink);margin-bottom:8px}
 
-/* FOOTER */
+/* CTA */
+.vendor-cta{background:linear-gradient(135deg,var(--ink),#162d5a);border-radius:16px;padding:clamp(28px,4vw,40px);color:white;text-align:center;margin:40px 0}
+.vendor-cta h2{font-family:'Fraunces',serif;font-size:clamp(22px,3vw,28px);font-weight:800;margin-bottom:6px}
+.vendor-cta p{opacity:.6;margin-bottom:16px;font-size:14px}
+
 .ft{padding:32px clamp(16px,4vw,48px) 20px;border-top:1px solid var(--border);text-align:center}
 .ft p{font-size:11px;color:var(--slate)}.ft a{color:var(--copper)}
 </style>
@@ -109,490 +126,307 @@
 <body>
 
 <nav class="nav">
-  <a href="platform.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <a href="index.html" class="nav-logo">Emporion<span>Pros</span></a>
   <div class="nav-r">
     <a href="platform.html">Platform</a>
-    <a href="for-vendors.html">For Vendors</a>
-    <a href="vendors.html">Marketplace</a>
-    <a href="for-developers.html">Developer Intel</a>
-    <a href="#" class="nav-btn">List Free →</a>
+    <a href="listings.html">Listings</a>
+    <a href="for-agents.html">For Agents</a>
+    <a href="vendor-signup.html">List Your Business</a>
+    <a href="vendor-signup.html" class="nav-btn">Join as Vendor →</a>
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- HERO + SEARCH -->
 <section class="hero">
-  <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(200,98,42,.12);border:1px solid rgba(200,98,42,.2);padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;color:var(--copper-light);margin-bottom:16px;position:relative">🏢 Vendor Registration</div>
-  <h1 class="sr">List your business.<br>Unlock <em>grants & opportunities.</em></h1>
-  <p class="hero-p">Register on EmporionPros to get matched with real estate clients — plus discover grants, certifications, tax incentives, and contracting opportunities specific to your industry.</p>
+  <h1 class="sr">Find <em>trusted pros</em> for every real estate need.</h1>
+  <p>Plumbers, inspectors, title companies, electricians, movers, mortgage lenders — whether you're an agent, homeowner, property manager, landlord, buyer, or renter. Search, connect, and chat directly.</p>
+  <div class="search-wrap">
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search by name, service, or keyword..." oninput="filterVendors()">
+      <select id="search-cat" onchange="filterVendors()">
+        <option value="">All Categories</option>
+        <option value="Plumbing">🔧 Plumbing</option>
+        <option value="Electrical">⚡ Electrical</option>
+        <option value="Inspection">🔍 Inspection</option>
+        <option value="Title">📜 Title Company</option>
+        <option value="Mortgage">🏦 Mortgage</option>
+        <option value="Insurance">🛡️ Insurance</option>
+        <option value="Moving">📦 Moving</option>
+        <option value="Cleaning">🧹 Cleaning</option>
+        <option value="Renovation">🔨 Renovation</option>
+        <option value="Legal">⚖️ Legal</option>
+        <option value="Photography">📸 Photography</option>
+        <option value="Landscaping">🌿 Landscaping</option>
+        <option value="HVAC">🌡️ HVAC</option>
+        <option value="Pest Control">🐜 Pest Control</option>
+        <option value="Locksmith">🔑 Locksmith</option>
+        <option value="Staging">🪴 Staging</option>
+      </select>
+      <button onclick="filterVendors()">🔍 Search</button>
+    </div>
+    <div class="cats" id="cat-pills"></div>
+  </div>
 </section>
 
-<!-- SIGNUP FORM -->
-<section class="sec">
-<div class="sec-in">
-<div class="form-wrap" id="signupForm">
-
-  <!-- PROGRESS -->
-  <div class="form-progress">
-    <div class="dot current" data-step="1"></div>
-    <div class="dot" data-step="2"></div>
-    <div class="dot" data-step="3"></div>
-    <div class="dot" data-step="4"></div>
+<!-- RESULTS -->
+<div class="main">
+  <div class="results-header">
+    <div class="results-count" id="results-count"></div>
+    <select class="sort-sel" id="sort-sel" onchange="filterVendors()">
+      <option value="featured">Featured First</option>
+      <option value="rating">Highest Rated</option>
+      <option value="reviews">Most Reviews</option>
+      <option value="name">A-Z</option>
+    </select>
   </div>
+  <div class="vendors-grid" id="vendors-grid"></div>
 
-  <!-- STEP 1: BUSINESS INFO -->
-  <div class="form-step active" id="step1">
-    <div class="step-label">Step 1 of 4</div>
-    <div class="step-title">Business Information</div>
-    <div class="field"><label>Business Name *</label><input type="text" id="bizName" placeholder="e.g. Garden State Home Inspections"></div>
-    <div class="field-row">
-      <div class="field"><label>Contact Name *</label><input type="text" id="contactName" placeholder="Full name"></div>
-      <div class="field"><label>Phone *</label><input type="tel" id="phone" placeholder="(xxx) xxx-xxxx"></div>
-    </div>
-    <div class="field"><label>Email *</label><input type="email" id="email" placeholder="you@company.com"></div>
-    <div class="field"><label>Website</label><input type="url" id="website" placeholder="https://"></div>
-    <div class="field-row">
-      <div class="field"><label>City *</label><input type="text" id="city" placeholder="e.g. Newark"></div>
-      <div class="field"><label>ZIP Code *</label><input type="text" id="zip" placeholder="e.g. 07102" maxlength="5"></div>
-    </div>
-    <div class="field"><label>Service Area (counties)</label><input type="text" id="serviceArea" placeholder="e.g. Essex, Hudson, Union, Bergen"></div>
-    <div class="btn-row"><div style="flex:1"></div><button class="btn btn-primary" onclick="goStep(2)">Continue →</button></div>
+  <!-- CTA -->
+  <div class="vendor-cta">
+    <h2 class="sr">Are you a service provider?</h2>
+    <p>List your business free. Get matched with agents, homeowners, property managers, landlords, buyers, and renters who need your services right now.</p>
+    <a href="vendor-signup.html" style="display:inline-block;padding:12px 28px;background:var(--copper);color:white;border-radius:10px;font-weight:700;font-size:15px">List Your Business Free →</a>
   </div>
-
-  <!-- STEP 2: CATEGORY -->
-  <div class="form-step" id="step2">
-    <div class="step-label">Step 2 of 4</div>
-    <div class="step-title">Select Your Business Category</div>
-    <p style="font-size:13px;color:var(--slate);margin-bottom:12px">Choose your primary category. This determines which grants, certifications, and benefits we show you.</p>
-
-    <div class="cat-grid" id="catGrid">
-      <div class="cat-card" data-cat="professional" onclick="selectCat(this)">
-        <div class="cat-icon">💼</div>
-        <div class="cat-name">Professional Services</div>
-        <div class="cat-sub">Legal, Accounting, Consulting, Marketing, HR, IT</div>
-      </div>
-      <div class="cat-card" data-cat="financial" onclick="selectCat(this)">
-        <div class="cat-icon">🏦</div>
-        <div class="cat-name">Financial Services</div>
-        <div class="cat-sub">Banks, Lenders, Insurance, Investment, Payments</div>
-      </div>
-      <div class="cat-card" data-cat="construction" onclick="selectCat(this)">
-        <div class="cat-icon">🔨</div>
-        <div class="cat-name">Construction & Trades</div>
-        <div class="cat-sub">General Contractors, HVAC, Plumbing, Electrical, Roofing</div>
-      </div>
-      <div class="cat-card" data-cat="property" onclick="selectCat(this)">
-        <div class="cat-icon">🏠</div>
-        <div class="cat-name">Property & Facility</div>
-        <div class="cat-sub">Cleaning, Landscaping, Security, Maintenance, Prop Mgmt</div>
-      </div>
-      <div class="cat-card" data-cat="retail" onclick="selectCat(this)">
-        <div class="cat-icon">🛍️</div>
-        <div class="cat-name">Retail & E-Commerce</div>
-        <div class="cat-sub">Stores, Online Sellers, Wholesale, Distribution</div>
-      </div>
-      <div class="cat-card" data-cat="food" onclick="selectCat(this)">
-        <div class="cat-icon">🍽️</div>
-        <div class="cat-name">Food & Hospitality</div>
-        <div class="cat-sub">Restaurants, Catering, Hotels, Event Venues</div>
-      </div>
-      <div class="cat-card" data-cat="healthcare" onclick="selectCat(this)">
-        <div class="cat-icon">🏥</div>
-        <div class="cat-name">Healthcare & Wellness</div>
-        <div class="cat-sub">Clinics, Therapy, Gyms, Pharmacies, Beauty</div>
-      </div>
-      <div class="cat-card" data-cat="technology" onclick="selectCat(this)">
-        <div class="cat-icon">💻</div>
-        <div class="cat-name">Technology & Digital</div>
-        <div class="cat-sub">Software, AI, Telecom, Web Development</div>
-      </div>
-      <div class="cat-card" data-cat="transport" onclick="selectCat(this)">
-        <div class="cat-icon">🚛</div>
-        <div class="cat-name">Transportation & Logistics</div>
-        <div class="cat-sub">Trucking, Shipping, Moving, Auto Services</div>
-      </div>
-      <div class="cat-card" data-cat="education" onclick="selectCat(this)">
-        <div class="cat-icon">📚</div>
-        <div class="cat-name">Education & Training</div>
-        <div class="cat-sub">Schools, Trade Schools, Certification Programs</div>
-      </div>
-      <div class="cat-card" data-cat="manufacturing" onclick="selectCat(this)">
-        <div class="cat-icon">🏭</div>
-        <div class="cat-name">Manufacturing & Industrial</div>
-        <div class="cat-sub">Fabrication, Production, Warehousing</div>
-      </div>
-      <div class="cat-card" data-cat="energy" onclick="selectCat(this)">
-        <div class="cat-icon">⚡</div>
-        <div class="cat-name">Energy & Utilities</div>
-        <div class="cat-sub">Solar, EV Charging, Energy Audits, Utility Contractors</div>
-      </div>
-    </div>
-
-    <!-- SUBTYPES (populated dynamically) -->
-    <div class="subtype-wrap" id="subtypeWrap" style="display:none">
-      <label>Select your specific business type(s):</label>
-      <div class="chip-grid" id="subtypeChips"></div>
-    </div>
-
-    <div class="btn-row"><button class="btn btn-secondary" onclick="goStep(1)">← Back</button><div style="flex:1"></div><button class="btn btn-primary" id="step2Next" onclick="goStep(3)" disabled>Continue →</button></div>
-  </div>
-
-  <!-- STEP 3: GRANTS, CERTS & BENEFITS -->
-  <div class="form-step" id="step3">
-    <div class="step-label">Step 3 of 4</div>
-    <div class="step-title">Your Grants, Certifications & Benefits</div>
-    <p style="font-size:13px;color:var(--slate);margin-bottom:4px">Based on your category: <b id="selectedCatName"></b></p>
-
-    <div class="results-panel show" id="resultsPanel">
-      <div class="rp-tabs">
-        <div class="rp-tab active" data-tab="grants" onclick="switchTab(this)">💰 Grants & Funding</div>
-        <div class="rp-tab" data-tab="certs" onclick="switchTab(this)">🏆 Certifications</div>
-        <div class="rp-tab" data-tab="benefits" onclick="switchTab(this)">🎯 Benefits & Incentives</div>
-      </div>
-
-      <div class="rp-content active" id="tab-grants"></div>
-      <div class="rp-content" id="tab-certs"></div>
-      <div class="rp-content" id="tab-benefits"></div>
-    </div>
-
-    <div class="btn-row"><button class="btn btn-secondary" onclick="goStep(2)">← Back</button><div style="flex:1"></div><button class="btn btn-primary" onclick="goStep(4)">Complete Signup →</button></div>
-  </div>
-
-  <!-- STEP 4: CONFIRMATION -->
-  <div class="form-step" id="step4">
-    <div class="confirm-wrap">
-      <div class="confirm-icon">✅</div>
-      <h3 class="sr">Welcome to EmporionPros!</h3>
-      <p>Your <b id="confirmBiz"></b> listing is being reviewed. You'll receive a confirmation email shortly with your dashboard login and personalized grant/certification checklist.</p>
-      <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <a href="vendors.html" class="btn btn-primary">Browse Marketplace →</a>
-        <a href="for-vendors.html" class="btn btn-secondary">Vendor Features</a>
-      </div>
-      <div style="margin-top:24px;background:var(--paper);border-radius:12px;padding:16px;text-align:left">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--copper);margin-bottom:8px">What Happens Next</div>
-        <div style="font-size:13px;line-height:2;color:var(--slate)">
-          1️⃣ We review & activate your listing within 24 hours<br>
-          2️⃣ Your personalized grants/certs checklist is emailed to you<br>
-          3️⃣ You start receiving matched client leads<br>
-          4️⃣ Track everything from your vendor dashboard
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
+
+<!-- CHAT MODAL -->
+<div id="chat-modal">
+  <div class="chat-box">
+    <div class="chat-header">
+      <div class="chat-header-av" id="chat-av"></div>
+      <div class="chat-header-info"><h4 id="chat-name"></h4><p id="chat-status">Online · Typically replies in 5 min</p></div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">Send</button>
+    </div>
+  </div>
 </div>
-</section>
+
+<!-- VENDOR DETAIL MODAL -->
+<div id="vendor-modal">
+  <div class="vm-box" id="vm-content"></div>
+</div>
 
 <footer class="ft">
-  <p>© 2026 <a href="platform.html">EmporionPros</a> — The Real Estate Operating System. <a href="for-vendors.html">For Vendors</a> · <a href="vendors.html">Marketplace</a> · <a href="for-developers.html">Developer Intel</a></p>
+  <p>© 2026 EmporionPros · <a href="platform.html">Platform</a> · <a href="for-agents.html">Agents</a> · <a href="for-managers.html">Managers</a> · <a href="for-owners.html">Owners</a> · <a href="for-vendors.html">Vendors</a> · <a href="neighborhood.html">Neighborhood</a></p>
 </footer>
 
 <script>
-// ═══════════════════════════════════════════
-// CATEGORY DATA — subtypes, grants, certs, benefits
-// ═══════════════════════════════════════════
-var catData={
-professional:{
-  name:'Professional Services',
-  subtypes:['Attorney / Law Firm','CPA / Accountant','Management Consultant','Marketing Agency','HR Consultant','IT Consultant','Insurance Broker','Appraiser','Architect','Engineer','Surveyor','Title Company','Notary'],
-  grants:{
-    federal:[
-      {t:'SBA 7(a) Loan Program',d:'Up to $5M for working capital, equipment. Guaranteed by SBA.',l:'https://www.sba.gov/funding-programs/loans/7a-loans'},
-      {t:'SBA Microloan Program',d:'Up to $50K for startups and small businesses.',l:'https://www.sba.gov/funding-programs/loans/microloans'},
-      {t:'MBDA Business Center Grants',d:'Technical assistance and capital access for minority-owned firms.',l:'https://www.mbda.gov/'}
-    ],
-    state:[
-      {t:'NJEDA Small Business Fund',d:'Loans and grants for NJ small businesses with <$5M revenue.',l:'https://www.njeda.gov/small-business/'},
-      {t:'NJEDA Innovation Fund',d:'Funding for technology and innovation-driven professional services.',l:'https://www.njeda.gov/'},
-      {t:'NJ Workforce Development Grant',d:'Training reimbursement for employee skills development.',l:'https://www.nj.gov/labor/employer/training/'}
-    ],
-    local:[
-      {t:'Downtown Improvement Grants',d:'Façade and office improvement grants for downtown businesses.',l:'#'},
-      {t:'Community Development Block Grants',d:'HUD-funded local grants for job creation and business expansion.',l:'https://www.hud.gov/program_offices/comm_planning/cdbg'}
-    ],
-    industry:[
-      {t:'Legal Aid Society Grants',d:'Funding for law firms providing pro bono services.',l:'#'},
-      {t:'Accounting Technology Grants',d:'Innovation grants for digital transformation.',l:'#'}
-    ]
-  },
-  certs:{
-    diversity:[
-      {t:'MBE – Minority Business Enterprise',d:'Certified by NMSDC. Opens doors to Fortune 500 supplier diversity programs.',l:'https://nmsdc.org/'},
-      {t:'WBE – Women Business Enterprise',d:'Certified by WBENC. Access to corporate and government contracts.',l:'https://www.wbenc.org/'},
-      {t:'MWBE – Minority/Women Business',d:'NJ State certification. Required for many NJ public contracts.',l:'https://www.njportal.com/DOR/SBERegistry/'},
-      {t:'DBE – Disadvantaged Business Enterprise',d:'USDOT certification for transportation-related contracts.',l:'https://www.transportation.gov/civil-rights/disadvantaged-business-enterprise'}
-    ],
-    small:[
-      {t:'SBA 8(a) Program',d:'9-year business development program. Sole-source contracts up to $4M.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},
-      {t:'HUBZone Certification',d:'Price preference for businesses in Historically Underutilized Business Zones.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'},
-      {t:'VOSB / SDVOSB',d:'Veteran-Owned Small Business. 3% government contracting goal.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/veteran-assistance-programs'}
-    ],
-    state:[
-      {t:'NJ Small Business Enterprise (SBE)',d:'NJ state certification for public procurement preference.',l:'https://www.njportal.com/DOR/SBERegistry/'},
-      {t:'NJ MWBE Certification',d:'State-level minority/women certification for NJ public contracts.',l:'https://www.njportal.com/DOR/SBERegistry/'}
-    ]
-  },
-  benefits:{
-    tax:[
-      {t:'Federal R&D Tax Credit',d:'Up to $250K/year for qualifying research and development activities.',l:'https://www.irs.gov/businesses/small-businesses-self-employed/research-credits'},
-      {t:'NJ Angel Investor Tax Credit',d:'Up to 20% tax credit for angel investments in NJ businesses.',l:'https://www.njeda.gov/'},
-      {t:'Opportunity Zone Tax Benefits',d:'Capital gains deferral for investments in designated OZ areas.',l:'https://www.irs.gov/credits-deductions/businesses/opportunity-zones'}
-    ],
-    workforce:[
-      {t:'Work Opportunity Tax Credit',d:'Up to $9,600/employee for hiring from target groups.',l:'https://www.dol.gov/agencies/eta/wotc'},
-      {t:'NJ Apprenticeship Program',d:'Grants and tax credits for registered apprenticeship programs.',l:'https://www.nj.gov/labor/career-services/apprenticeship/'},
-      {t:'On-the-Job Training Reimbursement',d:'50-75% wage reimbursement for training new hires.',l:'https://www.nj.gov/labor/employer/training/'}
-    ],
-    contracting:[
-      {t:'SAM.gov Registration',d:'Required for all federal contracting. Free registration.',l:'https://sam.gov/'},
-      {t:'NJ NJSTART Procurement',d:'State procurement portal. Register to bid on NJ government contracts.',l:'https://www.njstart.gov/'},
-      {t:'Corporate Supplier Diversity',d:'Fortune 500 companies actively seeking certified diverse suppliers.',l:'#'}
-    ]
+// ===== DEMO VENDOR DATA =====
+const vendors = [
+  {id:1,name:"Garden State Home Inspections",cat:"Inspection",icon:"🔍",color:"#dbeafe",services:["Pre-Purchase Inspection","Radon Testing","Mold Testing","Termite Inspection"],desc:"Licensed NJ home inspectors with 15+ years experience. Same-day reports. Serving Essex, Hudson, Union & Passaic counties.",phone:"(973) 555-0142",email:"info@gsinspections.com",area:"Essex, Hudson, Union, Passaic",rating:4.9,reviews:127,featured:true,
+    reviewList:[{stars:5,text:"Thorough inspection, found issues the seller didn't disclose. Saved us $12k in repairs.",author:"Maria T., Home Buyer"},{stars:5,text:"Professional, on time, detailed report within 24 hours.",author:"James K., Agent"},{stars:4,text:"Great service. Would have liked the report a bit sooner.",author:"Lisa M., Home Buyer"}]},
+  {id:2,name:"Liberty Title Group",cat:"Title",icon:"📜",color:"#fef3c7",services:["Title Search","Title Insurance","Closing Services","Escrow"],desc:"Full-service title company handling residential and commercial closings across New Jersey. Fast, accurate, affordable.",phone:"(201) 555-0298",email:"closings@libertytitle.com",area:"All of New Jersey",rating:4.8,reviews:89,featured:true,
+    reviewList:[{stars:5,text:"Smoothest closing I've ever had. Team was responsive and caught a lien the other company missed.",author:"David R., Agent"},{stars:5,text:"Handled our commercial closing perfectly. Highly recommend.",author:"Sarah P., Property Manager"}]},
+  {id:3,name:"Ironbound Plumbing Co.",cat:"Plumbing",icon:"🔧",color:"#dcfce7",services:["Emergency Repairs","Drain Cleaning","Water Heater","Pipe Installation","Bathroom Remodel"],desc:"Family-owned since 1998. 24/7 emergency service. Licensed, bonded, insured. The Ironbound's most trusted plumber.",phone:"(862) 555-0177",email:"service@ironboundplumbing.com",area:"Newark, East Orange, Irvington",rating:4.7,reviews:203,featured:false,
+    reviewList:[{stars:5,text:"Called at midnight with a burst pipe. They were here in 30 minutes. Lifesaver.",author:"Tom H., Homeowner"},{stars:4,text:"Good work, fair price. Will use again.",author:"Ana S., Property Manager"}]},
+  {id:4,name:"PowerLine Electric LLC",cat:"Electrical",icon:"⚡",color:"#fef9c3",services:["Panel Upgrades","Rewiring","EV Charger Install","Lighting","Code Compliance"],desc:"Master electricians serving North Jersey. Specializing in new construction and renovations. Free estimates.",phone:"(973) 555-0331",email:"info@powerlineelectric.com",area:"Essex, Bergen, Passaic, Morris",rating:4.8,reviews:156,featured:false,
+    reviewList:[{stars:5,text:"Installed EV charger at our building. Clean work, great communication.",author:"Mike D., Property Manager"},{stars:5,text:"Upgraded our panel from 100 to 200 amp. Professional crew.",author:"Jennifer L., Homeowner"}]},
+  {id:5,name:"First National Mortgage",cat:"Mortgage",icon:"🏦",color:"#ede9fe",services:["Conventional Loans","FHA Loans","VA Loans","Refinancing","Pre-Approval"],desc:"Local mortgage lender with competitive rates. Pre-approvals in 24 hours. Bilingual team (English/Spanish/Portuguese).",phone:"(201) 555-0445",email:"apply@firstnatmortgage.com",area:"New Jersey & New York",rating:4.6,reviews:78,featured:true,
+    reviewList:[{stars:5,text:"Got pre-approved in hours, not days. Portuguese-speaking team was a huge plus for my clients.",author:"Carlos M., Agent"},{stars:4,text:"Good rates, smooth process. Communication could be slightly better.",author:"Rachel W., Home Buyer"}]},
+  {id:6,name:"SafeGuard Insurance Group",cat:"Insurance",icon:"🛡️",color:"#fce7f3",services:["Homeowner Insurance","Renter Insurance","Landlord Insurance","Flood Insurance","Umbrella Policies"],desc:"Independent agency shopping 20+ carriers for the best rates. Specializing in real estate insurance for owners, landlords, and renters.",phone:"(973) 555-0562",email:"quote@safeguardins.com",area:"New Jersey",rating:4.5,reviews:64,featured:false,
+    reviewList:[{stars:5,text:"Saved me $800/year on my landlord policy by shopping multiple carriers.",author:"Robert K., Property Owner"},{stars:5,text:"Quick quote turnaround for my rental property clients.",author:"Ana G., Agent"}]},
+  {id:7,name:"EZ Move NJ",cat:"Moving",icon:"📦",color:"#e0f2fe",services:["Local Moving","Long Distance","Packing Services","Storage","Junk Removal"],desc:"Affordable, reliable moving company. Flat-rate pricing, no hidden fees. Full packing service available. Licensed & insured.",phone:"(862) 555-0688",email:"book@ezmove.com",area:"NJ, NY, PA, CT",rating:4.4,reviews:312,featured:false,
+    reviewList:[{stars:5,text:"Moved my entire 2BR in 3 hours flat. Careful with furniture, reasonable price.",author:"Priya S., Renter"},{stars:4,text:"Good overall but showed up 30 min late. Moving itself was excellent.",author:"Mark T., Homeowner"}]},
+  {id:8,name:"Sparkle Clean Services",cat:"Cleaning",icon:"🧹",color:"#ecfdf5",services:["Move-In/Out Cleaning","Deep Clean","Regular Service","Post-Construction","Airbnb Turnover"],desc:"Professional cleaning for real estate. Move-in/out specialists. Same-day availability. We make properties show-ready.",phone:"(973) 555-0734",email:"book@sparkleclean.com",area:"Newark, Jersey City, Hoboken",rating:4.7,reviews:189,featured:false,
+    reviewList:[{stars:5,text:"They cleaned our 80-unit building turnover in one weekend. Incredible team.",author:"Property Manager, Iron Pointe"},{stars:5,text:"My listing photos looked 10x better after their deep clean.",author:"Lisa A., Agent"}]},
+  {id:9,name:"NJ Renovation Pros",cat:"Renovation",icon:"🔨",color:"#fff7ed",services:["Kitchen Remodel","Bathroom Remodel","Flooring","Painting","General Contracting"],desc:"Full-service renovation contractor. From kitchens to full gut rehabs. Licensed GC. Free estimates. Financing available.",phone:"(201) 555-0891",email:"projects@njrenovation.com",area:"Essex, Hudson, Bergen, Union",rating:4.6,reviews:97,featured:false,
+    reviewList:[{stars:5,text:"Transformed a dated 1970s kitchen into modern luxury. On time and on budget.",author:"Steven R., Homeowner"},{stars:4,text:"Great quality work. Had to follow up a few times on scheduling.",author:"Maria C., Property Manager"}]},
+  {id:10,name:"Torres & Associates Law",cat:"Legal",icon:"⚖️",color:"#f5f3ff",services:["Real Estate Closings","Contract Review","Eviction","Landlord-Tenant","Title Issues"],desc:"Real estate attorneys specializing in NJ residential and commercial transactions. Bilingual (English/Spanish). Flat-fee closings.",phone:"(862) 555-0923",email:"intake@torreslaw.com",area:"New Jersey",rating:4.8,reviews:56,featured:true,
+    reviewList:[{stars:5,text:"Caught a title issue that could have cost us the deal. Worth every penny.",author:"David L., Home Buyer"},{stars:5,text:"Handles all our eviction cases. Fast, professional, knows NJ law inside out.",author:"PM Client"}]},
+  {id:11,name:"Lens & Light RE Photography",cat:"Photography",icon:"📸",color:"#fdf2f8",services:["Listing Photos","Drone/Aerial","Virtual Tours","Video Walkthrough","Floor Plans"],desc:"Professional real estate photography that sells. HDR, drone, 3D tours. 24-hour turnaround. Serving all of North Jersey.",phone:"(973) 555-1045",email:"book@lensandlight.com",area:"North New Jersey",rating:4.9,reviews:142,featured:false,
+    reviewList:[{stars:5,text:"My listings sell 40% faster since switching to Lens & Light. The drone shots are incredible.",author:"Top Agent, Keller Williams"},{stars:5,text:"24-hour turnaround as promised. Beautiful HDR photos.",author:"Jessica M., Agent"}]},
+  {id:12,name:"Green Thumb Landscaping",cat:"Landscaping",icon:"🌿",color:"#ecfdf5",services:["Lawn Care","Garden Design","Snow Removal","Tree Service","Hardscaping"],desc:"Commercial and residential landscaping. Weekly maintenance, seasonal cleanups, and full landscape design. Serving Newark metro.",phone:"(862) 555-1167",email:"info@greenthumbscape.com",area:"Newark, East Orange, Bloomfield",rating:4.5,reviews:83,featured:false,
+    reviewList:[{stars:5,text:"They maintain all our common areas. Properties look pristine.",author:"Property Manager"},{stars:4,text:"Good seasonal cleanup service. Responsive to requests.",author:"Homeowner"}]},
+  {id:13,name:"Comfort Zone HVAC",cat:"HVAC",icon:"🌡️",color:"#fff1f2",services:["AC Install/Repair","Heating","Furnace","Ductwork","Maintenance Plans"],desc:"Heating and cooling experts. 24/7 emergency service. Energy-efficient installations. Licensed NJ HVAC contractor.",phone:"(973) 555-1289",email:"service@comfortzonehvac.com",area:"Essex, Union, Morris, Passaic",rating:4.6,reviews:118,featured:false,
+    reviewList:[{stars:5,text:"Replaced all HVAC units in our 5-story building. Excellent project management.",author:"Building Owner"}]},
+  {id:14,name:"Shield Pest Solutions",cat:"Pest Control",icon:"🐜",color:"#fefce8",services:["Termite Treatment","Rodent Control","Bed Bugs","General Pest","Commercial"],desc:"Licensed NJ pest control. Eco-friendly options available. Termite inspections for real estate closings. Same-day service.",phone:"(201) 555-1312",email:"service@shieldpest.com",area:"Northern New Jersey",rating:4.7,reviews:95,featured:false,
+    reviewList:[{stars:5,text:"Fast termite inspection for our closing. Report within 2 hours.",author:"Real Estate Agent"}]},
+  {id:15,name:"QuickLock Locksmith",cat:"Locksmith",icon:"🔑",color:"#f0fdf4",services:["Rekey","Lock Change","Smart Locks","Access Control","Emergency Lockout"],desc:"24/7 locksmith service. Rekey for move-ins, smart lock installation, commercial access control. 15-minute response time.",phone:"(862) 555-1434",email:"help@quicklock247.com",area:"Newark metro area",rating:4.4,reviews:67,featured:false,
+    reviewList:[{stars:5,text:"Rekeyed 12 units in one day for our new building. Great pricing for bulk jobs.",author:"Property Manager"}]},
+  {id:16,name:"Stage & Sell Interiors",cat:"Staging",icon:"🪴",color:"#faf5ff",services:["Full Home Staging","Vacant Staging","Virtual Staging","Consultation","Furniture Rental"],desc:"Professional home staging that transforms listings. Vacant and occupied staging. Proven to sell homes 73% faster.",phone:"(973) 555-1556",email:"hello@stageandsell.com",area:"NJ & NYC metro",rating:4.9,reviews:71,featured:true,
+    reviewList:[{stars:5,text:"Staged my $800K listing and it sold in 4 days — $30K over asking.",author:"Listing Agent"},{stars:5,text:"The virtual staging option is incredible for the price. Buyers couldn't tell it was virtual.",author:"Agent"}]}
+];
+
+// ===== RENDER =====
+function renderVendors(list) {
+  const grid = document.getElementById('vendors-grid');
+  const count = document.getElementById('results-count');
+  count.innerHTML = `<strong>${list.length}</strong> professionals found`;
+  
+  if (!list.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No vendors found</h3><p>Try a different search term or category.</p></div>`;
+    return;
   }
-},
-
-construction:{
-  name:'Construction & Skilled Trades',
-  subtypes:['General Contractor','HVAC Contractor','Plumber','Electrician','Roofer','Painter','Carpenter','Mason/Concrete','Demolition','Excavation','Fire Protection','Insulation','Drywall','Flooring','Fencing','Siding','Window/Door Installer','Solar Installer','Elevator Installer'],
-  grants:{
-    federal:[
-      {t:'SBA 7(a) & 504 Loans',d:'Up to $5M for equipment, real estate, working capital.',l:'https://www.sba.gov/funding-programs/loans'},
-      {t:'DOE Weatherization Assistance',d:'Federal funding for energy efficiency retrofit work.',l:'https://www.energy.gov/scep/wap/weatherization-assistance-program'},
-      {t:'HUD Lead Hazard Control',d:'Grants for lead paint abatement and healthy homes work.',l:'https://www.hud.gov/program_offices/healthy_homes/lbp/lhc'},
-      {t:'FEMA Hazard Mitigation Grants',d:'Post-disaster construction and mitigation project funding.',l:'https://www.fema.gov/grants/mitigation'}
-    ],
-    state:[
-      {t:'NJEDA Contractor Fund',d:'Working capital loans for licensed NJ contractors.',l:'https://www.njeda.gov/'},
-      {t:'NJ Clean Energy Program',d:'Rebates for energy-efficient construction (HVAC, insulation, windows).',l:'https://njcleanenergy.com/'},
-      {t:'NJ Workforce Development Grant',d:'Apprenticeship and training grants for skilled trades.',l:'https://www.nj.gov/labor/employer/training/'},
-      {t:'NJHMFA Housing Construction Fund',d:'Financing for affordable housing construction projects.',l:'https://www.nj.gov/dca/hmfa/'}
-    ],
-    local:[
-      {t:'Façade Improvement Grants',d:'Municipal grants for exterior building improvements ($5K-$25K).',l:'#'},
-      {t:'Lead-Safe Housing Grants',d:'County-level grants for lead abatement contractors.',l:'#'},
-      {t:'Community Development Block Grants',d:'Construction and rehabilitation funding through HUD CDBG.',l:'https://www.hud.gov/program_offices/comm_planning/cdbg'}
-    ],
-    industry:[
-      {t:'Energy Efficiency Rebates',d:'Equipment-specific rebates: HVAC ($500-$5K), insulation ($1-3/sqft).',l:'https://njcleanenergy.com/'},
-      {t:'EV Infrastructure Grants',d:'Federal + state grants for EV charging station installation.',l:'https://afdc.energy.gov/laws/federal'},
-      {t:'Green Building Incentives',d:'LEED and Energy Star certification rebates.',l:'https://www.usgbc.org/leed'}
-    ]
-  },
-  certs:{
-    diversity:[
-      {t:'MBE – Minority Business Enterprise',d:'NMSDC certification. Opens corporate construction contracts.',l:'https://nmsdc.org/'},
-      {t:'WBE – Women Business Enterprise',d:'WBENC certification for women-owned construction firms.',l:'https://www.wbenc.org/'},
-      {t:'DBE – Disadvantaged Business Enterprise',d:'USDOT certification. Critical for public infrastructure projects.',l:'https://www.transportation.gov/civil-rights/disadvantaged-business-enterprise'},
-      {t:'SDVOSB – Service-Disabled Veteran',d:'3% federal contracting goal for veteran-owned contractors.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/veteran-assistance-programs'}
-    ],
-    small:[
-      {t:'SBA 8(a) Program',d:'Sole-source contracts up to $4M ($7M for manufacturing).',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},
-      {t:'HUBZone Certification',d:'10% price preference on federal construction bids.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'}
-    ],
-    state:[
-      {t:'NJ Public Works Contractor Registration',d:'REQUIRED for all public works projects in NJ. Annual renewal.',l:'https://www.nj.gov/labor/employer/laws/publicworks.shtml'},
-      {t:'NJ Home Improvement Contractor License',d:'Required by NJ Division of Consumer Affairs for residential work.',l:'https://www.njconsumeraffairs.gov/hic/'},
-      {t:'NJ SBE Certification',d:'State small business preference for NJ public contracts.',l:'https://www.njportal.com/DOR/SBERegistry/'},
-      {t:'Trade Ally Certification (Utilities)',d:'Become a certified contractor for NJ utility rebate programs.',l:'https://njcleanenergy.com/'}
-    ]
-  },
-  benefits:{
-    tax:[
-      {t:'Section 179D Deduction',d:'Up to $5/sqft deduction for energy-efficient commercial buildings.',l:'https://www.energy.gov/eere/buildings/179d-commercial-buildings-energy-efficiency-tax-deduction'},
-      {t:'NJ Urban Enterprise Zone Benefits',d:'3.5% sales tax in UEZ areas (vs 6.625% standard).',l:'https://www.nj.gov/dca/affiliates/uez/'},
-      {t:'Opportunity Zone Tax Benefits',d:'Capital gains deferral for construction in designated OZ areas.',l:'https://www.irs.gov/credits-deductions/businesses/opportunity-zones'},
-      {t:'Historic Preservation Tax Credits',d:'20% federal + 25% NJ state credits for qualifying historic rehabs.',l:'https://www.nps.gov/subjects/taxincentives/index.htm'}
-    ],
-    utility:[
-      {t:'NJ Clean Energy Direct Install',d:'Up to 70% covered for lighting, HVAC, and equipment upgrades.',l:'https://njcleanenergy.com/commercial-industrial/programs/direct-install'},
-      {t:'HVAC Equipment Rebates',d:'$200-$5,000 per unit for high-efficiency installations.',l:'https://njcleanenergy.com/'},
-      {t:'Insulation & Weatherization Rebates',d:'$1-3/sqft for qualifying insulation installations.',l:'https://njcleanenergy.com/'}
-    ],
-    contracting:[
-      {t:'NJ Public Works Bid Portal',d:'All NJ public construction bids posted on NJSTART.',l:'https://www.njstart.gov/'},
-      {t:'Federal Construction Contracts',d:'SAM.gov registration for federal building projects.',l:'https://sam.gov/'},
-      {t:'Prevailing Wage Projects',d:'NJ prevailing wage rates for public construction work.',l:'https://www.nj.gov/labor/research-info/wagerates.shtml'}
-    ]
-  }
-},
-
-financial:{
-  name:'Financial Services',
-  subtypes:['Mortgage Lender','Bank / Credit Union','Insurance Agency','Investment Advisor','Payment Processor','Private Lender','Financial Planner','Tax Preparer','Bookkeeper'],
-  grants:{federal:[{t:'CDFI Fund',d:'Grants for Community Development Financial Institutions.',l:'https://www.cdfifund.gov/'},{t:'SBA Lender Programs',d:'Become an SBA-certified lender for small business loans.',l:'https://www.sba.gov/partners/lenders'}],state:[{t:'NJEDA Financial Services Programs',d:'Grants for fintech innovation and financial inclusion.',l:'https://www.njeda.gov/'},{t:'NJ Community Capital',d:'CDFI providing loans and grants for underserved communities.',l:'https://www.newjerseycommunity.com/'}],local:[{t:'Financial Literacy Grants',d:'Local grants for financial education programs.',l:'#'}],industry:[{t:'Fintech Innovation Grants',d:'NJEDA and federal grants for financial technology.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise certification.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise certification.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Business development for disadvantaged businesses.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},{t:'CDFI Certification',d:'Treasury Department certification for community lenders.',l:'https://www.cdfifund.gov/'}],state:[{t:'NJ Department of Banking License',d:'Required for lending and banking operations in NJ.',l:'https://www.nj.gov/dobi/'},{t:'NJ Insurance Producer License',d:'Required for insurance sales in NJ.',l:'https://www.nj.gov/dobi/'}]},
-  benefits:{tax:[{t:'New Markets Tax Credit',d:'39% credit for investments in low-income communities.',l:'https://www.cdfifund.gov/programs-training/programs/new-markets-tax-credit'},{t:'Opportunity Zone Benefits',d:'Capital gains deferral for qualifying investments.',l:'https://www.irs.gov/credits-deductions/businesses/opportunity-zones'}],workforce:[{t:'Work Opportunity Tax Credit',d:'Credits for hiring from target groups.',l:'https://www.dol.gov/agencies/eta/wotc'}],contracting:[{t:'Government Deposit Programs',d:'Become a qualified depository for government funds.',l:'#'},{t:'SBA Lender Match',d:'Connect with SBA-backed lending opportunities.',l:'https://www.sba.gov/funding-programs/loans'}]}
-},
-
-property:{
-  name:'Property & Facility Services',
-  subtypes:['Property Manager','Cleaning Service','Landscaper','Security Company','Maintenance/Handyman','Pest Control','Locksmith','Snow Removal','Pool Service','Waste Management','Mover','Stager'],
-  grants:{federal:[{t:'SBA Microloans',d:'Up to $50K for equipment and working capital.',l:'https://www.sba.gov/funding-programs/loans/microloans'},{t:'EPA Clean Air Grants',d:'Grants for green cleaning and eco-friendly services.',l:'https://www.epa.gov/grants'}],state:[{t:'NJEDA Small Business Fund',d:'Loans for property service companies under $5M revenue.',l:'https://www.njeda.gov/small-business/'},{t:'NJ Clean Energy Rebates',d:'Rebates for energy-efficient equipment upgrades.',l:'https://njcleanenergy.com/'}],local:[{t:'Job Creation Grants',d:'Municipal grants for creating local jobs.',l:'#'}],industry:[{t:'Green Cleaning Certification Grants',d:'Funding for eco-friendly certification.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'},{t:'DBE',d:'Disadvantaged Business Enterprise.',l:'https://www.transportation.gov/civil-rights/disadvantaged-business-enterprise'}],small:[{t:'SBA 8(a)',d:'Federal contracting assistance.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},{t:'HUBZone',d:'Preference for businesses in underutilized zones.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'}],state:[{t:'NJ Property Manager License',d:'Required for managing properties in NJ.',l:'https://www.njconsumeraffairs.gov/'},{t:'NJ Pest Control License',d:'DEP-required certification for pest management.',l:'https://www.nj.gov/dep/enforcement/pcp/'}]},
-  benefits:{tax:[{t:'Section 179 Deduction',d:'Deduct full cost of equipment purchases (vehicles, tools).',l:'https://www.irs.gov/newsroom/section-179-deduction'},{t:'Work Opportunity Tax Credit',d:'Credits for hiring from target groups.',l:'https://www.dol.gov/agencies/eta/wotc'}],utility:[{t:'Fleet Vehicle Rebates',d:'NJ incentives for electric/hybrid fleet vehicles.',l:'https://njcleanenergy.com/'},{t:'Equipment Upgrade Rebates',d:'Utility rebates for energy-efficient commercial equipment.',l:'https://njcleanenergy.com/'}],contracting:[{t:'Government Facility Contracts',d:'GSA Schedule for federal building maintenance.',l:'https://www.gsa.gov/buying-selling/purchasing-programs/gsa-multiple-award-schedule'},{t:'NJ School District Contracts',d:'Cleaning and maintenance bids for NJ schools.',l:'https://www.njstart.gov/'}]}
-},
-
-retail:{name:'Retail & E-Commerce',subtypes:['Retail Store','Online Seller','Wholesaler','Distributor','Furniture Store','Home Goods','Appliances'],
-  grants:{federal:[{t:'SBA 7(a) Loans',d:'Working capital and inventory financing.',l:'https://www.sba.gov/funding-programs/loans'},{t:'USDA Rural Business Grants',d:'For retail in rural communities.',l:'https://www.rd.usda.gov/programs-services/business-programs'}],state:[{t:'NJEDA Main Street Program',d:'Grants for retail in designated main street districts.',l:'https://www.njeda.gov/'},{t:'NJ Urban Enterprise Zone',d:'Reduced sales tax (3.5%) in designated zones.',l:'https://www.nj.gov/dca/affiliates/uez/'}],local:[{t:'Façade Improvement Grants',d:'Storefront improvement grants ($5K-$25K).',l:'#'}],industry:[{t:'E-Commerce Technology Grants',d:'Grants for digital transformation.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Federal contracting preference.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'}],state:[{t:'NJ Retail Food License',d:'Required for food retail.',l:'https://www.nj.gov/health/ceohs/food-drug-safety/'}]},
-  benefits:{tax:[{t:'UEZ Sales Tax Reduction',d:'3.5% vs 6.625% in Urban Enterprise Zones.',l:'https://www.nj.gov/dca/affiliates/uez/'},{t:'Section 179',d:'Equipment deduction.',l:'https://www.irs.gov/newsroom/section-179-deduction'}],workforce:[{t:'WOTC',d:'Hiring tax credits.',l:'https://www.dol.gov/agencies/eta/wotc'}],contracting:[{t:'Government Purchase Cards',d:'GSA contracts for government buyers.',l:'https://www.gsa.gov/'}]}
-},
-
-food:{name:'Food & Hospitality',subtypes:['Restaurant','Catering','Bar/Lounge','Bakery','Food Truck','Hotel/Motel','Event Venue','Coffee Shop'],
-  grants:{federal:[{t:'SBA Restaurant Revitalization',d:'Targeted relief for food service businesses.',l:'https://www.sba.gov/'},{t:'USDA Farm to School',d:'Grants for local food sourcing programs.',l:'https://www.usda.gov/topics/farming/grants-and-loans'}],state:[{t:'NJEDA Hospitality Fund',d:'Small business support for NJ hospitality.',l:'https://www.njeda.gov/'},{t:'NJ Food Innovation Center',d:'Rutgers program supporting food businesses.',l:'https://foodinnovation.rutgers.edu/'}],local:[{t:'Restaurant Row Grants',d:'Local grants for designated dining districts.',l:'#'}],industry:[{t:'Sustainable Food Grants',d:'Grants for sustainable/organic food practices.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Business development.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'}],state:[{t:'NJ Food Handler Certification',d:'Required for all food service workers.',l:'https://www.nj.gov/health/'},{t:'NJ Liquor License',d:'Required for alcohol service.',l:'https://www.nj.gov/oag/abc/'}]},
-  benefits:{tax:[{t:'WOTC',d:'Hiring credits.',l:'https://www.dol.gov/agencies/eta/wotc'},{t:'Tip Credit',d:'Federal tip credit reduces employer wage obligations.',l:'#'}],utility:[{t:'Commercial Kitchen Rebates',d:'Energy-efficient equipment rebates.',l:'https://njcleanenergy.com/'}],contracting:[{t:'Government Catering',d:'GSA contracts for government events.',l:'https://www.gsa.gov/'}]}
-},
-
-healthcare:{name:'Healthcare & Wellness',subtypes:['Medical Clinic','Dental Office','Physical Therapy','Mental Health','Pharmacy','Gym/Fitness','Spa/Beauty','Chiropractic','Optometry','Home Health Aide'],
-  grants:{federal:[{t:'HRSA Health Center Grants',d:'Funding for community health centers.',l:'https://www.hrsa.gov/grants'},{t:'NIH Small Business Grants (SBIR/STTR)',d:'Up to $2M for health innovation research.',l:'https://seed.nih.gov/'}],state:[{t:'NJ Health Care Facilities Financing',d:'Low-cost financing for healthcare facilities.',l:'https://www.njeda.gov/'},{t:'NJ DOH Practice Support',d:'Grants for practices in underserved areas.',l:'https://www.nj.gov/health/'}],local:[{t:'Community Health Grants',d:'County-level health improvement grants.',l:'#'}],industry:[{t:'Telehealth Innovation Grants',d:'Federal grants for telehealth expansion.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Federal contracting.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'}],state:[{t:'NJ Healthcare Facility License',d:'Required for all healthcare facilities.',l:'https://www.nj.gov/health/healthfacilities/'},{t:'NJ Board of Medical Examiners',d:'Physician and practice licensing.',l:'https://www.njconsumeraffairs.gov/bme/'}]},
-  benefits:{tax:[{t:'R&D Tax Credit',d:'For medical device/process innovation.',l:'https://www.irs.gov/businesses/small-businesses-self-employed/research-credits'},{t:'HPSA Student Loan Repayment',d:'Loan forgiveness for practice in Health Professional Shortage Areas.',l:'https://nhsc.hrsa.gov/'}],workforce:[{t:'Nurse Training Grants',d:'Federal grants for nursing workforce development.',l:'https://www.hrsa.gov/grants'}],contracting:[{t:'Medicaid/Medicare Enrollment',d:'Essential for patient access and revenue.',l:'https://www.cms.gov/'},{t:'VA Healthcare Contracts',d:'Veterans Affairs healthcare contracts.',l:'https://www.va.gov/'}]}
-},
-
-technology:{name:'Technology & Digital',subtypes:['Software Development','Web Development','AI/Machine Learning','Cybersecurity','IT Managed Services','Telecom','App Development','Data Analytics','Cloud Services'],
-  grants:{federal:[{t:'NSF SBIR/STTR',d:'Up to $2M for tech innovation research.',l:'https://www.nsf.gov/funding/pgm_summ.jsp?pims_id=505784'},{t:'DOD SBIR',d:'Defense technology innovation grants.',l:'https://www.dodsbirsttr.mil/'},{t:'DOE Tech Innovation',d:'Energy technology grants.',l:'https://www.energy.gov/eere/technology-to-market/small-business-innovation-research-and-small-business-technology-transfer'}],state:[{t:'NJEDA Tech Startup Fund',d:'Grants and investments for NJ tech companies.',l:'https://www.njeda.gov/'},{t:'NJ Innovation Evergreen Fund',d:'$500M fund for NJ innovation economy.',l:'https://www.njeda.gov/'},{t:'NJ Founders & Funders',d:'Connections between NJ startups and investors.',l:'https://www.njeda.gov/'}],local:[{t:'Tech Hub Grants',d:'Municipal grants for tech company relocation/expansion.',l:'#'}],industry:[{t:'AI/ML Research Grants',d:'Federal and private grants for AI development.',l:'#'},{t:'Cybersecurity Grants',d:'CISA grants for cybersecurity innovation.',l:'https://www.cisa.gov/grants-training'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Federal contracting. Tech companies highly sought after.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},{t:'HUBZone',d:'Price preference on federal IT contracts.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'}],state:[{t:'NJ Tech Council Membership',d:'Access to NJ tech community and resources.',l:'https://www.njtc.org/'}]},
-  benefits:{tax:[{t:'R&D Tax Credit',d:'Up to $250K/yr. Critical for software companies.',l:'https://www.irs.gov/businesses/small-businesses-self-employed/research-credits'},{t:'NJ Angel Investor Tax Credit',d:'20% credit for investments in NJ tech startups.',l:'https://www.njeda.gov/'},{t:'Qualified Small Business Stock (QSBS)',d:'Exclude up to $10M in capital gains from taxes.',l:'#'}],workforce:[{t:'NJ STEM Hiring Grants',d:'Grants for hiring STEM workers in NJ.',l:'https://www.nj.gov/labor/'},{t:'Apprenticeship Grants',d:'Tech apprenticeship funding.',l:'https://www.nj.gov/labor/career-services/apprenticeship/'}],contracting:[{t:'Federal IT Contracts (GWACs)',d:'Government-Wide Acquisition Contracts for IT.',l:'https://www.gsa.gov/technology/it-contract-vehicles-and-purchasing-programs'},{t:'NJ OIT Contracts',d:'NJ Office of Information Technology procurement.',l:'https://www.njstart.gov/'}]}
-},
-
-transport:{name:'Transportation & Logistics',subtypes:['Trucking','Freight/Shipping','Moving Company','Auto Repair','Auto Body','Towing','Courier/Delivery','Warehousing','Fleet Management'],
-  grants:{federal:[{t:'FMCSA Safety Grants',d:'Grants for commercial vehicle safety programs.',l:'https://www.fmcsa.dot.gov/grants'},{t:'DOT RAISE Grants',d:'Infrastructure and transportation grants.',l:'https://www.transportation.gov/RAISEgrants'},{t:'Clean Heavy-Duty Vehicle Program',d:'EPA grants for zero-emission trucks.',l:'https://www.epa.gov/inflation-reduction-act/clean-heavy-duty-vehicles-program'}],state:[{t:'NJEDA Transport Fund',d:'Working capital for NJ transportation companies.',l:'https://www.njeda.gov/'},{t:'NJ Clean Fleet Incentives',d:'Rebates for electric/CNG fleet vehicles.',l:'https://njcleanenergy.com/'}],local:[{t:'Last-Mile Delivery Grants',d:'Municipal grants for urban delivery solutions.',l:'#'}],industry:[{t:'EV Fleet Conversion Grants',d:'Federal + state grants for fleet electrification.',l:'https://afdc.energy.gov/laws/federal'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'DBE',d:'Disadvantaged Business Enterprise. CRITICAL for USDOT contracts.',l:'https://www.transportation.gov/civil-rights/disadvantaged-business-enterprise'}],small:[{t:'SBA 8(a)',d:'Federal contracting.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'}],state:[{t:'NJ Motor Carrier Registration',d:'Required for commercial vehicles in NJ.',l:'https://www.state.nj.us/mvc/'},{t:'USDOT Number',d:'Required for interstate commercial transport.',l:'https://www.fmcsa.dot.gov/registration'}]},
-  benefits:{tax:[{t:'Fuel Tax Credits',d:'Federal excise tax credits for alternative fuels.',l:'https://www.irs.gov/businesses/small-businesses-self-employed/fuel-tax-credits'},{t:'EV Tax Credits',d:'Up to $40K credit for commercial electric vehicles.',l:'https://www.irs.gov/credits-deductions/commercial-clean-vehicle-credit'}],utility:[{t:'Fleet EV Charging Rebates',d:'NJ rebates for commercial EV charging installation.',l:'https://njcleanenergy.com/'},{t:'CNG/LNG Infrastructure Grants',d:'Alternative fuel infrastructure funding.',l:'https://afdc.energy.gov/laws/federal'}],contracting:[{t:'Government Freight Contracts',d:'GSA transportation contracts.',l:'https://www.gsa.gov/'},{t:'USPS Contract Delivery',d:'Postal Service delivery route contracts.',l:'https://www.usps.com/'}]}
-},
-
-education:{name:'Education & Training',subtypes:['Private School','Trade School','Tutoring Service','Certification Program','Corporate Training','Driving School','Language School','Test Prep','Childcare/Daycare'],
-  grants:{federal:[{t:'DOE Education Grants',d:'Federal education improvement grants.',l:'https://www2.ed.gov/fund/grants-apply.html'},{t:'DOL Workforce Innovation Grants',d:'Training and workforce development funding.',l:'https://www.dol.gov/agencies/eta/grants'},{t:'SBA SCORE Mentorship',d:'Free business mentorship for education providers.',l:'https://www.score.org/'}],state:[{t:'NJ DOE Private School Grants',d:'State funding for qualifying educational institutions.',l:'https://www.nj.gov/education/'},{t:'NJ Workforce Development',d:'Grants for career and technical education providers.',l:'https://www.nj.gov/labor/career-services/'}],local:[{t:'Community Education Grants',d:'Municipal grants for local education programs.',l:'#'}],industry:[{t:'EdTech Innovation Grants',d:'Grants for educational technology development.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Federal contracting for training providers.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'}],state:[{t:'NJ DOE Approved Provider',d:'State approval for educational programs.',l:'https://www.nj.gov/education/'},{t:'NJ Licensed Childcare',d:'DCF licensing for childcare facilities.',l:'https://www.nj.gov/dcf/providers/licensing/'}]},
-  benefits:{tax:[{t:'501(c)(3) Tax Exemption',d:'Federal tax exemption for qualifying educational nonprofits.',l:'https://www.irs.gov/charities-non-profits'},{t:'Educator Expense Deduction',d:'Tax deduction for classroom supplies.',l:'#'}],workforce:[{t:'GI Bill Approved Provider',d:'Become VA-approved for veteran education benefits.',l:'https://www.va.gov/education/'},{t:'Workforce Innovation (WIOA) Provider',d:'Become an approved WIOA training provider for funded students.',l:'https://www.dol.gov/agencies/eta/wioa'}],contracting:[{t:'Government Training Contracts',d:'Federal employee training contracts via GSA.',l:'https://www.gsa.gov/'},{t:'NJ DOE Contracts',d:'State education service contracts.',l:'https://www.njstart.gov/'}]}
-},
-
-manufacturing:{name:'Manufacturing & Industrial',subtypes:['Metal Fabrication','CNC/Machining','Printing','Packaging','Plastics/Composites','Woodworking','Textiles','Food Processing','Warehouse/Distribution'],
-  grants:{federal:[{t:'NIST Manufacturing Extension (MEP)',d:'Technical assistance and modernization grants.',l:'https://www.nist.gov/mep'},{t:'DOD Manufacturing Innovation',d:'Defense manufacturing technology grants.',l:'https://www.dodmanufacturing.com/'},{t:'DOE Advanced Manufacturing',d:'Energy-efficient manufacturing grants.',l:'https://www.energy.gov/eere/amo/advanced-manufacturing-office'}],state:[{t:'NJEDA Manufacturing Voucher',d:'Up to $50K for equipment and technology upgrades.',l:'https://www.njeda.gov/'},{t:'NJ Manufacturing Extension Program',d:'NJMEP modernization assistance.',l:'https://www.njmep.org/'}],local:[{t:'Industrial Park Incentives',d:'Tax abatements for manufacturing in industrial zones.',l:'#'}],industry:[{t:'Automation & Robotics Grants',d:'Federal grants for manufacturing automation.',l:'#'},{t:'Supply Chain Innovation',d:'Grants for reshoring and domestic supply chain.',l:'#'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'}],small:[{t:'SBA 8(a)',d:'Sole-source contracts up to $7M for manufacturing.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},{t:'HUBZone',d:'Price preference on federal procurement.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'}],state:[{t:'NJ Prevailing Wage Registration',d:'For public works manufacturing components.',l:'https://www.nj.gov/labor/employer/laws/publicworks.shtml'},{t:'ISO 9001 Certification',d:'Quality management system standard.',l:'https://www.iso.org/iso-9001-quality-management.html'}]},
-  benefits:{tax:[{t:'R&D Tax Credit',d:'Critical for manufacturing process innovation.',l:'https://www.irs.gov/businesses/small-businesses-self-employed/research-credits'},{t:'Section 179',d:'Full deduction for equipment purchases.',l:'https://www.irs.gov/newsroom/section-179-deduction'},{t:'Bonus Depreciation',d:'100% first-year depreciation on qualifying assets.',l:'#'}],utility:[{t:'Industrial Energy Rebates',d:'NJ Clean Energy large-scale equipment rebates.',l:'https://njcleanenergy.com/'},{t:'Demand Response Programs',d:'Revenue for reducing energy during peak periods.',l:'#'}],contracting:[{t:'Defense Procurement (DLA)',d:'Defense Logistics Agency manufacturing contracts.',l:'https://www.dla.mil/'},{t:'GSA Supply Schedule',d:'Government supply chain contracts.',l:'https://www.gsa.gov/'},{t:'Buy American Requirements',d:'Federal preference for domestic manufacturers.',l:'#'}]}
-},
-
-energy:{name:'Energy & Utilities',subtypes:['Solar Installer','EV Charging','Energy Auditor','Utility Contractor','Wind Energy','Battery Storage','Geothermal','LED Lighting','Insulation Contractor','Smart Home/Building'],
-  grants:{federal:[{t:'DOE Solar Energy Grants',d:'Research and deployment grants for solar technology.',l:'https://www.energy.gov/eere/solar/solar-energy-technologies-office'},{t:'EPA Clean Air Grants',d:'Environmental improvement grants.',l:'https://www.epa.gov/grants'},{t:'USDA REAP',d:'Rural Energy for America Program — grants + loans.',l:'https://www.rd.usda.gov/programs-services/energy-programs/rural-energy-america-program-renewable-energy-systems-energy-efficiency-improvement-guaranteed-loans'},{t:'DOE Energy Efficiency Grants',d:'Building efficiency and weatherization grants.',l:'https://www.energy.gov/scep/wap/weatherization-assistance-program'}],state:[{t:'NJ Clean Energy Program',d:'Comprehensive rebates: solar ($0.50-$1/W), HVAC, insulation, EV.',l:'https://njcleanenergy.com/'},{t:'NJ Solar Renewable Energy Credits (SRECs)',d:'Earn $200-$400/SREC for solar installations.',l:'https://njcleanenergy.com/renewable-energy/programs/solar-renewable-energy-certificates-srec'},{t:'NJEDA Green Business Fund',d:'Funding for energy efficiency businesses.',l:'https://www.njeda.gov/'},{t:'NJ EV Infrastructure Program',d:'Grants for public EV charging station installation.',l:'https://www.drivegreen.nj.gov/'}],local:[{t:'Municipal Solar Incentives',d:'Additional local incentives on top of state programs.',l:'#'},{t:'Property Assessed Clean Energy (PACE)',d:'Financing mechanism for commercial clean energy.',l:'#'}],industry:[{t:'IRA Clean Energy Credits',d:'Inflation Reduction Act production + investment tax credits.',l:'https://www.energy.gov/lpo/inflation-reduction-act-2022'},{t:'EV Charging Infrastructure Grants',d:'NEVI Formula Program — $7.5B for EV charging.',l:'https://www.fhwa.dot.gov/environment/alternative_fuel_corridors/nominations/90d_nevi_formula_plan_process.fhwa'}]},
-  certs:{diversity:[{t:'MBE',d:'Minority Business Enterprise.',l:'https://nmsdc.org/'},{t:'WBE',d:'Women Business Enterprise.',l:'https://www.wbenc.org/'},{t:'DBE',d:'For utility and infrastructure contracts.',l:'https://www.transportation.gov/civil-rights/disadvantaged-business-enterprise'}],small:[{t:'SBA 8(a)',d:'Federal energy contracts.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program'},{t:'HUBZone',d:'Price preference for federal energy projects.',l:'https://www.sba.gov/federal-contracting/contracting-assistance-programs/hubzone-program'}],state:[{t:'NJ Trade Ally Certification',d:'REQUIRED to participate in NJ Clean Energy rebate programs.',l:'https://njcleanenergy.com/'},{t:'NJ Electrical Contractor License',d:'Required for solar and EV charging installation.',l:'https://www.njconsumeraffairs.gov/'},{t:'NABCEP Certification',d:'North American Board of Certified Energy Practitioners (solar).',l:'https://www.nabcep.org/'},{t:'BPI Certification',d:'Building Performance Institute — energy auditor certification.',l:'https://www.bpi.org/'}]},
-  benefits:{tax:[{t:'Investment Tax Credit (ITC)',d:'30% federal tax credit for solar, storage, EV charging.',l:'https://www.energy.gov/eere/solar/federal-solar-tax-credits-businesses'},{t:'Production Tax Credit (PTC)',d:'Per-kWh credit for renewable energy production.',l:'#'},{t:'Section 179D',d:'Up to $5/sqft for energy-efficient commercial buildings.',l:'https://www.energy.gov/eere/buildings/179d-commercial-buildings-energy-efficiency-tax-deduction'},{t:'NJ Sales Tax Exemption',d:'Solar equipment exempt from NJ sales tax.',l:'https://njcleanenergy.com/'}],utility:[{t:'Net Metering Revenue',d:'Sell excess solar back to the grid.',l:'https://njcleanenergy.com/'},{t:'SREC Income',d:'$200-$400/year per megawatt-hour of solar production.',l:'https://njcleanenergy.com/renewable-energy/programs/solar-renewable-energy-certificates-srec'},{t:'Demand Response Revenue',d:'Earn revenue for reducing energy during peak periods.',l:'#'}],contracting:[{t:'Federal Clean Energy Contracts',d:'DOE, DOD, GSA contracts for renewable energy.',l:'https://www.gsa.gov/'},{t:'NJ BPU Programs',d:'NJ Board of Public Utilities program participation.',l:'https://www.nj.gov/bpu/'},{t:'Utility Company Programs',d:'PSE&G, JCP&L contractor programs.',l:'https://njcleanenergy.com/'}]}
+  
+  grid.innerHTML = list.map(v => `
+    <div class="v-card ${v.featured?'featured':''}">
+      <div class="v-header">
+        <div class="v-avatar" style="background:${v.color}">${v.icon}</div>
+        <div class="v-info">
+          <div class="v-name">${v.name}</div>
+          <div class="v-cat">${v.cat}</div>
+        </div>
+      </div>
+      <div class="v-body">
+        <div class="v-desc">${v.desc}</div>
+        <div class="v-tags">${v.services.slice(0,4).map(s=>`<span class="v-tag">${s}</span>`).join('')}</div>
+        <div class="v-meta">
+          <span class="v-rating">⭐ ${v.rating}</span>
+          <span>${v.reviews} reviews</span>
+          <span>📍 ${v.area.split(',')[0]}</span>
+        </div>
+      </div>
+      <div class="v-footer">
+        <button class="v-btn v-btn-chat" onclick="openChat(${v.id})">💬 Chat</button>
+        <button class="v-btn v-btn-primary" onclick="openVendor(${v.id})">View Profile</button>
+        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="v-btn v-btn-outline">📞 Call</a>
+      </div>
+    </div>
+  `).join('');
 }
-};
 
-// ═══════════════════════════════════════════
-// FORM LOGIC
-// ═══════════════════════════════════════════
-var currentStep=1;
-var selectedCategory=null;
-
-function goStep(n){
-  if(n===2&&!document.getElementById('bizName').value){alert('Please enter your business name.');return;}
-  if(n===3&&!selectedCategory){alert('Please select a business category.');return;}
-  if(n===3)buildResults();
-  if(n===4){
-    document.getElementById('confirmBiz').textContent=document.getElementById('bizName').value;
-  }
-  document.querySelectorAll('.form-step').forEach(function(s){s.classList.remove('active')});
-  document.getElementById('step'+n).classList.add('active');
-  document.querySelectorAll('.form-progress .dot').forEach(function(d,i){
-    d.classList.remove('done','current');
-    if(i+1<n)d.classList.add('done');
-    if(i+1===n)d.classList.add('current');
+function filterVendors() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const cat = document.getElementById('search-cat').value;
+  const sort = document.getElementById('sort-sel').value;
+  
+  let list = vendors.filter(v => {
+    const matchQ = !q || v.name.toLowerCase().includes(q) || v.cat.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q) || v.services.some(s => s.toLowerCase().includes(q));
+    const matchCat = !cat || v.cat === cat;
+    return matchQ && matchCat;
   });
-  currentStep=n;
-  window.scrollTo({top:document.querySelector('.form-wrap').offsetTop-100,behavior:'smooth'});
+  
+  // Update active pill
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+  
+  // Sort
+  if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+  else if (sort === 'reviews') list.sort((a,b) => b.reviews - a.reviews);
+  else if (sort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+  else list.sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.rating - a.rating);
+  
+  renderVendors(list);
 }
 
-function selectCat(el){
-  document.querySelectorAll('.cat-card').forEach(function(c){c.classList.remove('selected')});
-  el.classList.add('selected');
-  selectedCategory=el.dataset.cat;
-  document.getElementById('step2Next').disabled=false;
+// Category pills
+const cats = [...new Set(vendors.map(v => v.cat))].sort();
+document.getElementById('cat-pills').innerHTML = 
+  `<span class="cat-pill active" data-cat="" onclick="pickCat(this,'')">All</span>` +
+  cats.map(c => {
+    const v = vendors.find(x => x.cat === c);
+    return `<span class="cat-pill" data-cat="${c}" onclick="pickCat(this,'${c}')">${v.icon} ${c}</span>`;
+  }).join('');
 
-  // Show subtypes
-  var cd=catData[selectedCategory];
-  if(cd&&cd.subtypes){
-    var wrap=document.getElementById('subtypeWrap');
-    var chips=document.getElementById('subtypeChips');
-    chips.innerHTML='';
-    cd.subtypes.forEach(function(st){
-      var c=document.createElement('div');
-      c.className='chip';
-      c.textContent=st;
-      c.onclick=function(){this.classList.toggle('selected')};
-      chips.appendChild(c);
-    });
-    wrap.style.display='block';
-  }
+function pickCat(el, cat) {
+  document.getElementById('search-cat').value = cat;
+  filterVendors();
 }
 
-function switchTab(el){
-  document.querySelectorAll('.rp-tab').forEach(function(t){t.classList.remove('active')});
-  document.querySelectorAll('.rp-content').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');
-  document.getElementById('tab-'+el.dataset.tab).classList.add('active');
+// ===== CHAT =====
+let chatVendor = null;
+function openChat(id) {
+  chatVendor = vendors.find(v => v.id === id);
+  if (!chatVendor) return;
+  document.getElementById('chat-av').textContent = chatVendor.icon;
+  document.getElementById('chat-av').style.background = chatVendor.color;
+  document.getElementById('chat-name').textContent = chatVendor.name;
+  document.getElementById('chat-messages').innerHTML = `
+    <div class="chat-msg them">
+      <div class="chat-bubble">Hi! Thanks for reaching out to ${chatVendor.name}. How can we help you today?</div>
+      <div class="chat-time">Just now</div>
+    </div>`;
+  document.getElementById('chat-modal').classList.add('open');
+  document.getElementById('chat-input').focus();
+  
+  // Log as lead
+  const leads = JSON.parse(localStorage.getItem('ep_vendor_chats') || '[]');
+  leads.push({vendor: chatVendor.name, cat: chatVendor.cat, time: new Date().toISOString(), source: 'Vendor Marketplace Chat'});
+  localStorage.setItem('ep_vendor_chats', JSON.stringify(leads));
+}
+function closeChat() { document.getElementById('chat-modal').classList.remove('open'); }
+function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const container = document.getElementById('chat-messages');
+  const now = new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  container.innerHTML += `<div class="chat-msg me"><div class="chat-bubble">${msg}</div><div class="chat-time" style="text-align:right">${now}</div></div>`;
+  input.value = '';
+  container.scrollTop = container.scrollHeight;
+  
+  // Auto-reply
+  setTimeout(() => {
+    const replies = [
+      `Thanks for your message! Let me check on that for you. Can you share your property address or more details?`,
+      `Great question! We serve the entire ${chatVendor.area} area. Would you like to schedule a free estimate?`,
+      `We'd be happy to help. For the fastest service, you can also call us directly at ${chatVendor.phone}. What's your timeline?`
+    ];
+    const reply = replies[Math.floor(Math.random()*replies.length)];
+    container.innerHTML += `<div class="chat-msg them"><div class="chat-bubble">${reply}</div><div class="chat-time">${now}</div></div>`;
+    container.scrollTop = container.scrollHeight;
+  }, 1200);
 }
 
-function buildResults(){
-  var cd=catData[selectedCategory];
-  if(!cd)return;
-  document.getElementById('selectedCatName').textContent=cd.name;
-
-  // BUILD GRANTS TAB
-  var gh='';
-  var grantSections={federal:{icon:'🏦',label:'Federal Grants'},state:{icon:'🏛',label:'State Grants (NJ)'},local:{icon:'🏙',label:'Local / City Grants'},industry:{icon:'🌱',label:'Industry-Specific Grants'}};
-  for(var key in grantSections){
-    if(cd.grants[key]&&cd.grants[key].length){
-      var gs=grantSections[key];
-      gh+='<div class="rp-section"><div class="rp-section-head"><span class="rp-icon">'+gs.icon+'</span> '+gs.label+'</div>';
-      cd.grants[key].forEach(function(g){
-        var tag=key==='federal'?'tag-federal':key==='state'?'tag-state':'tag-local';
-        gh+='<div class="rp-card"><div class="rp-card-title">'+g.t+' <span class="rp-card-tag '+tag+'">'+key.toUpperCase()+'</span></div><div class="rp-card-desc">'+g.d+'</div>';
-        if(g.l&&g.l!=='#')gh+='<a href="'+g.l+'" target="_blank" class="rp-card-link">Learn more →</a>';
-        gh+='</div>';
-      });
-      gh+='</div>';
-    }
-  }
-  document.getElementById('tab-grants').innerHTML=gh;
-
-  // BUILD CERTS TAB
-  var ch='';
-  var certSections={diversity:{icon:'🌍',label:'Minority & Diversity Certifications'},small:{icon:'📋',label:'Small Business Certifications'},state:{icon:'🏛',label:'State-Level Certifications & Licenses'}};
-  for(var key in certSections){
-    if(cd.certs[key]&&cd.certs[key].length){
-      var cs=certSections[key];
-      ch+='<div class="rp-section"><div class="rp-section-head"><span class="rp-icon">'+cs.icon+'</span> '+cs.label+'</div>';
-      cd.certs[key].forEach(function(c){
-        ch+='<div class="rp-card"><div class="rp-card-title">'+c.t+' <span class="rp-card-tag tag-cert">CERT</span></div><div class="rp-card-desc">'+c.d+'</div>';
-        if(c.l&&c.l!=='#')ch+='<a href="'+c.l+'" target="_blank" class="rp-card-link">Apply / Learn more →</a>';
-        ch+='</div>';
-      });
-      ch+='</div>';
-    }
-  }
-  document.getElementById('tab-certs').innerHTML=ch;
-
-  // BUILD BENEFITS TAB
-  var bh='';
-  var benSections={tax:{icon:'💰',label:'Tax Incentives & Credits'},utility:{icon:'⚡',label:'Utility Rebates & Programs'},workforce:{icon:'👥',label:'Workforce Programs'},contracting:{icon:'📝',label:'Contracting Opportunities'}};
-  for(var key in benSections){
-    if(cd.benefits[key]&&cd.benefits[key].length){
-      var bs=benSections[key];
-      bh+='<div class="rp-section"><div class="rp-section-head"><span class="rp-icon">'+bs.icon+'</span> '+bs.label+'</div>';
-      cd.benefits[key].forEach(function(b){
-        var tag=key==='tax'?'tag-federal':key==='utility'?'tag-state':'tag-local';
-        bh+='<div class="rp-card"><div class="rp-card-title">'+b.t+' <span class="rp-card-tag '+tag+'">'+key.toUpperCase()+'</span></div><div class="rp-card-desc">'+b.d+'</div>';
-        if(b.l&&b.l!=='#')bh+='<a href="'+b.l+'" target="_blank" class="rp-card-link">Learn more →</a>';
-        bh+='</div>';
-      });
-      bh+='</div>';
-    }
-  }
-  document.getElementById('tab-benefits').innerHTML=bh;
+// ===== VENDOR PROFILE =====
+function openVendor(id) {
+  const v = vendors.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('vm-content').innerHTML = `
+    <div style="position:relative">
+      <button class="vm-close" onclick="closeVendor()">✕</button>
+      <div class="vm-header">
+        <div class="vm-av" style="background:${v.color}">${v.icon}</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:800">${v.name}</div>
+          <div style="font-size:12px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${v.cat}</div>
+          <div style="font-size:12px;color:var(--slate);margin-top:4px">⭐ ${v.rating} · ${v.reviews} reviews · 📍 ${v.area}</div>
+        </div>
+      </div>
+      <div class="vm-body">
+        <div class="vm-section">
+          <h4>About</h4>
+          <p style="font-size:13px;color:var(--slate);line-height:1.7">${v.desc}</p>
+        </div>
+        <div class="vm-section">
+          <h4>Services</h4>
+          <div class="vm-services">${v.services.map(s=>`<span class="vm-service">${s}</span>`).join('')}</div>
+        </div>
+        <div class="vm-section">
+          <h4>Contact</h4>
+          <p style="font-size:13px">📞 <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" style="color:var(--copper);font-weight:600">${v.phone}</a></p>
+          <p style="font-size:13px">📧 <a href="mailto:${v.email}" style="color:var(--copper);font-weight:600">${v.email}</a></p>
+          <p style="font-size:13px">📍 Service area: ${v.area}</p>
+        </div>
+        <div class="vm-section vm-reviews">
+          <h4>Reviews (${v.reviewList.length})</h4>
+          ${v.reviewList.map(r=>`
+            <div class="vm-review">
+              <div class="vm-review-stars">${'⭐'.repeat(r.stars)}</div>
+              <div class="vm-review-text">"${r.text}"</div>
+              <div class="vm-review-author">— ${r.author}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="vm-actions">
+        <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${v.id})">💬 Chat Now</button>
+        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="vm-btn" style="background:var(--copper);color:white">📞 Call</a>
+        <a href="mailto:${v.email}" class="vm-btn" style="background:transparent;border:1.5px solid var(--border);color:var(--ink)">📧 Email</a>
+      </div>
+    </div>`;
+  document.getElementById('vendor-modal').classList.add('open');
 }
+function closeVendor() { document.getElementById('vendor-modal').classList.remove('open'); }
+
+// Close modals on background click
+document.getElementById('chat-modal').addEventListener('click', e => { if (e.target.id === 'chat-modal') closeChat(); });
+document.getElementById('vendor-modal').addEventListener('click', e => { if (e.target.id === 'vendor-modal') closeVendor(); });
+
+// Init
+filterVendors();
 </script>
 <script src="social-proof.js"></script>
 </body>
