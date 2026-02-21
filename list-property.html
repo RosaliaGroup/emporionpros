@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>List Your Property — EmporionPros</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0f1a;--paper:#f5f7fa;--accent:#1a56db;--accent-l:#3b82f6;--slate:#64748b;--border:#e2e8f0;--copper:#c8622a;--green:#059669}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}.sr{font-family:'Fraunces',serif}
+.nav{position:sticky;top:0;z-index:100;padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--border)}
+.nav-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800}.nav-logo span{color:var(--copper)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:14px}.nav-r a{font-size:12px;font-weight:600;color:var(--slate)}
+.nav-btn{background:var(--accent);color:white!important;padding:9px 16px;border-radius:8px}
+.hero-bar{background:linear-gradient(135deg,#1a56db,#2563eb);color:white;padding:40px 24px;text-align:center}
+.hero-bar h1{font-family:'Fraunces',serif;font-size:clamp(24px,3.5vw,36px);font-weight:800}
+.hero-bar p{font-size:14px;opacity:.8;margin-top:6px}
+.main{max-width:1100px;margin:0 auto;padding:32px clamp(16px,3vw,32px);display:grid;grid-template-columns:1fr 320px;gap:28px}
+@media(max-width:800px){.main{grid-template-columns:1fr}}
+.panel{background:white;border-radius:14px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.04);border:1px solid var(--border)}
+.panel h2{font-size:18px;font-weight:800;margin-bottom:6px}.panel hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.tab{padding:12px 8px;border-radius:10px;border:1.5px solid var(--border);text-align:center;cursor:pointer;font-size:13px;font-weight:600;transition:.2s;background:white}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+.tab-icon{font-size:18px;display:block;margin-bottom:2px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--ink)}.form-label .req{color:#dc2626}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:white;transition:.2s}
+.form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+select.form-input{appearance:auto}
+textarea.form-input{resize:vertical;min-height:80px}
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:14px}
+.upload-zone:hover{border-color:var(--accent);background:rgba(26,86,219,.03)}
+.upload-zone-icon{font-size:32px;margin-bottom:6px}
+.upload-zone p{font-size:12px;color:var(--slate)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:500px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+.feat-check{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:6px;border:1px solid var(--border);transition:.2s}
+.feat-check:hover{background:#f8fafc}
+.feat-check input{accent-color:var(--accent)}
+.submit-btn{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:.2s;margin-top:8px}
+.submit-btn:hover{background:var(--accent-l);transform:translateY(-1px)}
+/* Plans sidebar */
+.plans-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:var(--slate);margin-bottom:14px}
+.plan{border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;cursor:pointer;transition:.2s;position:relative}
+.plan:hover{border-color:var(--accent)}
+.plan.selected{border-color:var(--accent);background:rgba(26,86,219,.03);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.plan-badge{position:absolute;top:-8px;right:12px;background:var(--copper);color:white;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+.plan-name{font-size:14px;font-weight:800}.plan-name .emoji{margin-right:4px}
+.plan-price{font-family:'Fraunces',serif;font-size:28px;font-weight:800;margin:4px 0}
+.plan-price small{font-size:12px;font-weight:500;color:var(--slate)}
+.plan-feat{font-size:11px;color:var(--slate);line-height:1.7}
+.plan-feat b{color:var(--ink)}
+.guarantee{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-top:12px;text-align:center;font-size:11px;color:#065f46}
+.commercial-fields,.shortterm-fields{display:none}
+.ft{padding:24px;text-align:center;font-size:11px;color:var(--slate);border-top:1px solid var(--border);margin-top:40px}.ft a{color:var(--copper)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">Emporion<span>Pros</span></a>
+  <div class="nav-r">
+    <a href="platform.html">Platform</a>
+    <a href="for-agents.html">For Agents</a>
+    <a href="for-owners.html">For Owners</a>
+    <a href="vendors.html">🔧 Marketplace</a>
+    <a href="for-vendors.html">For Vendors</a>
+    <a href="index.html" class="nav-btn">← Back to Home</a>
+  </div>
+</nav>
+
+<div class="hero-bar">
+  <h1 class="sr">List Your Property</h1>
+  <p>Reach thousands of buyers and renters. Flat fee. No commission.</p>
+</div>
+
+<div class="main">
+  <div>
+    <!-- LISTING TYPE -->
+    <div class="panel">
+      <h2>Listing Type</h2><hr>
+      <div class="tabs">
+        <div class="tab active" onclick="setType(this,'sale')"><span class="tab-icon">🏠</span>For Sale</div>
+        <div class="tab" onclick="setType(this,'rent')"><span class="tab-icon">🔑</span>For Rent</div>
+        <div class="tab" onclick="setType(this,'shortterm')"><span class="tab-icon">🏨</span>Short-Term</div>
+        <div class="tab" onclick="setType(this,'commercial')"><span class="tab-icon">🏢</span>Commercial</div>
+      </div>
+    </div>
+
+    <!-- PROPERTY DETAILS -->
+    <div class="panel" style="margin-top:20px">
+      <h2>Property Details</h2><hr>
+      <div class="form-group">
+        <label class="form-label">Property Title <span class="req">*</span></label>
+        <input class="form-input" id="f-title" placeholder="e.g. Beautiful 3-Bedroom Colonial">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Property Type <span class="req">*</span></label>
+          <select class="form-input" id="f-proptype">
+            <option value="">Select type</option>
+            <option>Single Family</option>
+            <option>Condo</option>
+            <option>Townhouse</option>
+            <option>Multi-Family</option>
+            <option>Land</option>
+            <!-- Commercial types -->
+            <option class="commercial-opt" style="display:none">Office Space</option>
+            <option class="commercial-opt" style="display:none">Retail</option>
+            <option class="commercial-opt" style="display:none">Industrial / Warehouse</option>
+            <option class="commercial-opt" style="display:none">Mixed Use</option>
+            <option class="commercial-opt" style="display:none">Restaurant / Bar</option>
+            <option class="commercial-opt" style="display:none">Medical / Dental</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price <span class="req">*</span></label>
+          <input class="form-input" id="f-price" type="number" placeholder="425000">
+        </div>
+      </div>
+      <div class="form-row" id="beds-baths-row">
+        <div class="form-group">
+          <label class="form-label">Bedrooms</label>
+          <input class="form-input" id="f-beds" type="number" placeholder="3">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bathrooms</label>
+          <input class="form-input" id="f-baths" type="number" step="0.5" placeholder="2.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Square Feet</label>
+          <input class="form-input" id="f-sqft" type="number" placeholder="1800">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Year Built</label>
+          <input class="form-input" id="f-year" type="number" placeholder="2005">
+        </div>
+      </div>
+
+      <!-- Commercial-only fields -->
+      <div class="commercial-fields" id="commercial-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Zoning</label>
+            <select class="form-input">
+              <option value="">Select zoning</option>
+              <option>C-1 Commercial</option>
+              <option>C-2 Commercial</option>
+              <option>C-3 Heavy Commercial</option>
+              <option>M-1 Light Industrial</option>
+              <option>M-2 Heavy Industrial</option>
+              <option>Mixed Use</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lease Type</label>
+            <select class="form-input">
+              <option value="">Select lease type</option>
+              <option>NNN (Triple Net)</option>
+              <option>Gross Lease</option>
+              <option>Modified Gross</option>
+              <option>Percentage Lease</option>
+              <option>For Sale</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ceiling Height</label>
+            <input class="form-input" placeholder="e.g. 14 ft">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Parking Spaces</label>
+            <input class="form-input" type="number" placeholder="10">
+          </div>
+        </div>
+      </div>
+
+      <!-- Short-term only fields -->
+      <div class="shortterm-fields" id="shortterm-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Minimum Stay</label>
+            <select class="form-input">
+              <option>1 night</option>
+              <option>3 nights</option>
+              <option>1 week</option>
+              <option>1 month</option>
+              <option>3 months</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nightly Rate</label>
+            <input class="form-input" type="number" placeholder="150">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">City <span class="req">*</span></label>
+        <div class="form-row" style="margin-bottom:0">
+          <input class="form-input" placeholder="Newark" id="f-city">
+          <div class="form-row" style="margin-bottom:0">
+            <select class="form-input"><option>NJ</option></select>
+            <input class="form-input" placeholder="07105" id="f-zip">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Neighborhood</label>
+        <input class="form-input" placeholder="e.g. Ironbound, Forest Hill, Downtown">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" placeholder="Describe your property — what makes it special? What will buyers or tenants love?"></textarea>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="panel" style="margin-top:20px">
+      <h2>Photos</h2><hr>
+      <div class="upload-zone" onclick="this.querySelector('input').click()">
+        <div class="upload-zone-icon">📸</div>
+        <p><strong>Click to upload</strong> or drag & drop</p>
+        <p>JPG, PNG up to 10MB each · Up to 30 photos</p>
+        <input type="file" multiple accept="image/*" style="display:none" onchange="document.querySelector('.upload-count').textContent=this.files.length+' photos selected'">
+      </div>
+      <div class="upload-count" style="text-align:center;font-size:12px;color:var(--green);font-weight:600"></div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="panel" style="margin-top:20px">
+      <h2>Features</h2><hr>
+      <div class="features-grid" id="features-res">
+        <label class="feat-check"><input type="checkbox"> Central AC</label>
+        <label class="feat-check"><input type="checkbox"> In-Unit W/D</label>
+        <label class="feat-check"><input type="checkbox"> Hardwood Floors</label>
+        <label class="feat-check"><input type="checkbox"> Parking</label>
+        <label class="feat-check"><input type="checkbox"> Fenced Yard</label>
+        <label class="feat-check"><input type="checkbox"> New Roof</label>
+        <label class="feat-check"><input type="checkbox"> Updated Kitchen</label>
+        <label class="feat-check"><input type="checkbox"> Gym</label>
+        <label class="feat-check"><input type="checkbox"> Doorman</label>
+        <label class="feat-check"><input type="checkbox"> Pet Friendly</label>
+        <label class="feat-check"><input type="checkbox"> Near Transit</label>
+        <label class="feat-check"><input type="checkbox"> Elevator</label>
+      </div>
+      <div class="features-grid" id="features-com" style="display:none">
+        <label class="feat-check"><input type="checkbox"> Loading Dock</label>
+        <label class="feat-check"><input type="checkbox"> Drive-In Access</label>
+        <label class="feat-check"><input type="checkbox"> Corner Location</label>
+        <label class="feat-check"><input type="checkbox"> Street Signage</label>
+        <label class="feat-check"><input type="checkbox"> ADA Compliant</label>
+        <label class="feat-check"><input type="checkbox"> HVAC</label>
+        <label class="feat-check"><input type="checkbox"> Sprinklers</label>
+        <label class="feat-check"><input type="checkbox"> Security System</label>
+        <label class="feat-check"><input type="checkbox"> High Ceilings</label>
+        <label class="feat-check"><input type="checkbox"> Freight Elevator</label>
+        <label class="feat-check"><input type="checkbox"> Grease Trap</label>
+        <label class="feat-check"><input type="checkbox"> High Foot Traffic</label>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="panel" style="margin-top:20px">
+      <h2>Your Contact Info</h2><hr>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name <span class="req">*</span></label><input class="form-input" placeholder="Your name"></div>
+        <div class="form-group"><label class="form-label">Phone <span class="req">*</span></label><input class="form-input" placeholder="(862) 288-7972"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Email <span class="req">*</span></label><input class="form-input" type="email" placeholder="you@email.com"></div>
+      <button class="submit-btn" onclick="submitListing()">🚀 Publish Campaign — Go Live</button>
+      <p style="text-align:center;font-size:10px;color:var(--slate);margin-top:8px">Your listing goes live instantly. Edit anytime from your dashboard.</p>
+    </div>
+  </div>
+
+  <!-- PLANS SIDEBAR -->
+  <div>
+    <div style="position:sticky;top:80px">
+      <div class="plans-title">CHOOSE A PLAN</div>
+
+      <div class="plan selected" onclick="selectPlan(this)">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$29<small>/mo</small></div>
+        <div class="plan-feat">
+          ✓ Campaign page<br>
+          ✓ Up to 10 photos<br>
+          ✓ Contact form<br>
+          ✓ AI lead capture<br>
+          ✓ <b>No per-lead charge</b>
+        </div>
+      </div>
+
+      <div class="plan" onclick="selectPlan(this)">
+        <div class="plan-badge">Popular</div>
+        <div class="plan-name">Pro ⭐</div>
+        <div class="plan-price">$99<small>/mo</small></div>
+        <div class="plan-feat">
+          ✓ Everything in Starter<br>
+          ✓ Up to 30 photos<br>
+          ✓ <b>Aria AI — 24/7 calls & texts</b><br>
+          ✓ Neighborhood guide<br>
+          ✓ Social media kit<br>
+          ✓ Cost comparison widget<br>
+          ✓ <b>Unlimited real leads</b>
+        </div>
+      </div>
+
+      <div class="plan" onclick="selectPlan(this)">
+        <div class="plan-name">Premium 🔥</div>
+        <div class="plan-price">$199<small>/mo</small></div>
+        <div class="plan-feat">
+          ✓ Everything in Pro<br>
+          ✓ Featured placement<br>
+          ✓ <b>Priority in Aria AI referrals</b><br>
+          ✓ Video tour embed<br>
+          ✓ Open house tools<br>
+          ✓ Custom domain<br>
+          ✓ <b>Analytics dashboard</b>
+        </div>
+      </div>
+
+      <div class="guarantee">
+        🛡️ <strong>14-Day Free Trial</strong> on all plans.<br>
+        Cancel anytime. No contracts. No commission ever.
+        <div style="margin-top:8px;font-weight:700;color:var(--green)">✅ 100% real leads — never shared, never fake</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="ft"><p>© 2026 <a href="platform.html">EmporionPros</a> · <a href="for-agents.html">Agents</a> · <a href="for-managers.html">Managers</a> · <a href="for-owners.html">Owners</a> · <a href="for-vendors.html">Vendors</a></p></footer>
+
+<script>
+var currentType = 'sale';
+function setType(el, type) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentType = type;
+
+  // Toggle commercial fields
+  document.getElementById('commercial-fields').style.display = type === 'commercial' ? 'block' : 'none';
+  document.getElementById('shortterm-fields').style.display = type === 'shortterm' ? 'block' : 'none';
+  document.getElementById('features-res').style.display = type === 'commercial' ? 'none' : 'grid';
+  document.getElementById('features-com').style.display = type === 'commercial' ? 'grid' : 'none';
+
+  // Toggle beds/baths row for commercial
+  document.getElementById('beds-baths-row').style.display = type === 'commercial' ? 'none' : 'grid';
+
+  // Show commercial property types
+  document.querySelectorAll('.commercial-opt').forEach(o => {
+    o.style.display = type === 'commercial' ? '' : 'none';
+  });
+
+  // Update price placeholder
+  var priceInput = document.getElementById('f-price');
+  if (type === 'rent') priceInput.placeholder = '2400 (monthly)';
+  else if (type === 'shortterm') priceInput.placeholder = '150 (per night)';
+  else if (type === 'commercial') priceInput.placeholder = '4500 (monthly) or 895000 (sale)';
+  else priceInput.placeholder = '425000';
+
+  // Update title placeholder
+  var titleInput = document.getElementById('f-title');
+  if (type === 'commercial') titleInput.placeholder = 'e.g. Prime Retail Space on Ferry Street';
+  else if (type === 'shortterm') titleInput.placeholder = 'e.g. Cozy Ironbound Apartment — Short Stays';
+  else if (type === 'rent') titleInput.placeholder = 'e.g. Modern 2BR Near Penn Station';
+  else titleInput.placeholder = 'e.g. Beautiful 3-Bedroom Colonial';
+}
+
+function selectPlan(el) {
+  document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function submitListing() {
+  var title = document.getElementById('f-title').value;
+  if (!title) { alert('Please enter a property title.'); return; }
+  var btn = document.querySelector('.submit-btn');
+  btn.textContent = '✅ Campaign Published!';
+  btn.style.background = '#059669';
+  setTimeout(function() {
+    btn.textContent = '🚀 Publish Campaign — Go Live';
+    btn.style.background = '';
+  }, 3000);
+}
+</script>
+<script src="social-proof.js"></script>
+</body>
+</html>

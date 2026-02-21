@@ -549,33 +549,106 @@ return h;
 function runSearch(){
 var v=document.getElementById('devSearch').value.trim();
 if(!v)return;
-// Validate: must look like an address (has a number or ZIP)
 var hasNum=/\d/.test(v);
 if(!hasNum){
   document.getElementById('devSearch').style.border='2px solid #dc2626';
   document.getElementById('devSearch').setAttribute('placeholder','Please enter a full address with ZIP code');
-  setTimeout(function(){document.getElementById('devSearch').style.border='none';document.getElementById('devSearch').setAttribute('placeholder','Enter full address (e.g. 475 Main St, Orange NJ 07050)');},3000);
+  setTimeout(function(){document.getElementById('devSearch').style.border='none';document.getElementById('devSearch').setAttribute('placeholder','Enter full address with ZIP (e.g. 475 Main St, Orange NJ 07050)');},3000);
   return;
 }
-var result=findMarket(v);
 var rc=document.getElementById('reportCard');
 var st=document.getElementById('reportTitle');
 rc.style.opacity='.3';rc.style.transition='opacity .3s';
-setTimeout(function(){
-if(result&&markets[result.key]){
-var m=markets[result.key];
-st.textContent=m.name+' — Market Intelligence';
-rc.innerHTML=buildReport(m,v);
-}else{
-// Extract ZIP if present for display
-var zipShow=v.match(/\b(0[0-9]{4})\b/);
-st.textContent=v+' — Market Intelligence';
-rc.innerHTML='<div class="report-hd"><h4>📊 Report Request</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🏗️</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">Full Report Being Generated</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">We\'re building the market intelligence report for:<br><b>"'+v+'"</b>'+(zipShow?' (ZIP: '+zipShow[1]+')':'')+'</p><p style="font-size:12px;color:#64748b;margin-top:12px">Your report will include rental comps, development costs, zoning, pipeline, news, demographics, and Aria AI analysis. Ready within <b>24 hours</b>.</p><div style="margin-top:8px;font-size:11px;color:#7c3aed"><b>Reports available now for:</b> 07105 · 07102 · 07302 · 07042 · 07029 and 40+ surrounding ZIPs</div><div style="margin-top:20px"><a href="#signup" style="padding:12px 24px;background:#7c3aed;color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Get Notified When Ready →</a></div></div>';
-}
+
+// Show loading state
+st.textContent='Generating report...';
+rc.innerHTML='<div class="report-hd"><h4>📊 Analyzing: '+v+'</h4><p>Fetching live market data...</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:36px;margin-bottom:10px">⏳</div><p style="font-size:13px;color:#64748b">Querying Census, Walk Score, rental comps, and more...</p></div>';
 rc.style.opacity='1';
 document.getElementById('demo-report').scrollIntoView({behavior:'smooth'});
-},500);
+
+// TRY LIVE API FIRST
+fetch('/api/market-report?address='+encodeURIComponent(v)+'&size='+activeCat)
+.then(function(res){return res.json()})
+.then(function(data){
+  if(data.error){throw new Error(data.error);}
+  // BUILD REPORT FROM LIVE DATA
+  st.textContent=(data.meta.city||data.meta.zip)+' — Market Intelligence (Live Data)';
+  rc.innerHTML=buildLiveReport(data,v);
+})
+.catch(function(err){
+  console.log('API not available, using static data:',err.message);
+  // FALL BACK TO STATIC DATA
+  var result=findMarket(v);
+  if(result&&markets[result.key]){
+    var m=markets[result.key];
+    st.textContent=m.name+' — Market Intelligence';
+    rc.innerHTML=buildReport(m,v);
+  }else{
+    var zipShow=v.match(/\b(0[0-9]{4})\b/);
+    st.textContent=v+' — Market Intelligence';
+    rc.innerHTML='<div class="report-hd"><h4>📊 Report Request</h4><p>'+v+'</p></div><div class="report-bd" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:12px">🏗️</div><h4 style="font-size:16px;font-weight:700;margin-bottom:8px">Full Report Being Generated</h4><p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto;line-height:1.5">We are building the market intelligence report for:<br><b>'+v+'</b>'+(zipShow?' (ZIP: '+zipShow[1]+')':'')+'</p><div style="margin-top:20px"><a href="#signup" style="padding:12px 24px;background:#7c3aed;color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Get Notified When Ready</a></div></div>';
+  }
+});
 }
+
+// BUILD REPORT FROM LIVE API DATA
+function buildLiveReport(d,searchAddr){
+var r=d.rental, s=d.sales, dm=d.demographics, z=d.zoning, ai=d.aria;
+var h='<div class="report-hd"><h4>📊 Market Report — '+(d.meta.city||d.meta.zip)+', '+d.meta.state+'</h4><p>Generated '+new Date(d.meta.generatedAt).toLocaleDateString()+' · Sources: '+d.meta.dataSources.join(', ')+'</p><div style="font-size:12px;margin-top:6px;padding:8px 12px;background:rgba(255,255,255,.1);border-radius:6px;display:inline-block">📍 '+d.meta.address+'</div></div><div class="report-bd">';
+
+// Property Location
+h+='<div style="background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:14px;margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7c3aed;margin-bottom:4px">📍 Property Location</div><div style="font-size:14px;font-weight:700">'+searchAddr+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">Market: <b>'+(d.meta.city||'ZIP '+d.meta.zip)+', '+(d.meta.county||'')+' '+d.meta.state+'</b></div></div>';
+
+// Live data badge
+h+='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:11px;color:#059669;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:50%;animation:epp 2s infinite"></span> <b>LIVE DATA</b> — This report uses real-time data from '+d.meta.dataSources.length+' sources</div>';
+
+// Rental
+h+='<div class="report-sect">🏠 Rental Market Overview</div>';
+if(r.studio) h+='<div class="report-row"><span class="label">Avg Rent — Studio</span><span class="val">$'+r.studio.toLocaleString()+'/mo</span></div>';
+if(r.oneBR) h+='<div class="report-row"><span class="label">Avg Rent — 1BR</span><span class="val">$'+r.oneBR.toLocaleString()+'/mo</span></div>';
+if(r.twoBR) h+='<div class="report-row"><span class="label">Avg Rent — 2BR</span><span class="val">$'+r.twoBR.toLocaleString()+'/mo</span></div>';
+if(r.threeBR) h+='<div class="report-row"><span class="label">Avg Rent — 3BR</span><span class="val">$'+r.threeBR.toLocaleString()+'/mo</span></div>';
+if(r.occupancyRate) h+='<div class="report-row"><span class="label">Occupancy Rate</span><span class="val g">'+r.occupancyRate+'%</span></div>';
+if(r.avgDaysOnMarket) h+='<div class="report-row"><span class="label">Avg Days on Market</span><span class="val">'+r.avgDaysOnMarket+' days</span></div>';
+if(r.rentGrowthYoY) h+='<div class="report-row"><span class="label">YoY Rent Growth</span><span class="val g">'+r.rentGrowthYoY+'%</span></div>';
+h+='<div style="font-size:9px;color:#94a3b8;margin-top:4px">Source: '+r.source+'</div>';
+
+// Sales
+h+='<div class="report-sect">💰 Sales & Values</div>';
+if(s.medianSalePrice) h+='<div class="report-row"><span class="label">Median Sale Price</span><span class="val">$'+s.medianSalePrice.toLocaleString()+'</span></div>';
+if(s.pricePerSqFt) h+='<div class="report-row"><span class="label">Price/Sq Ft</span><span class="val">$'+s.pricePerSqFt+'/sqft</span></div>';
+if(s.appreciationRate) h+='<div class="report-row"><span class="label">Appreciation Rate</span><span class="val g">'+s.appreciationRate+'%</span></div>';
+if(s.estCapRate) h+='<div class="report-row"><span class="label">Est. Cap Rate</span><span class="val">'+s.estCapRate+'%</span></div>';
+h+='<div style="font-size:9px;color:#94a3b8;margin-top:4px">Source: '+s.source+'</div>';
+
+// Demographics
+h+='<div class="report-sect">👥 Demographics & Transit</div>';
+if(dm.population) h+='<div class="report-row"><span class="label">Population</span><span class="val">'+dm.population.toLocaleString()+'</span></div>';
+if(dm.medianIncome) h+='<div class="report-row"><span class="label">Median Income</span><span class="val">$'+dm.medianIncome.toLocaleString()+'</span></div>';
+if(dm.medianAge) h+='<div class="report-row"><span class="label">Median Age</span><span class="val">'+dm.medianAge+'</span></div>';
+if(dm.renterPercent) h+='<div class="report-row"><span class="label">Renter %</span><span class="val">'+dm.renterPercent+'%</span></div>';
+if(dm.walkScore) h+='<div class="report-row"><span class="label">Walk Score</span><span class="val g">'+dm.walkScore+' — '+dm.walkDesc+'</span></div>';
+if(dm.transitScore) h+='<div class="report-row"><span class="label">Transit Score</span><span class="val g">'+dm.transitScore+' — '+dm.transitDesc+'</span></div>';
+if(dm.bikeScore) h+='<div class="report-row"><span class="label">Bike Score</span><span class="val">'+dm.bikeScore+'</span></div>';
+
+// Zoning
+if(z&&z.zoneCode){
+h+='<div class="report-sect">📐 Zoning</div>';
+h+='<div class="report-row"><span class="label">Zone Code</span><span class="val">'+z.zoneCode+'</span></div>';
+if(z.zoneName) h+='<div class="report-row"><span class="label">Zone Name</span><span class="val">'+z.zoneName+'</span></div>';
+if(z.maxDensity) h+='<div class="report-row"><span class="label">Max Density</span><span class="val">'+z.maxDensity+'</span></div>';
+if(z.maxHeight) h+='<div class="report-row"><span class="label">Max Height</span><span class="val">'+z.maxHeight+'</span></div>';
+}
+
+// Aria AI
+if(ai&&ai.recommendation){
+h+='<div class="aria-box"><h5>🤖 Aria AI — Investment Recommendation</h5><p>'+ai.recommendation+'</p><div style="font-size:9px;color:#7c3aed;margin-top:6px">'+ai.source+'</div></div>';
+}
+
+h+='</div>';
+return h;
+}
+
 document.getElementById('devSearch').addEventListener('keydown',function(e){if(e.key==='Enter')runSearch()});
 </script>
 <script src="social-proof.js"></script>
