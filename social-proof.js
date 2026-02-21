@@ -40,7 +40,13 @@ a.push(
 {i:'📅',h:N()+' just booked a tour!',s:pr+' · '+R(['Tomorrow','Today','Saturday','Monday'])+' at '+R(['10am','11am','1pm','2pm','3pm'])},
 {i:'✅',h:N()+' submitted application',s:pr},{i:'❤️',h:N()+' saved '+pr,s:'Added to favorites'},
 {i:'🔥',h:(RI(15)+8)+' inquiries today',s:pr+' · Trending'},{i:'📞',h:'Aria qualified '+N(),s:'Tour booked for '+pr},
-{i:'📱',h:N()+' shared '+pr,s:'Via '+R(['Instagram','Facebook','text','email'])}
+{i:'📱',h:N()+' shared '+pr,s:'Via '+R(['Instagram','Facebook','text','email'])},
+{i:'💵',h:N()+' pre-approved with $'+RI(5)+'K down payment assist',s:'NJ HMFA program · '+R(ct)},
+{i:'🔑',h:N()+' got VA loan pre-approval',s:'Zero down · '+R(ct)},
+{i:'☀️',h:N()+' checking solar rebates for '+pr,s:'30% federal tax credit available'},
+{i:'💰',h:N()+' exploring Opportunity Zone benefits',s:'Capital gains deferral · '+R(ct)},
+{i:'🏛',h:N()+' applied for PILOT tax abatement',s:'10-30 year property tax reduction · '+R(ct)},
+{i:'⚡',h:N()+' inquired about NJ Clean Energy rebates',s:'HVAC + insulation · '+R(ct)}
 );}
 if(isVendor){
 a.push(
@@ -62,7 +68,13 @@ a.push(
 {i:'📅',h:'Aria booked '+(RI(5)+2)+' tours today',s:'For '+N()+'\'s buildings'},
 {i:'🔔',h:'Auto-campaign launched',s:'Vacancy → campaign live in 30s'},
 {i:'✅',h:N()+' signed new tenant',s:'EP lead · '+R(ct)},
-{i:'📞',h:'After-hours call handled',s:'Aria at '+R(['11pm','midnight','6am'])+' for '+N()}
+{i:'📞',h:'After-hours call handled',s:'Aria at '+R(['11pm','midnight','6am'])+' for '+N()},
+{i:'💰',h:N()+' got PILOT tax abatement approved',s:(RI(20)+10)+'-year property tax reduction · '+R(ct)},
+{i:'⚡',h:N()+' received $'+(RI(15)+5)+'K Direct Install rebate',s:'NJ Clean Energy · Building-wide upgrade'},
+{i:'🏗️',h:N()+' awarded LIHTC allocation',s:'Affordable housing tax credits · '+R(ct)},
+{i:'📍',h:N()+' invested in Opportunity Zone',s:'Capital gains elimination on '+R(['12-unit','24-unit','40-unit'])+' project'},
+{i:'💡',h:N()+' got $'+(RI(30)+10)+'K energy rebate',s:'LED + HVAC retrofit · '+(RI(40)+20)+' units'},
+{i:'🏛',h:N()+' approved for NJ Aspire incentive',s:'Development tax credit · '+R(ct)}
 );}
 if(isOwner){
 a.push(
@@ -71,7 +83,17 @@ a.push(
 {i:'💰',h:N()+' saved $'+(RI(20)+8)+'K in commissions',s:'Sold via EmporionPros'},
 {i:'📅',h:N()+' got showing booked',s:'Buyer from '+R(ct)},
 {i:'✅',h:N()+' accepted an offer!',s:'$'+(RI(300)+250)+'K · no agent fees'},
-{i:'🔑',h:N()+' closed in '+(RI(20)+10)+' days',s:'No agent. No commission.'}
+{i:'🔑',h:N()+' closed in '+(RI(20)+10)+' days',s:'No agent. No commission.'},
+{i:'☀️',h:N()+' saved $'+(RI(6)+4)+'K with Solar Tax Credit',s:'30% federal ITC · '+R(ct)},
+{i:'🏠',h:N()+' claimed $1,500 ANCHOR benefit',s:'NJ Property Tax Relief · '+R(ct)},
+{i:'⚡',h:N()+' got $'+(RI(3)+1)+','+RI(900)+' NJ Clean Energy rebate',s:'HVAC upgrade · '+R(ct)},
+{i:'💡',h:N()+' received 70% Direct Install rebate',s:'Lighting + HVAC · '+R(ct)},
+{i:'🌊',h:N()+' approved for FEMA flood mitigation grant',s:'Home elevation · '+R(ct)},
+{i:'👴',h:N()+' claimed Senior Freeze benefit',s:'Property tax reimbursement · '+R(ct)},
+{i:'🔨',h:N()+' got FHA 203(k) renovation loan',s:'Purchase + rehab combined · '+R(ct)},
+{i:'🌡️',h:N()+' received free weatherization',s:'DOE program · '+R(ct)},
+{i:'🎨',h:N()+' got lead paint removal grant',s:'NJ Lead-Safe Homes · '+R(ct)},
+{i:'💰',h:N()+' saved $'+(RI(15)+5)+'K with historic tax credits',s:'20% federal + 25% NJ · '+R(ct)}
 );}
 if(isDev){
 a.push(
