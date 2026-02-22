@@ -380,11 +380,34 @@ tr.selected td{background:#dbeafe}
 <div class="modal-overlay" id="scheduleModal" onclick="if(event.target===this)closeModal(this.id)">
   <div class="modal">
     <div class="modal-title">Schedule Auto-Calls</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Aria will automatically call these leads at the scheduled time.</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">Aria will automatically call leads during your business hours.</p>
+    <div style="background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.6">
+      <div style="font-weight:700;color:#1a56db;margin-bottom:6px">&#x1F4C5; Default Call Hours</div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px">
+        <span style="font-weight:600">Mon–Fri:</span><span>9:00 AM – 6:00 PM</span>
+        <span style="font-weight:600">Saturday:</span><span>10:00 AM – 6:00 PM</span>
+        <span style="font-weight:600">Sunday:</span><span>11:00 AM – 5:00 PM</span>
+      </div>
+    </div>
     <div class="form-group"><label class="form-label">Target Group</label><select class="form-input" id="schedTarget"><option value="hot">Hot Leads</option><option value="new">New Leads (Uncontacted)</option><option value="cold">Cold Leads (Follow-up)</option><option value="all">All Leads</option></select></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="schedDate"></div><div class="form-group"><label class="form-label">Start Time</label><select class="form-input" id="schedTime"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select></div></div>
+    <div class="form-group"><label class="form-label">Schedule Type</label><select class="form-input" id="schedType" onchange="document.getElementById('schedOnceFields').style.display=this.value==='once'?'grid':'none';document.getElementById('schedRecurFields').style.display=this.value==='recurring'?'block':'none'"><option value="recurring">Recurring (Weekly)</option><option value="once">One-Time</option></select></div>
+    <div class="form-row" id="schedOnceFields" style="display:none"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="schedDate"></div><div class="form-group"><label class="form-label">Start Time</label><select class="form-input" id="schedTime"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option></select></div></div>
+    <div id="schedRecurFields">
+      <div class="form-group"><label class="form-label">Active Days</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay1" checked> Mon</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay2" checked> Tue</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay3" checked> Wed</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay4" checked> Thu</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay5" checked> Fri</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay6" checked> Sat</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="sDay0" checked> Sun</label>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-input" id="schedStartDate"></div>
+    </div>
     <div class="form-group"><label class="form-label">Call Mode</label><select class="form-input" id="schedMode"><option value="vapi">VAPI + Claude AI</option><option value="twilio">Twilio TwiML</option></select></div>
-    <div class="form-group"><label class="form-label">Minutes between calls</label><select class="form-input"><option>3 minutes</option><option>5 minutes</option><option>10 minutes</option></select></div>
+    <div class="form-group"><label class="form-label">Minutes between calls</label><select class="form-input" id="schedGap"><option value="3">3 minutes</option><option value="5" selected>5 minutes</option><option value="10">10 minutes</option></select></div>
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('scheduleModal')">Cancel</button><button class="btn btn-primary" onclick="scheduleAutoCalls()">Schedule Calls</button></div>
   </div>
 </div>
@@ -394,7 +417,11 @@ tr.selected td{background:#dbeafe}
 <script>
 const API='/.netlify/functions';
 const EP_FN={aiCall:API+'/ai-call-iron65',fubLeads:API+'/fub-leads',sendTourSms:API+'/send-tour-sms',vapiCall:API+'/vapi-call-iron65'};
-let leads=[],filteredLeads=[],selectedLead=null,selectedConvo=null,callTimerInt=null,callSec=0,currentFilter='all',schedules=[];
+let leads=[],filteredLeads=[],selectedLead=null,selectedConvo=null,callTimerInt=null,callSec=0,currentFilter='all',schedules=[
+  {type:'recurring',target:'all',days:['Mon','Tue','Wed','Thu','Fri'],startDate:'2026-02-23',count:0,mode:'vapi',gap:'5',hours:'9:00 AM – 6:00 PM',active:true,label:'Mon–Fri 9AM–6PM'},
+  {type:'recurring',target:'all',days:['Sat'],startDate:'2026-02-28',count:0,mode:'vapi',gap:'5',hours:'10:00 AM – 6:00 PM',active:true,label:'Saturday 10AM–6PM'},
+  {type:'recurring',target:'all',days:['Sun'],startDate:'2026-03-01',count:0,mode:'vapi',gap:'5',hours:'11:00 AM – 5:00 PM',active:true,label:'Sunday 11AM–5PM'}
+];
 
 const convos=[
   {id:1,name:'Marcus Johnson',phone:'(973) 555-0142',color:'#1a56db',msgs:[{from:'aria',text:'Hi Marcus! Aria from Iron 65. 1BR units from $2,700/mo — 1 month FREE! Tour this weekend?',time:'2:30 PM'},{from:'lead',text:'Yeah, Saturday works!',time:'2:35 PM'}]},
@@ -417,7 +444,7 @@ const sampleLeads=[
 
 function init(){
   leads=sampleLeads.slice();filteredLeads=leads.slice();
-  renderLeads();updateStats();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources();loadSettings();
+  renderLeads();updateStats();renderSchedule();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources();loadSettings();
   // Auto-sync FUB on load
   syncFUBLeads(true);
 }
@@ -514,16 +541,44 @@ function hangupCall(){clearInterval(callTimerInt);document.getElementById('callS
 function updateCallMode(){document.getElementById('callModeDesc').textContent={vapi:'VAPI with Claude AI + Deepgram Luna voice.',twilio:'Twilio TwiML with Amazon Polly.',manual:'Manual calls — no AI.'}[document.getElementById('callMode').value]}
 
 function scheduleAutoCalls(){
-  const target=document.getElementById('schedTarget').value,date=document.getElementById('schedDate').value,time=document.getElementById('schedTime').value;
-  if(!date){toast('Select a date','warning');return}
+  const target=document.getElementById('schedTarget').value,type=document.getElementById('schedType').value,mode=document.getElementById('schedMode').value,gap=document.getElementById('schedGap').value;
   const count=leads.filter(l=>target==='all'||l.status===target).length;
-  schedules.push({target,date,time,count,mode:document.getElementById('schedMode').value});
-  renderSchedule();closeModal('scheduleModal');toast('Scheduled '+count+' auto-calls for '+date+' at '+time,'success');
+  const hours={weekday:'9:00 AM – 6:00 PM',saturday:'10:00 AM – 6:00 PM',sunday:'11:00 AM – 5:00 PM'};
+  if(type==='recurring'){
+    const days=[];
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>{if(document.getElementById('sDay'+((i+1)%7)).checked)days.push(d)});
+    const startDate=document.getElementById('schedStartDate').value||new Date().toISOString().split('T')[0];
+    schedules.push({type:'recurring',target,days,startDate,count,mode,gap,hours});
+    renderSchedule();closeModal('scheduleModal');
+    toast('Recurring schedule set: '+days.join(', ')+' — '+count+' '+cap(target)+' leads every '+gap+' min','success');
+  } else {
+    const date=document.getElementById('schedDate').value,time=document.getElementById('schedTime').value;
+    if(!date){toast('Select a date','warning');return}
+    schedules.push({type:'once',target,date,time,count,mode,gap});
+    renderSchedule();closeModal('scheduleModal');
+    toast('Scheduled '+count+' calls for '+date+' at '+time,'success');
+  }
 }
 function renderSchedule(){
   const el=document.getElementById('callSchedule');
-  if(!schedules.length){el.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:12px">No scheduled calls.</div>';return}
-  el.innerHTML=schedules.map((s,i)=>`<div class="schedule-item"><div class="schedule-time">${s.time}</div><div style="flex:1"><div class="schedule-name">${cap(s.target)} leads (${s.count})</div><div class="schedule-status">${s.date} · ${s.mode.toUpperCase()}</div></div><button class="btn-icon" onclick="schedules.splice(${i},1);renderSchedule()">&#x274C;</button></div>`).join('')}
+  // Update lead counts in schedules
+  schedules.forEach(s=>{s.count=leads.filter(l=>s.target==='all'||l.status===s.target).length});
+  if(!schedules.length){el.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:12px">No scheduled calls. Click + Schedule to set up auto-dialing.</div>';return}
+  el.innerHTML=schedules.map((s,i)=>{
+    if(s.type==='recurring'){
+      const statusColor=s.active?'#10b981':'#f59e0b';
+      const statusText=s.active?'Active':'Paused';
+      return `<div class="schedule-item" style="flex-wrap:wrap;border-color:${s.active?'#d1fae5':'#e5e7eb'}">
+        <div style="width:8px;height:8px;border-radius:50%;background:${statusColor};flex-shrink:0;${s.active?'animation:pulse 2s infinite':''}"></div>
+        <div style="flex:1"><div class="schedule-name">${s.label||s.days.join(', ')}</div><div class="schedule-status">${s.count} leads · Every ${s.gap} min · ${s.mode.toUpperCase()}</div></div>
+        <div style="display:flex;gap:4px;align-items:center">
+          <button class="btn btn-sm ${s.active?'btn-success':'btn-outline'}" onclick="schedules[${i}].active=!schedules[${i}].active;renderSchedule();toast(schedules[${i}].active?'Schedule activated':'Schedule paused','success')">${statusText}</button>
+          <button class="btn-icon" onclick="schedules.splice(${i},1);renderSchedule();toast('Removed','info')">&#x274C;</button>
+        </div></div>`;
+    } else {
+      return `<div class="schedule-item"><div class="schedule-time">${s.time}</div><div style="flex:1"><div class="schedule-name">${cap(s.target)} leads (${s.count})</div><div class="schedule-status">${s.date} · ${s.mode.toUpperCase()}</div></div><button class="btn-icon" onclick="schedules.splice(${i},1);renderSchedule()">&#x274C;</button></div>`;
+    }
+  }).join('')}
 
 function renderCallLog(){
   const logs=[{name:'Marcus Johnson',type:'outgoing',dur:'3:24',time:'2:30 PM',result:'Tour booked Sat'},{name:'Priya Patel',type:'outgoing',dur:'5:12',time:'1:15 PM',result:'Sending info'},{name:'David Chen',type:'missed',dur:'0:00',time:'12:45 PM',result:'No answer'},{name:'Emily Davis',type:'outgoing',dur:'2:48',time:'11:30 AM',result:'Booking tour'},{name:'James Rodriguez',type:'incoming',dur:'1:56',time:'10:00 AM',result:'1BR pricing'}];
