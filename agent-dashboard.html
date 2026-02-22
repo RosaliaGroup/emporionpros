@@ -180,68 +180,93 @@ function renderLeadsTable(leads) {
         +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
         +'<td>'+aiStatus+'</td>'
         +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
-        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();aiCallLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">📞</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
+        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<a href="tel:'+(l.phone||'')+'" class="btn btn-sm btn-primary" onclick="event.stopPropagation()" style="text-decoration:none;color:white;display:inline-flex;align-items:center">📞</a>':'')+(l.email?'<a href="mailto:'+(l.email||'')+'" class="btn btn-sm btn-outline" onclick="event.stopPropagation()" style="text-decoration:none;display:inline-flex;align-items:center">📧</a>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
         +'</tr>';
     }).join('')}</tbody></table>`;
 }
 function openMergeModal() {
   if (mergeSelection.length < 2) { alert('Select at least 2 leads to merge'); return; }
-  const leads = allLeadsCache.filter(l => mergeSelection.includes(String(l.id)));
+  var leads = allLeadsCache.filter(function(l){return mergeSelection.includes(String(l.id));});
   if (leads.length < 2) { alert('Could not find selected leads'); return; }
-  // Pick the one with most data as primary
-  const primary = leads.sort((a,b) => ((b.message||'').length + (b.phone||'').length) - ((a.message||'').length + (a.phone||'').length))[0];
-  const others = leads.filter(l => l.id !== primary.id);
-  // Collect all types
-  const types = [...new Set(leads.map(l => getLeadType(l)).filter(Boolean))];
-  const allNotes = leads.map(l => {
-    const parsed = l.message ? l.message.split('---')[0].trim() : '';
-    return parsed ? l.name + ': ' + parsed : '';
-  }).filter(Boolean);
+  var types = [];
+  var allEmails = [];
+  var allPhones = [];
+  var allNames = [];
+  var allNotes = [];
+  leads.forEach(function(l){
+    var t = getLeadType(l); if(t && types.indexOf(t)===-1) types.push(t);
+    if(l.email && allEmails.indexOf(l.email)===-1) allEmails.push(l.email);
+    if(l.phone && allPhones.indexOf(l.phone)===-1) allPhones.push(l.phone);
+    if(l.name) allNames.push(l.name);
+    var p = l.message ? l.message.split('---')[0].trim() : '';
+    if(p) allNotes.push(l.name + ': ' + p);
+  });
+  var allSources = [];
+  leads.forEach(function(l){if(l.source && allSources.indexOf(l.source)===-1) allSources.push(l.source);});
 
-  const html = '<div id="mergeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">🔗 Merge '+leads.length+' Leads</h2><button onclick="document.getElementById(\'mergeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button></div>'
-    +'<div style="background:#eff6ff;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px"><strong>Primary lead (keeps record):</strong> '+primary.name+' ('+primary.email+')<br><strong>Will merge in:</strong> '+others.map(o=>o.name).join(', ')+'</div>'
-    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Types</label><input type="text" id="merge-types" value="'+types.join(', ')+'" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box" placeholder="Renter, Commercial, Investor..."></div>'
-    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Phone</label><select id="merge-phone" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">'+ leads.filter(l=>l.phone).map(l=>'<option value="'+l.phone+'">'+l.phone+' ('+l.name+')</option>').join('') +'</select></div>'
-    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Email</label><select id="merge-email" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">'+ leads.filter(l=>l.email).map(l=>'<option value="'+l.email+'">'+l.email+' ('+l.name+')</option>').join('') +'</select></div>'
-    +'<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Notes</label><textarea id="merge-notes" rows="3" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">'+allNotes.join('\\n')+'</textarea></div>'
-    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="document.getElementById(\'mergeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><button onclick="executeMerge(\''+primary.id+'\',\''+others.map(o=>o.id).join(',')+'\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">🔗 Merge Leads</button></div></div></div>';
-  document.body.insertAdjacentHTML('beforeend', html);
+  var h = '<div id="mergeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">Merge '+leads.length+' Leads</h2><button onclick="document.getElementById(\'mergeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">X</button></div>';
+  // Name
+  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Name</label><select id="merge-name" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">';
+  allNames.forEach(function(n){h+='<option value="'+n+'">'+n+'</option>';});
+  h += '</select></div>';
+  // Emails checkboxes
+  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Emails (keep all that apply)</label>';
+  allEmails.forEach(function(e,i){
+    var owner = leads.find(function(l){return l.email===e;});
+    h += '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px"><input type="checkbox" class="merge-em-cb" value="'+e+'" checked> '+e+' <span style="color:#9ca3af;font-size:11px">('+((owner&&owner.name)||'')+')</span></label>';
+  });
+  h += '</div>';
+  // Phones checkboxes
+  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Phones (keep all that apply)</label>';
+  allPhones.forEach(function(p,i){
+    var owner = leads.find(function(l){return l.phone===p;});
+    h += '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px"><input type="checkbox" class="merge-ph-cb" value="'+p+'" checked> '+p+' <span style="color:#9ca3af;font-size:11px">('+((owner&&owner.name)||'')+')</span></label>';
+  });
+  h += '</div>';
+  // Source
+  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="merge-source" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">';
+  allSources.forEach(function(s){h+='<option value="'+s+'">'+s+'</option>';});
+  h += '</select></div>';
+  // Types
+  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Lead Types (keeps all)</label><input type="text" id="merge-types" value="'+types.join(', ')+'" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box" placeholder="Renter, Commercial, Investor..."></div>';
+  // Notes
+  h += '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Notes</label><textarea id="merge-notes" rows="3" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">'+allNotes.join('\n')+'</textarea></div>';
+  h += '<div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="document.getElementById(\'mergeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><button onclick="executeMerge()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">Merge Leads</button></div>';
+  h += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', h);
 }
-async function executeMerge(primaryId, otherIds) {
-  const phone = document.getElementById('merge-phone')?.value || '';
-  const email = document.getElementById('merge-email')?.value || '';
-  const types = document.getElementById('merge-types')?.value || '';
-  const notes = document.getElementById('merge-notes')?.value || '';
-  const primary = allLeadsCache.find(l => String(l.id) === String(primaryId));
-  if (!primary) { alert('Primary lead not found'); return; }
-
-  // Build merged message
-  const message = notes + (types ? '\n--- Type: ' + types : '');
-
+async function executeMerge() {
+  var name = document.getElementById('merge-name').value;
+  var emails = []; document.querySelectorAll('.merge-em-cb:checked').forEach(function(cb){emails.push(cb.value);});
+  var phones = []; document.querySelectorAll('.merge-ph-cb:checked').forEach(function(cb){phones.push(cb.value);});
+  var source = document.getElementById('merge-source').value;
+  var types = document.getElementById('merge-types').value;
+  var notes = document.getElementById('merge-notes').value;
+  var email = emails[0] || '';
+  var phone = phones[0] || '';
+  var extraContacts = [];
+  if (emails.length > 1) extraContacts.push('Alt emails: ' + emails.slice(1).join(', '));
+  if (phones.length > 1) extraContacts.push('Alt phones: ' + phones.slice(1).join(', '));
+  var fullNotes = [notes, extraContacts.length ? extraContacts.join(' | ') : ''].filter(Boolean).join('\n');
+  var message = fullNotes + (types ? '\n--- Type: ' + types : '');
+  var btn = document.querySelector('#mergeModal button:last-child');
+  if(btn){btn.disabled=true;btn.textContent='Merging...';}
   try {
-    // Update primary lead with merged data
-    const res = await fetch('/.netlify/functions/upload-leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: [{ name: primary.name, email: email, phone: phone, source: primary.source, message: message, role: 'user' }], pushToFUB: false })
+    var res = await fetch('/.netlify/functions/upload-leads', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({leads:[{name:name,email:email,phone:phone,source:source,message:message,role:'user'}],pushToFUB:false})
     });
-    const data = await res.json();
+    var data = await res.json();
     if (data.success) {
       document.getElementById('mergeModal').remove();
       mergeSelection = [];
-      alert('✅ Leads merged! Note: duplicate records still exist in Supabase — clean up manually if needed.');
+      alert('Leads merged! Primary: ' + name + ' (' + email + ')');
       loadLeads();
-    } else {
-      alert('Error: ' + (data.error || 'Unknown'));
-    }
+    } else { alert('Error: ' + (data.error||'Unknown')); }
   } catch(err) { alert('Error: ' + err.message); }
 }
-function aiCallLead(j) {
-  const l = JSON.parse(decodeURIComponent(j));
-  if (confirm('Call ' + l.name + ' at ' + l.phone + ' using Aria AI?')) {
-    window.open('/fub-aria-dashboard.html#leads', '_blank');
-  }
-}
+
 function openLeadProfile(j) {
   const l = JSON.parse(decodeURIComponent(j));
   const parsed = l.message ? (function(m){var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2)d[parts[0].trim()]=parts.slice(1).join(': ').trim();});}d._notes=m.split('---')[0].trim();return d;})(l.message) : {};
