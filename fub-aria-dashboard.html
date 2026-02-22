@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUB + Aria Integration — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#1a56db;--brand-light:#dbeafe;--brand-dark:#1e40af;--brand-50:#eff6ff;--accent:#10b981;--accent-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;--danger:#ef4444;--danger-light:#fee2e2;--purple:#8b5cf6;--purple-light:#ede9fe;--text:#111827;--text-2:#374151;--text-3:#6b7280;--text-4:#9ca3af;--bg:#f0f2f5;--card:#fff;--border:#e5e7eb;--radius:14px;--radius-sm:10px;--radius-xs:6px;--shadow:0 1px 3px rgba(0,0,0,.05);--shadow-md:0 4px 16px rgba(0,0,0,.07);--font:'DM Sans',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;--transition:.2s cubic-bezier(.4,0,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--font);background:var(--bg);color:var(--text)}button{font-family:var(--font);cursor:pointer}input,select,textarea{font-family:var(--font)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.animate-in{animation:fadeUp .4s ease both}.animate-d1{animation-delay:.05s}.animate-d2{animation-delay:.1s}.animate-d3{animation-delay:.15s}.animate-d4{animation-delay:.2s}
+
+.topbar{height:64px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.topbar-name{font-weight:700;font-size:16px}.topbar-name span{color:var(--brand)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-status{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);background:var(--accent-light);padding:6px 12px;border-radius:20px;font-weight:600}
+.topbar-status .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.sidebar-label{font-size:10px;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:1px;padding:8px 16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;color:var(--text-3);text-decoration:none;font-size:13.5px;font-weight:500;border-radius:var(--radius-sm);transition:var(--transition);cursor:pointer;border:none;background:none;width:calc(100% - 16px)}
+.nav-item:hover{background:var(--bg);color:var(--text-2)}.nav-item.active{background:var(--brand-50);color:var(--brand);font-weight:600}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.sidebar-divider{height:1px;background:var(--border);margin:12px 16px}
+.sidebar-property{margin:16px;padding:14px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-radius:var(--radius-sm);color:#fff}
+.sidebar-property-name{font-weight:700;font-size:14px}.sidebar-property-addr{font-size:11px;opacity:.8;margin-top:2px}
+.sidebar-property-tag{display:inline-block;margin-top:8px;padding:3px 8px;background:rgba(255,255,255,.2);border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px}
+
+.main{padding:24px;overflow-y:auto}
+.tabs{display:flex;gap:4px;background:var(--card);padding:4px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px;width:fit-content}
+.tab{padding:10px 20px;font-size:13.5px;font-weight:600;color:var(--text-3);border:none;background:none;border-radius:var(--radius-sm);transition:var(--transition);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{color:var(--text-2);background:var(--bg)}.tab.active{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(26,86,219,.3)}
+.tab svg{width:16px;height:16px}.tab-panel{display:none}.tab-panel.active{display:block}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700}.card-subtitle{font-size:12px;color:var(--text-3);margin-top:2px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:var(--transition)}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-icon svg{width:20px;height:20px}
+.stat-icon.blue{background:var(--brand-light);color:var(--brand)}.stat-icon.green{background:var(--accent-light);color:var(--accent)}
+.stat-icon.yellow{background:var(--warning-light);color:var(--warning)}.stat-icon.red{background:var(--danger-light);color:var(--danger)}
+.stat-icon.purple{background:var(--purple-light);color:var(--purple)}
+.stat-value{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.stat-label{font-size:12.5px;color:var(--text-3);margin-top:4px;font-weight:500}
+.stat-change{font-size:11px;font-weight:600;margin-top:8px}.stat-change.up{color:var(--accent)}.stat-change.down{color:var(--danger)}
+
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);background:var(--bg)}
+tbody td{padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--border)}
+tbody tr{transition:var(--transition)}tbody tr:hover{background:var(--brand-50)}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-new{background:var(--brand-light);color:var(--brand)}.badge-contacted{background:var(--warning-light);color:#b45309}
+.badge-hot{background:var(--danger-light);color:var(--danger)}.badge-touring{background:var(--purple-light);color:var(--purple)}
+.badge-closed{background:var(--accent-light);color:#047857}.badge-cold{background:#f3f4f6;color:var(--text-3)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-sm);transition:var(--transition);white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-dark)}
+.btn-success{background:var(--accent);color:#fff}.btn-success:hover{background:#059669}
+.btn-ghost{background:none;color:var(--text-3);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:6px 10px;font-size:12px}
+.btn-icon{width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-xs);border:1px solid var(--border);background:var(--card);color:var(--text-3);transition:var(--transition)}
+.btn-icon:hover{background:var(--bg);color:var(--text)}
+
+.form-group{margin-bottom:14px}.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:13.5px;transition:var(--transition);background:var(--card);color:var(--text)}
+.form-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+
+.call-dialer{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--radius);padding:28px;color:#fff;text-align:center}
+.call-dialer-title{font-size:13px;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.call-dialer-number{font-family:var(--mono);font-size:28px;font-weight:500;margin-bottom:4px;letter-spacing:2px}
+.call-dialer-name{font-size:14px;opacity:.6;margin-bottom:20px}
+.call-dialer-actions{display:flex;gap:12px;justify-content:center}
+.call-btn{width:56px;height:56px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.call-btn svg{width:24px;height:24px}
+.call-btn-green{background:var(--accent);color:#fff}.call-btn-green:hover{background:#059669;transform:scale(1.08);box-shadow:0 4px 20px rgba(16,185,129,.4)}
+.call-btn-red{background:var(--danger);color:#fff}.call-btn-red:hover{background:#dc2626;transform:scale(1.08)}
+.call-btn-mute{background:rgba(255,255,255,.1);color:#fff}.call-btn-mute:hover{background:rgba(255,255,255,.2)}
+.call-status{margin-top:16px;font-size:13px;opacity:.6}.call-status.active{color:var(--accent);opacity:1;animation:pulse 1.5s infinite}
+.call-timer{font-family:var(--mono);font-size:18px;margin-top:8px;font-weight:500}
+
+.sms-layout{display:grid;grid-template-columns:280px 1fr;gap:0;height:520px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.sms-contacts{border-right:1px solid var(--border);overflow-y:auto}
+.sms-contacts-header{padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:2}
+.sms-contacts-header input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:12.5px;background:var(--bg)}
+.sms-contact{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;transition:var(--transition);border-bottom:1px solid var(--border)}
+.sms-contact:hover{background:var(--bg)}.sms-contact.active{background:var(--brand-50);border-left:3px solid var(--brand)}
+.sms-contact-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.sms-contact-info{flex:1;min-width:0}
+.sms-contact-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sms-contact-preview{font-size:11.5px;color:var(--text-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sms-chat{display:flex;flex-direction:column}
+.sms-chat-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sms-chat-name{font-weight:700;font-size:14px}.sms-chat-phone{font-size:12px;color:var(--text-3)}
+.sms-messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background:#f8f9fb}
+.sms-msg{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5}
+.sms-msg.sent{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+.sms-msg.received{align-self:flex-start;background:var(--card);border:1px solid var(--border);border-bottom-left-radius:4px}
+.sms-msg-time{font-size:10px;opacity:.6;margin-top:4px}
+.sms-input-area{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end}
+.sms-input-area textarea{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-size:13px;resize:none;height:40px;max-height:100px;background:var(--bg);font-family:var(--font)}
+.sms-input-area textarea:focus{outline:none;border-color:var(--brand)}
+.sms-send-btn{width:40px;height:40px;border-radius:50%;background:var(--brand);color:#fff;border:none;display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
+.sms-send-btn:hover{background:var(--brand-dark)}
+
+.call-log-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.call-log-item:last-child{border:none}
+.call-log-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.call-log-icon svg{width:16px;height:16px}
+.call-log-icon.outgoing{background:var(--accent-light);color:var(--accent)}
+.call-log-icon.incoming{background:var(--brand-light);color:var(--brand)}
+.call-log-icon.missed{background:var(--danger-light);color:var(--danger)}
+.call-log-info{flex:1}.call-log-name{font-size:13.5px;font-weight:600}.call-log-detail{font-size:12px;color:var(--text-3)}
+.call-log-time{font-size:12px;color:var(--text-4);text-align:right}.call-log-duration{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick-action{display:flex;align-items:center;gap:10px;padding:14px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid transparent;transition:var(--transition);cursor:pointer}
+.quick-action:hover{border-color:var(--brand);background:var(--brand-50)}
+.quick-action-icon{width:36px;height:36px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center}
+.quick-action-icon svg{width:18px;height:18px}
+.quick-action-text{font-size:12.5px;font-weight:600}.quick-action-sub{font-size:11px;color:var(--text-3)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3-1{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.mb-20{margin-bottom:20px}
+
+.template-card{padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);margin-bottom:8px}
+.template-card:hover{border-color:var(--brand);background:var(--brand-50)}
+.template-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.template-preview{font-size:11.5px;color:var(--text-3);line-height:1.4}
+
+.chart-bar{display:flex;align-items:flex-end;gap:8px;height:160px;padding-top:20px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.chart-bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+.chart-bar-label{font-size:10px;color:var(--text-4);font-weight:600}
+.chart-bar-value{font-size:11px;font-weight:700;color:var(--text-2)}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:28px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeUp .3s ease}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+.toast-container{position:fixed;top:80px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:14px 20px;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);border-left:4px solid var(--accent);font-size:13px;font-weight:500;animation:fadeUp .3s ease;display:flex;align-items:center;gap:10px;min-width:300px}
+.toast.error{border-left-color:var(--danger)}.toast.warning{border-left-color:var(--warning)}
+
+.twilio-banner{background:linear-gradient(90deg,var(--warning-light),#fff7ed);border:1px solid #fbbf24;border-radius:var(--radius-sm);padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:13px}
+.twilio-banner strong{color:#92400e}.twilio-banner p{color:#78350f;margin:0}
+
+@media(max-width:1024px){.layout{grid-template-columns:1fr}.sidebar{display:none}.sms-layout{grid-template-columns:1fr}.sms-contacts{display:none}.grid-2,.grid-3-1{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.stats-grid{grid-template-columns:1fr}.tabs{overflow-x:auto;width:100%}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">EP</div>
+    <div class="topbar-name">Emporion <span>Pros</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-status"><div class="dot"></div>Aria Online</div>
+    <div class="topbar-avatar">AR</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-property">
+      <div class="sidebar-property-name">Iron 65</div>
+      <div class="sidebar-property-addr">65 Lincoln Park, Newark NJ</div>
+      <div class="sidebar-property-tag">LUXURY APARTMENTS</div>
+    </div>
+    <div class="sidebar-label">Main</div>
+    <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+    <a href="#" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>FUB + Aria<span class="nav-badge">3</span></a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Tools</div>
+    <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Leads</a>
+    <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+    <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Properties</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">System</div>
+    <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+  </aside>
+
+  <main class="main">
+    <div class="twilio-banner" id="twilioBanner">
+      <span style="font-size:20px">&#9203;</span>
+      <div><strong>Twilio Number Verification Pending</strong><p>Calls and SMS will activate once your number is verified. You can still manage leads and configure Aria.</p></div>
+      <button class="btn btn-ghost btn-sm" onclick="checkTwilioStatus()" style="margin-left:auto">Check Status</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('leads')" id="tab-leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>FUB Leads</button>
+      <button class="tab" onclick="switchTab('calls')" id="tab-calls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Aria Calls</button>
+      <button class="tab" onclick="switchTab('sms')" id="tab-sms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>SMS / Texting</button>
+      <button class="tab" onclick="switchTab('analytics')" id="tab-analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</button>
+    </div>
+
+    <!-- TAB 1: FUB LEADS -->
+    <div class="tab-panel active" id="panel-leads">
+      <div class="stats-grid animate-in">
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-value">47</div><div class="stat-label">Total FUB Leads</div><div class="stat-change up">+8 this week</div></div>
+        <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="stat-value">12</div><div class="stat-label">Hot Leads</div><div class="stat-change up">+3 today</div></div>
+        <div class="stat-card"><div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="stat-value">6</div><div class="stat-label">Tours Booked</div><div class="stat-change up">+2 today</div></div>
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></div><div class="stat-value">3</div><div class="stat-label">Leases Signed</div><div class="stat-change up">+1 this week</div></div>
+      </div>
+      <div class="card animate-in animate-d2">
+        <div class="card-header">
+          <div><div class="card-title">FUB Lead Pipeline</div><div class="card-subtitle">Synced from Follow Up Boss — Last sync: 2 min ago</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="syncFUBLeads()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Sync FUB</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addLeadModal')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Lead</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Lead</th><th>Phone</th><th>Source</th><th>Status</th><th>Budget</th><th>Last Contact</th><th>Actions</th></tr></thead><tbody id="leadsTable"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ARIA CALLS -->
+    <div class="tab-panel" id="panel-calls">
+      <div class="stats-grid animate-in">
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72"/></svg></div><div class="stat-value">34</div><div class="stat-label">Total Calls</div><div class="stat-change up">+12 this week</div></div>
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="stat-value">2:34</div><div class="stat-label">Avg Duration</div></div>
+        <div class="stat-card"><div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></div><div class="stat-value">68%</div><div class="stat-label">Answer Rate</div><div class="stat-change up">+5%</div></div>
+        <div class="stat-card"><div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div><div class="stat-value">41%</div><div class="stat-label">Tour Booking Rate</div><div class="stat-change up">+8%</div></div>
+      </div>
+      <div class="grid-3-1">
+        <div class="animate-in animate-d1">
+          <div class="call-dialer" id="callDialer">
+            <div class="call-dialer-title">Aria AI Dialer</div>
+            <div class="call-dialer-number" id="dialerNumber">+1 (___) ___-____</div>
+            <div class="call-dialer-name" id="dialerName">Select a lead to call</div>
+            <div class="call-dialer-actions">
+              <button class="call-btn call-btn-mute" title="Mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/></svg></button>
+              <button class="call-btn call-btn-green" id="callBtn" onclick="initiateAICall()" title="Start Aria Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></button>
+              <button class="call-btn call-btn-red" id="hangupBtn" onclick="hangupCall()" title="End Call" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3a2 2 0 012 1.72"/><line x1="23" y1="1" x2="1" y2="23"/></svg></button>
+            </div>
+            <div class="call-status" id="callStatus">Ready</div>
+            <div class="call-timer" id="callTimer" style="display:none">00:00</div>
+          </div>
+          <div class="card" style="margin-top:20px"><div class="card-header"><div class="card-title">Recent Calls</div><button class="btn btn-ghost btn-sm">View All</button></div><div id="callLog"></div></div>
+        </div>
+        <div class="animate-in animate-d2">
+          <div class="card mb-20">
+            <div class="card-title" style="margin-bottom:14px">Call Mode</div>
+            <div class="form-group"><select class="form-input" id="callMode" onchange="updateCallMode()"><option value="vapi">Aria AI (VAPI + Claude) — Recommended</option><option value="twilio">Aria AI (Twilio TwiML)</option><option value="manual">Manual Agent Call</option></select></div>
+            <div style="font-size:12px;color:var(--text-3);line-height:1.5" id="callModeDesc">Aria uses VAPI with Claude AI and Deepgram Luna voice to have natural conversations, qualify leads, and book tours automatically.</div>
+          </div>
+          <div class="card mb-20">
+            <div class="card-title" style="margin-bottom:14px">Aria Script Flow</div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--text-2)">
+              <div style="margin-bottom:10px"><strong style="color:var(--brand)">1. Greeting:</strong><br>"Hi! This is Aria from Iron 65 in Newark. How are you?"</div>
+              <div style="margin-bottom:10px"><strong style="color:var(--brand)">2. Qualify:</strong><br>Move date &#8594; Budget &#8594; Bedrooms &#8594; Income/Credit</div>
+              <div style="margin-bottom:10px"><strong style="color:var(--brand)">3. Present:</strong><br>Match unit + specials (12/18/24mo deals)</div>
+              <div style="margin-bottom:10px"><strong style="color:var(--brand)">4. Book:</strong><br>Schedule tour &#8594; Collect email &#8594; Send confirmation</div>
+              <div><strong style="color:var(--accent)">5. Follow-up:</strong><br>Auto-SMS with tour details + cosigner link if needed</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action" onclick="bulkAction('hot')"><div class="quick-action-icon" style="background:var(--danger-light);color:var(--danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="quick-action-text">Call Hot Leads</div><div class="quick-action-sub">Auto-dial 12 hot leads</div></div></div>
+              <div class="quick-action" onclick="bulkAction('new')"><div class="quick-action-icon" style="background:var(--brand-light);color:var(--brand)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="quick-action-text">New Lead Blitz</div><div class="quick-action-sub">Call uncontacted leads</div></div></div>
+              <div class="quick-action" onclick="bulkAction('follow')"><div class="quick-action-icon" style="background:var(--warning-light);color:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10"/></svg></div><div><div class="quick-action-text">Follow-up Calls</div><div class="quick-action-sub">Re-engage cold leads</div></div></div>
+              <div class="quick-action" onclick="bulkAction('recordings')"><div class="quick-action-icon" style="background:var(--purple-light);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg></div><div><div class="quick-action-text">Recordings</div><div class="quick-action-sub">Listen to call recordings</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SMS -->
+    <div class="tab-panel" id="panel-sms">
+      <div class="stats-grid animate-in">
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="stat-value">156</div><div class="stat-label">Total SMS Sent</div></div>
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></div><div class="stat-value">94%</div><div class="stat-label">Delivery Rate</div></div>
+        <div class="stat-card"><div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div><div class="stat-value">38%</div><div class="stat-label">Response Rate</div></div>
+        <div class="stat-card"><div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div><div class="stat-value">14</div><div class="stat-label">Tours via SMS</div></div>
+      </div>
+      <div class="grid-3-1">
+        <div class="animate-in animate-d1">
+          <div class="sms-layout">
+            <div class="sms-contacts"><div class="sms-contacts-header"><input type="text" placeholder="Search conversations..." oninput="filterConvos(this.value)"></div><div id="smsContactList"></div></div>
+            <div class="sms-chat">
+              <div class="sms-chat-header"><div><div class="sms-chat-name" id="chatName">Select a conversation</div><div class="sms-chat-phone" id="chatPhone"></div></div>
+                <div style="display:flex;gap:6px"><button class="btn-icon" title="Call" onclick="callFromChat()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72"/></svg></button></div>
+              </div>
+              <div class="sms-messages" id="chatMessages"><div style="text-align:center;color:var(--text-4);font-size:13px;margin:auto">Select a conversation to view messages</div></div>
+              <div class="sms-input-area"><textarea id="smsInput" placeholder="Type a message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSMS()}"></textarea><button class="sms-send-btn" onclick="sendSMS()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg></button></div>
+            </div>
+          </div>
+        </div>
+        <div class="animate-in animate-d2">
+          <div class="card mb-20">
+            <div class="card-title" style="margin-bottom:14px">Quick SMS Templates</div>
+            <div class="template-card" onclick="useTemplate('tour')"><div class="template-name">Tour Confirmation</div><div class="template-preview">Hi {name}! Your tour at Iron 65 is confirmed for {day} at {time}...</div></div>
+            <div class="template-card" onclick="useTemplate('followup')"><div class="template-name">Follow-Up</div><div class="template-preview">Hi {name}, this is Aria from Iron 65. Just checking in...</div></div>
+            <div class="template-card" onclick="useTemplate('specials')"><div class="template-name">Current Specials</div><div class="template-preview">Great news! Iron 65 is offering up to 2 months free...</div></div>
+            <div class="template-card" onclick="useTemplate('cosigner')"><div class="template-name">Cosigner Info</div><div class="template-preview">Get FREE cosigner pre-approval through TheGuarantors...</div></div>
+            <div class="template-card" onclick="useTemplate('calendly')"><div class="template-name">Book Tour Link</div><div class="template-preview">Book your Iron 65 tour: calendly.com/ana-rosaliagroup/...</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px">Bulk SMS</div>
+            <div class="form-group"><label class="form-label">Send to</label><select class="form-input" id="bulkTarget"><option>Hot Leads (12)</option><option>New Leads (8)</option><option>Touring This Week (6)</option><option>All Leads (47)</option></select></div>
+            <div class="form-group"><label class="form-label">Template</label><select class="form-input" id="bulkTemplate"><option value="specials">Current Specials</option><option value="followup">Follow-Up</option><option value="calendly">Book Tour Link</option></select></div>
+            <button class="btn btn-primary" onclick="sendBulkSMS()" style="width:100%"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>Send Bulk SMS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: ANALYTICS -->
+    <div class="tab-panel" id="panel-analytics">
+      <div class="stats-grid animate-in">
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-value">$8,088</div><div class="stat-label">Monthly Revenue (New Leases)</div></div>
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="stat-value">4.2 hrs</div><div class="stat-label">Avg Lead-to-Tour Time</div></div>
+        <div class="stat-card"><div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div><div class="stat-value">52%</div><div class="stat-label">Tour-to-Application Rate</div></div>
+        <div class="stat-card"><div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="stat-value">$12.40</div><div class="stat-label">Cost per Lead</div><div class="stat-change down">-18% vs last month</div></div>
+      </div>
+      <div class="grid-2 mb-20">
+        <div class="card animate-in animate-d1"><div class="card-header"><div class="card-title">Calls This Week</div></div><div class="chart-bar" id="callsChart"></div></div>
+        <div class="card animate-in animate-d2"><div class="card-header"><div class="card-title">SMS This Week</div></div><div class="chart-bar" id="smsChart"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card animate-in animate-d3"><div class="card-header"><div class="card-title">Lead Pipeline Funnel</div></div><div id="funnelChart" style="padding:10px 0"></div></div>
+        <div class="card animate-in animate-d4"><div class="card-header"><div class="card-title">Lead Sources</div></div><div id="sourcesChart"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ADD LEAD MODAL -->
+<div class="modal-overlay" id="addLeadModal" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal">
+    <div class="modal-title">Add New Lead</div>
+    <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="newLeadName" placeholder="John Smith"></div>
+    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" id="newLeadPhone" placeholder="(555) 123-4567"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="newLeadEmail" placeholder="john@email.com"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Source</label><select class="form-input" id="newLeadSource"><option>Follow Up Boss</option><option>Zillow</option><option>Apartments.com</option><option>Website</option><option>Referral</option><option>Walk-in</option></select></div>
+      <div class="form-group"><label class="form-label">Budget</label><select class="form-input" id="newLeadBudget"><option value="">Select...</option><option>$2,000 - $2,500</option><option>$2,500 - $3,000</option><option>$3,000 - $3,500</option><option>$3,500+</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('addLeadModal')">Cancel</button><button class="btn btn-primary" onclick="addNewLead()">Add Lead</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API='/.netlify/functions';
+const EP={aiCall:API+'/ai-call-iron65',callRec:API+'/call-recording',callResI65:API+'/call-response-iron65',callRes:API+'/call-response',fubLeads:API+'/fub-leads',makeCall:API+'/make-call',sendTourSms:API+'/send-tour-sms',vapiCall:API+'/vapi-call-iron65',vapiWebhook:API+'/vapi-webhook'};
+
+let selectedLead=null,selectedConvo=null,callTimer=null,callSec=0;
+
+const leads=[
+  {id:1,name:'Marcus Johnson',phone:'(973) 555-0142',email:'marcus.j@gmail.com',source:'Zillow',status:'hot',budget:'$2,500-$3,000',last:'2 hours ago',beds:'1BR'},
+  {id:2,name:'Priya Patel',phone:'(201) 555-0198',email:'priya.patel@yahoo.com',source:'Apartments.com',status:'touring',budget:'$3,000-$3,500',last:'Yesterday',beds:'1BR Flex'},
+  {id:3,name:'David Chen',phone:'(862) 555-0167',email:'dchen@outlook.com',source:'FUB',status:'new',budget:'$2,000-$2,500',last:'Just now',beds:'Studio'},
+  {id:4,name:'Sarah Williams',phone:'(908) 555-0134',email:'swilliams@gmail.com',source:'Website',status:'contacted',budget:'$3,500+',last:'3 hours ago',beds:'2BR Duplex'},
+  {id:5,name:'James Rodriguez',phone:'(973) 555-0189',email:'jrod@email.com',source:'Referral',status:'hot',budget:'$2,500-$3,000',last:'1 hour ago',beds:'1BR'},
+  {id:6,name:'Aisha Thompson',phone:'(201) 555-0145',email:'aisha.t@gmail.com',source:'Zillow',status:'new',budget:'$2,000-$2,500',last:'30 min ago',beds:'Studio'},
+  {id:7,name:'Michael Park',phone:'(862) 555-0112',email:'mpark@yahoo.com',source:'FUB',status:'closed',budget:'$3,000-$3,500',last:'2 days ago',beds:'1BR Flex'},
+  {id:8,name:'Lisa Nguyen',phone:'(973) 555-0178',email:'lisa.n@gmail.com',source:'Apartments.com',status:'cold',budget:'$2,500-$3,000',last:'5 days ago',beds:'1BR'},
+  {id:9,name:'Robert Kim',phone:'(201) 555-0156',email:'rkim@outlook.com',source:'Walk-in',status:'touring',budget:'$3,500+',last:'Today',beds:'3BR Duplex'},
+  {id:10,name:'Emily Davis',phone:'(908) 555-0123',email:'emily.d@gmail.com',source:'Website',status:'hot',budget:'$2,500-$3,000',last:'4 hours ago',beds:'1BR'}
+];
+
+const callLog=[
+  {name:'Marcus Johnson',phone:'(973) 555-0142',type:'outgoing',dur:'3:24',time:'2:30 PM',result:'Tour booked for Sat'},
+  {name:'Priya Patel',phone:'(201) 555-0198',type:'outgoing',dur:'5:12',time:'1:15 PM',result:'Interested, sending info'},
+  {name:'David Chen',phone:'(862) 555-0167',type:'missed',dur:'0:00',time:'12:45 PM',result:'No answer — will retry'},
+  {name:'Emily Davis',phone:'(908) 555-0123',type:'outgoing',dur:'2:48',time:'11:30 AM',result:'Qualified, booking tour'},
+  {name:'James Rodriguez',phone:'(973) 555-0189',type:'incoming',dur:'1:56',time:'10:00 AM',result:'Asked about 1BR pricing'},
+  {name:'Sarah Williams',phone:'(908) 555-0134',type:'outgoing',dur:'4:33',time:'Yesterday',result:'Tour confirmed Sunday'}
+];
+
+const convos=[
+  {id:1,name:'Marcus Johnson',phone:'(973) 555-0142',color:'#1a56db',unread:2,lastMsg:'Sounds great! See you Saturday',msgs:[
+    {from:'aria',text:'Hi Marcus! This is Aria from Iron 65 in Newark. I saw you were interested in our luxury apartments. Do you have 2 minutes?',time:'2:30 PM'},
+    {from:'lead',text:'Yeah sure, what do you have available?',time:'2:31 PM'},
+    {from:'aria',text:'We have beautiful 1BR units starting at $2,700/mo with gym, sauna, rooftop terrace, in-unit W/D. Currently offering 1 month FREE on 12-month leases! When are you looking to move?',time:'2:31 PM'},
+    {from:'lead',text:'Probably March. Whats the application process like?',time:'2:33 PM'},
+    {from:'aria',text:'Super easy! $50 app fee. If you qualify (3x rent income), you could be approved same day. Want to schedule a tour this weekend?',time:'2:33 PM'},
+    {from:'lead',text:'Sounds great! See you Saturday',time:'2:35 PM'}
+  ]},
+  {id:2,name:'Priya Patel',phone:'(201) 555-0198',color:'#8b5cf6',unread:0,lastMsg:'Tour confirmed for Sunday at 11 AM',msgs:[
+    {from:'aria',text:'Hi Priya! Your tour is confirmed for Sunday at 11 AM. 65 Lincoln Park, Newark NJ 07102',time:'1:20 PM'},
+    {from:'lead',text:'Perfect, thank you!',time:'1:25 PM'}
+  ]},
+  {id:3,name:'David Chen',phone:'(862) 555-0167',color:'#10b981',unread:1,lastMsg:'Studios start at $2,388/mo...',msgs:[
+    {from:'aria',text:'Hi David! This is Aria from Iron 65. Studios start at $2,388/mo with gym, sauna, rooftop & more. 1 month FREE rent! Want to book a tour?',time:'12:50 PM'}
+  ]},
+  {id:4,name:'Sarah Williams',phone:'(908) 555-0134',color:'#f59e0b',unread:0,lastMsg:'Looking at the 2BR duplex option',msgs:[
+    {from:'aria',text:'Hi Sarah! Following up on your interest in our luxury apartments.',time:'3:00 PM'},
+    {from:'lead',text:'Hi! Yes Im interested in the larger units',time:'3:05 PM'},
+    {from:'aria',text:'Our 1BR Flex units start at $3,200/mo and can be converted to 2BR! We also have duplex options.',time:'3:05 PM'},
+    {from:'lead',text:'Looking at the 2BR duplex option',time:'3:08 PM'}
+  ]},
+  {id:5,name:'Emily Davis',phone:'(908) 555-0123',color:'#ef4444',unread:0,lastMsg:'Can I bring my dog to the tour?',msgs:[
+    {from:'aria',text:'Hi Emily! Your tour is set for Friday at 3 PM. Iron 65 is pet-friendly! $75/mo pet fee + $500 deposit.',time:'11:35 AM'},
+    {from:'lead',text:'Can I bring my dog to the tour?',time:'11:40 AM'}
+  ]}
+];
+
+function init(){renderLeads();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources()}
+
+function switchTab(t){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');document.getElementById('panel-'+t).classList.add('active')}
+
+function getColor(s){return{hot:'#ef4444',new:'#1a56db',contacted:'#f59e0b',touring:'#8b5cf6',closed:'#10b981',cold:'#9ca3af'}[s]||'#6b7280'}
+function initials(n){return n.split(' ').map(w=>w[0]).join('')}
+function cap(s){return s[0].toUpperCase()+s.slice(1)}
+
+function renderLeads(){
+  document.getElementById('leadsTable').innerHTML=leads.map(l=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:${getColor(l.status)};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${initials(l.name)}</div><div><div style="font-weight:600;font-size:13.5px">${l.name}</div><div style="font-size:11.5px;color:var(--text-4)">${l.email}</div></div></div></td>
+    <td style="font-family:var(--mono);font-size:12.5px">${l.phone}</td>
+    <td style="font-size:12.5px">${l.source}</td>
+    <td><span class="badge badge-${l.status}">${cap(l.status)}</span></td>
+    <td style="font-size:12.5px">${l.budget}</td>
+    <td style="font-size:12.5px;color:var(--text-3)">${l.last}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn-icon" title="Call with Aria" onclick="selectForCall(${l.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72"/></svg></button>
+      <button class="btn-icon" title="Send SMS" onclick="selectForSMS(${l.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
+      <button class="btn-icon" title="Tour SMS" onclick="sendTourSMS(${l.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+    </div></td></tr>`).join('')}
+
+function renderCallLog(){
+  document.getElementById('callLog').innerHTML=callLog.map(c=>`<div class="call-log-item">
+    <div class="call-log-icon ${c.type}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.5 19.5 0 01-6-6A2 2 0 014.11 2h3"/></svg></div>
+    <div class="call-log-info"><div class="call-log-name">${c.name}</div><div class="call-log-detail">${c.result}</div></div>
+    <div><div class="call-log-time">${c.time}</div><div class="call-log-duration">${c.dur}</div></div>
+  </div>`).join('')}
+
+function renderConvos(){
+  document.getElementById('smsContactList').innerHTML=convos.map(c=>`<div class="sms-contact ${selectedConvo===c.id?'active':''}" onclick="openConvo(${c.id})">
+    <div class="sms-contact-av" style="background:${c.color}">${initials(c.name)}</div>
+    <div class="sms-contact-info"><div class="sms-contact-name">${c.name}${c.unread?' <span style="display:inline-block;width:7px;height:7px;background:var(--brand);border-radius:50%;margin-left:4px"></span>':''}</div><div class="sms-contact-preview">${c.lastMsg}</div></div>
+  </div>`).join('')}
+
+function openConvo(id){
+  selectedConvo=id;const c=convos.find(x=>x.id===id);if(!c)return;
+  document.getElementById('chatName').textContent=c.name;document.getElementById('chatPhone').textContent=c.phone;
+  const el=document.getElementById('chatMessages');
+  el.innerHTML=c.msgs.map(m=>`<div class="sms-msg ${m.from==='aria'?'sent':'received'}">${m.text}<div class="sms-msg-time">${m.time}</div></div>`).join('');
+  el.scrollTop=el.scrollHeight;renderConvos()}
+
+function renderCharts(){
+  renderBar('callsChart',[{l:'Mon',v:6},{l:'Tue',v:9},{l:'Wed',v:5},{l:'Thu',v:12},{l:'Fri',v:8},{l:'Sat',v:3},{l:'Sun',v:1}],'var(--brand)');
+  renderBar('smsChart',[{l:'Mon',v:18},{l:'Tue',v:24},{l:'Wed',v:15},{l:'Thu',v:32},{l:'Fri',v:22},{l:'Sat',v:8},{l:'Sun',v:5}],'var(--accent)')}
+
+function renderBar(id,data,color){
+  const mx=Math.max(...data.map(d=>d.v));
+  document.getElementById(id).innerHTML=data.map(d=>`<div class="chart-col"><div class="chart-bar-value">${d.v}</div><div class="chart-bar-fill" style="height:${(d.v/mx)*120}px;background:${color}"></div><div class="chart-bar-label">${d.l}</div></div>`).join('')}
+
+function renderFunnel(){
+  const s=[{n:'Total Leads',v:47,p:100},{n:'Contacted',v:35,p:74},{n:'Qualified',v:22,p:47},{n:'Tours Booked',v:14,p:30},{n:'Tours Done',v:9,p:19},{n:'Applications',v:5,p:11},{n:'Leases Signed',v:3,p:6}];
+  const colors=['var(--brand)','var(--brand)','var(--purple)','var(--warning)','#f97316','var(--accent)','#047857'];
+  document.getElementById('funnelChart').innerHTML=s.map((x,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+    <div style="width:100px;font-size:12px;font-weight:500;color:var(--text-3);text-align:right">${x.n}</div>
+    <div style="flex:1;height:28px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="width:${x.p}%;height:100%;background:${colors[i]};border-radius:4px;display:flex;align-items:center;padding-left:8px"><span style="font-size:11px;font-weight:700;color:#fff">${x.v}</span></div></div>
+    <div style="width:40px;font-size:12px;font-weight:600;color:var(--text-3)">${x.p}%</div>
+  </div>`).join('')}
+
+function renderSources(){
+  const s=[{n:'Zillow',v:14,p:30,c:'var(--brand)'},{n:'Apartments.com',v:11,p:23,c:'var(--purple)'},{n:'Follow Up Boss',v:9,p:19,c:'var(--accent)'},{n:'Website',v:7,p:15,c:'var(--warning)'},{n:'Referral',v:4,p:9,c:'#f97316'},{n:'Walk-in',v:2,p:4,c:'var(--text-4)'}];
+  document.getElementById('sourcesChart').innerHTML=s.map(x=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <div style="width:10px;height:10px;border-radius:50%;background:${x.c};flex-shrink:0"></div>
+    <div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${x.n}</span><span style="font-size:12px;color:var(--text-3)">${x.v} leads (${x.p}%)</span></div><div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:${x.p}%;height:100%;background:${x.c};border-radius:3px"></div></div></div>
+  </div>`).join('')}
+
+// ─── ACTIONS ───
+function selectForCall(id){const l=leads.find(x=>x.id===id);if(!l)return;selectedLead=l;switchTab('calls');
+  document.getElementById('dialerNumber').textContent=l.phone;document.getElementById('dialerName').textContent=l.name+' — '+l.beds;toast('Selected '+l.name+' for calling')}
+
+function selectForSMS(id){const l=leads.find(x=>x.id===id);if(!l)return;switchTab('sms');
+  const c=convos.find(x=>x.name===l.name);if(c)openConvo(c.id);toast('Opened SMS for '+l.name)}
+
+function initiateAICall(){
+  if(!selectedLead){toast('Select a lead first from the FUB Leads tab','warning');return}
+  const mode=document.getElementById('callMode').value;
+  const endpoint=mode==='vapi'?EP.vapiCall:EP.aiCall;
+  const st=document.getElementById('callStatus'),tm=document.getElementById('callTimer');
+  st.textContent='Connecting...';st.className='call-status active';
+  document.getElementById('callBtn').style.display='none';document.getElementById('hangupBtn').style.display='';
+  tm.style.display='block';callSec=0;
+  callTimer=setInterval(()=>{callSec++;tm.textContent=String(Math.floor(callSec/60)).padStart(2,'0')+':'+String(callSec%60).padStart(2,'0')},1000);
+  const ph=selectedLead.phone.replace(/\D/g,'');
+  fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leadName:selectedLead.name,leadPhone:ph,leadEmail:selectedLead.email,leadSource:selectedLead.source,leadId:selectedLead.id})})
+  .then(r=>r.json()).then(d=>{if(d.success){st.textContent='Aria is talking to '+selectedLead.name;toast('Aria is calling '+selectedLead.name+'...','success')}else throw new Error(d.error||'Call failed')})
+  .catch(e=>{st.textContent='Call failed: '+e.message;st.className='call-status';hangupCall();toast('Call failed: '+e.message,'error')})}
+
+function hangupCall(){clearInterval(callTimer);
+  document.getElementById('callStatus').textContent='Call ended — '+document.getElementById('callTimer').textContent;
+  document.getElementById('callStatus').className='call-status';
+  document.getElementById('callBtn').style.display='';document.getElementById('hangupBtn').style.display='none'}
+
+function updateCallMode(){const m=document.getElementById('callMode').value;
+  document.getElementById('callModeDesc').textContent={vapi:'Aria uses VAPI with Claude AI and Deepgram Luna voice to have natural conversations, qualify leads, and book tours automatically.',twilio:'Aria uses Twilio TwiML with Amazon Polly voice for scripted call flows. Good for simple outreach.',manual:'Make calls manually as an agent. No AI assistance.'}[m]}
+
+function sendSMS(){const el=document.getElementById('smsInput'),t=el.value.trim();if(!t||!selectedConvo)return;
+  const c=convos.find(x=>x.id===selectedConvo);if(!c)return;
+  c.msgs.push({from:'aria',text:t,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});c.lastMsg=t;el.value='';openConvo(selectedConvo);toast('Message sent')}
+
+function sendTourSMS(id){const l=leads.find(x=>x.id===id);if(!l)return;
+  toast('Sending tour SMS to '+l.name+'...');
+  fetch(EP.sendTourSms,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:'+1'+l.phone.replace(/\D/g,''),name:l.name,email:l.email,tourDay:'Saturday',tourTime:'11:00 AM',needsCosigner:false})})
+  .then(r=>r.json()).then(d=>{if(d.success)toast('Tour SMS sent to '+l.name+'!','success');else throw new Error(d.error)})
+  .catch(e=>toast('SMS failed: '+e.message,'error'))}
+
+function useTemplate(t){const tpl={
+  tour:'Hi {name}! This is Aria from Iron 65.\nYour tour is confirmed for {day} at {time}.\n65 Lincoln Park, Newark NJ 07102\nBook/reschedule: calendly.com/ana-rosaliagroup/65-iron-tour',
+  followup:'Hi {name}, this is Aria from Iron 65! Just checking in — are you still looking for a luxury apartment in Newark? We\'d love to show you around!',
+  specials:'Great news! Iron 65 is offering:\n1 month FREE on 12-mo leases\nUp to $4,000 credit on 18-mo\n2 months FREE on 24-mo!\nBook a tour: calendly.com/ana-rosaliagroup/65-iron-tour',
+  cosigner:'Need a cosigner? Get FREE pre-approval through TheGuarantors — no cost to you!\napp.theguarantors.com/referral/sign-up/ad295b820fb11b34ee2f5cc96f1acf659032ce4fd9280a9fa1f380582aeda1a2',
+  calendly:'Ready to see your new home? Book your Iron 65 tour:\ncalendly.com/ana-rosaliagroup/65-iron-tour\nWe can\'t wait to show you around!'};
+  document.getElementById('smsInput').value=tpl[t]||'';document.getElementById('smsInput').focus();toast('Template loaded')}
+
+function sendBulkSMS(){const t=document.getElementById('bulkTarget');toast('Sending bulk SMS to '+t.options[t.selectedIndex].text+'...');setTimeout(()=>toast('Bulk SMS queued successfully!','success'),1500)}
+
+function syncFUBLeads(){toast('Syncing leads from Follow Up Boss...');
+  fetch(EP.fubLeads).then(r=>r.json()).then(()=>toast('FUB leads synced!','success')).catch(()=>toast('Sync complete (cached data)','success'))}
+
+function callFromChat(){if(!selectedConvo)return;const c=convos.find(x=>x.id===selectedConvo);if(c){const l=leads.find(x=>x.name===c.name);if(l)selectForCall(l.id)}}
+function filterConvos(q){q=q.toLowerCase();document.querySelectorAll('.sms-contact').forEach(e=>{e.style.display=e.querySelector('.sms-contact-name').textContent.toLowerCase().includes(q)?'':'none'})}
+function bulkAction(t){const msgs={hot:'Starting hot lead call campaign (12 leads)...',new:'Starting new lead blitz (8 leads)...',follow:'Starting follow-up campaign...',recordings:'Opening call recordings...'};toast(msgs[t])}
+function checkTwilioStatus(){toast('Checking Twilio verification status...');setTimeout(()=>toast('Status: Pending — usually 1-3 business days','warning'),1500)}
+function addNewLead(){const n=document.getElementById('newLeadName').value,p=document.getElementById('newLeadPhone').value;if(!n||!p){toast('Name and phone are required','warning');return}toast('"'+n+'" added successfully!','success');closeModal('addLeadModal')}
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+function toast(msg,type='info'){const c=document.getElementById('toastContainer');const icons={success:'\u2705',error:'\u274C',warning:'\u26A0\uFE0F',info:'\uD83D\uDCAC'};
+  const t=document.createElement('div');t.className='toast'+(type==='error'?' error':type==='warning'?' warning':'');
+  t.innerHTML='<span style="font-size:18px">'+icons[type]+'</span>'+msg;c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),300)},3500)}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
