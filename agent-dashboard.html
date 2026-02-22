@@ -191,19 +191,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 </script>
 <!-- ADD LEAD MODAL -->
 <div id="addLeadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
       <h2 style="font-size:18px;font-weight:700">➕ Add New Lead</h2>
       <button onclick="closeAddLeadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
     </div>
     <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Full Name *</label><input type="text" id="newLeadName" placeholder="John Smith" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Email *</label><input type="email" id="newLeadEmail" placeholder="john@email.com" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Phone</label><input type="tel" id="newLeadPhone" placeholder="(555) 123-4567" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="newLeadSource" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option>Website</option><option>Zillow</option><option>Apartments.com</option><option>Referral</option><option>Walk-in</option><option>Other</option></select></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Email *</label><input type="email" id="newLeadEmail" placeholder="john@email.com" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Phone</label><input type="tel" id="newLeadPhone" placeholder="(555) 123-4567" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Lead Type</label><select id="newLeadType" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="renter">Renter</option><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="investor">Investor</option><option value="vendor">Vendor</option></select></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="newLeadSource" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option>Website</option><option>Zillow</option><option>Apartments.com</option><option>Referral</option><option>Walk-in</option><option>Follow Up Boss</option><option>Other</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Budget</label><select id="newLeadBudget" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Under $2,000</option><option>$2,000-$2,500</option><option>$2,500-$3,000</option><option>$3,000-$3,500</option><option>$3,500-$4,000</option><option>$4,000+</option></select></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Apartment Size</label><select id="newLeadAptSize" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Studio</option><option>1 Bedroom</option><option>1BR Flex / Convertible</option><option>2 Bedroom</option><option>2BR Duplex</option><option>3 Bedroom</option><option>3BR Duplex</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Move-in Date</label><input type="date" id="newLeadMoveDate" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Monthly Income</label><select id="newLeadIncome" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Under $4,000</option><option>$4,000-$6,000</option><option>$6,000-$8,000</option><option>$8,000-$10,000</option><option>$10,000+</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Credit Score</label><select id="newLeadCredit" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>750+</option><option>700-749</option><option>650-699</option><option>600-649</option><option>Below 600</option><option>No Credit</option></select></div>
       <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Role</label><select id="newLeadRole" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="user">User</option><option value="agent">Agent</option><option value="vendor">Vendor</option></select></div>
     </div>
-    <div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes</label><textarea id="newLeadMessage" rows="2" placeholder="Any notes..." style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit"></textarea></div>
+    <div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes</label><textarea id="newLeadMessage" rows="2" placeholder="Any notes about this lead..." style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit"></textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeAddLeadModal()">Cancel</button>
       <button class="btn btn-primary" id="addLeadBtn" onclick="submitNewLead()">Add Lead</button>
@@ -261,27 +275,42 @@ async function submitNewLead() {
   const source = document.getElementById('newLeadSource').value;
   const role = document.getElementById('newLeadRole').value;
   const message = document.getElementById('newLeadMessage').value.trim();
+  const leadType = document.getElementById('newLeadType').value;
+  const budget = document.getElementById('newLeadBudget').value;
+  const aptSize = document.getElementById('newLeadAptSize').value;
+  const moveDate = document.getElementById('newLeadMoveDate').value;
+  const income = document.getElementById('newLeadIncome').value;
+  const credit = document.getElementById('newLeadCredit').value;
 
   if (!name || !email) { alert('Name and email are required'); return; }
+
+  // Build notes with all the extra fields
+  const details = [];
+  if (leadType) details.push('Type: ' + leadType);
+  if (budget) details.push('Budget: ' + budget);
+  if (aptSize) details.push('Size: ' + aptSize);
+  if (moveDate) details.push('Move: ' + moveDate);
+  if (income) details.push('Income: ' + income);
+  if (credit) details.push('Credit: ' + credit);
+  const fullMessage = [message, details.length ? '--- ' + details.join(' | ') : ''].filter(Boolean).join('\n');
 
   const btn = document.getElementById('addLeadBtn');
   btn.disabled = true;
   btn.textContent = 'Adding...';
 
   try {
-    // Add to Supabase + FUB via upload-leads function
     const res = await fetch('/.netlify/functions/upload-leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: [{ name, email, phone, source, role, message }], pushToFUB: true })
+      body: JSON.stringify({ leads: [{ name, email, phone, source, role, message: fullMessage }], pushToFUB: true })
     });
     const data = await res.json();
     if (data.success) {
       closeAddLeadModal();
-      document.getElementById('newLeadName').value = '';
-      document.getElementById('newLeadEmail').value = '';
-      document.getElementById('newLeadPhone').value = '';
-      document.getElementById('newLeadMessage').value = '';
+      // Clear form
+      ['newLeadName','newLeadEmail','newLeadPhone','newLeadMessage'].forEach(id => document.getElementById(id).value = '');
+      ['newLeadMoveDate'].forEach(id => document.getElementById(id).value = '');
+      ['newLeadBudget','newLeadAptSize','newLeadIncome','newLeadCredit'].forEach(id => document.getElementById(id).selectedIndex = 0);
       if (typeof loadOverview === 'function') loadOverview();
       if (typeof loadLeads === 'function') loadLeads();
       alert('✅ Lead added!' + (data.fubPushed ? ' Also pushed to FUB.' : ''));
