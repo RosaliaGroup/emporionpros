@@ -4,6 +4,7 @@
 <title>FUB Integration — Emporion Pros</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="app.js"></script>
+<script src="ep-lead-form.js"></script>
 <style>
 .dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
 .sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
@@ -476,6 +477,7 @@ function renderHotLeads() {
       <td>
         <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
         <button class="ai-action-btn btn-text" onclick="sendText(${l.id})">💬 Text</button>
+        <button class="ai-action-btn" onclick="editLead('${encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest}))}')">✏️</button>
       </td>
     </tr>`;
   }).join('');
@@ -625,6 +627,7 @@ function renderLeads() {
         <div style="display:flex;gap:4px">
           <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name}','${l.phone}',${l.id})">📞 Call</button>
           <button class="ai-action-btn btn-text" onclick="sendText('${l.name}',${l.id})">💬 Text</button>
+          <button class="ai-action-btn" onclick="editLead('${encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest}))}')">✏️</button>
         </div>
       </td>
     </tr>`).join('');
