@@ -211,6 +211,8 @@
         <div style="background:white;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)"><div style="font-size:24px;font-weight:800;color:#f59e0b" id="stat-appt">0</div><div style="font-size:12px;color:#6b7280">Appointments Booked</div></div>
       </div>
 
+      <div style="margin-bottom:16px"><input type="text" id="fub-lead-search" placeholder="🔍 Search leads by name, email, phone, source..." oninput="filterFUBLeads()" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;background:white"></div>
+
       <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);overflow-x:auto">
         <table class="leads-table" id="fub-leads-table">
           <thead>
@@ -237,7 +239,7 @@
     <div class="tab-content" id="tab-hot-leads">
       <div style="background:#fff7ed;border:2px solid #f97316;border-radius:12px;padding:20px;margin-bottom:24px">
         <h2 style="font-size:20px;font-weight:800;color:#c2410c;margin-bottom:8px">🔥 Hot Leads — Priority Calling</h2>
-        <p style="color:#9a3412;font-size:14px;margin-bottom:12px">These leads are less than 24 hours old or marked HOT in FUB. Call them ASAP!</p>
+        <p style="color:#9a3412;font-size:14px;margin-bottom:12px">These leads are less than 7 days old or marked HOT in FUB. Call them ASAP!</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <button class="ep-btn ep-btn-primary" onclick="callAllHot()">📞 Call All Hot Leads</button>
           <div style="font-size:13px;color:#9a3412;display:flex;align-items:center;gap:6px">
@@ -558,13 +560,13 @@ function scoreLeads() {
     let score = 'cold';
     let priority = 3;
     
-    // Hot = created in last 24 hours
-    if (hoursSince < 24) {
+    // Hot = created in last 7 days or FUB marked hot
+    if (hoursSince < 168) {
       score = 'hot';
       priority = 1;
     }
-    // Warm = created in last 7 days  
-    else if (hoursSince < 168) {
+    // Warm = created in last 30 days  
+    else if (hoursSince < 720) {
       score = 'warm';
       priority = 2;
     }
@@ -605,16 +607,22 @@ function isBusinessHours() {
   return false;
 }
 
-function renderLeads() {
-  const leads = fubConnected ? scoreLeads() : [];
+function renderLeads(filterText) {
+  let leads = fubConnected ? scoreLeads() : [];
   document.getElementById('stat-total').textContent = leads.length;
   document.getElementById('stat-new').textContent = leads.filter(l => l.aiStatus.includes('Pending')).length;
   document.getElementById('stat-called').textContent = leads.filter(l => l.aiStatus.includes('Called') || l.aiStatus.includes('Texted')).length;
   document.getElementById('stat-appt').textContent = leads.filter(l => l.aiStatus.includes('Booked')).length;
   document.getElementById('fub-badge').textContent = leads.length;
 
+  // Apply search filter
+  if (filterText) {
+    const q = filterText.toLowerCase();
+    leads = leads.filter(l => (l.name||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q) || (l.phone||'').toLowerCase().includes(q) || (l.source||'').toLowerCase().includes(q) || (l.interest||'').toLowerCase().includes(q));
+  }
+
   document.getElementById('fub-leads-body').innerHTML = leads.map(l => `
-    <tr>
+    <tr style="cursor:pointer" onclick="openFUBLeadProfile(${l.id})">
       <td><div class="lead-score score-${l.score}">${l.score==='hot'?'🔥':l.score==='warm'?'😊':'❄️'}</div></td>
       <td><div style="font-weight:700">${l.name}</div><div style="font-size:12px;color:#6b7280">${l.email}</div></td>
       <td style="font-family:monospace;font-size:13px">${l.phone}</td>
@@ -623,13 +631,40 @@ function renderLeads() {
       <td><span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:12px">${l.stage}</span></td>
       <td><span style="font-size:12px;color:${l.aiStatus.includes('Booked')?'#065f46':l.aiStatus.includes('Pending')?'#92400e':'#374151'};font-weight:600">${l.aiStatus}</span></td>
       <td>
-        <div style="display:flex;gap:4px">
-          <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name}','${l.phone}',${l.id})">📞 Call</button>
-          <button class="ai-action-btn btn-text" onclick="sendText('${l.name}',${l.id})">💬 Text</button>
+        <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+          <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name.replace(/'/g,"\\'")}','${l.phone}',${l.id})">📞 Call</button>
+          <button class="ai-action-btn btn-text" onclick="sendText('${l.name.replace(/'/g,"\\'")}',${l.id})">💬 Text</button>
           <button class="ai-action-btn" onclick="editLead('${encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest}))}')">✏️</button>
         </div>
       </td>
     </tr>`).join('');
+}
+
+function filterFUBLeads() {
+  const q = (document.getElementById('fub-lead-search')?.value || '').trim();
+  renderLeads(q);
+}
+
+function openFUBLeadProfile(leadId) {
+  const leads = scoreLeads();
+  const l = leads.find(x => x.id === leadId);
+  if (!l) return;
+  const callNotes = EP.store.get('ep_call_notes_' + l.id) || [];
+  const notesHtml = callNotes.length ? callNotes.map(n => '<div style="background:#f9fafb;padding:10px;border-radius:8px;margin-bottom:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">' + n.date + ' — ' + n.type + '</div><div style="font-size:13px">' + n.text + '</div></div>').join('') : '<div style="color:#6b7280;font-size:13px">No call notes yet</div>';
+  const html = '<div id="fubLeadProfile" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">' + (l.name||'?')[0].toUpperCase() + '</div><div><h2 style="font-size:20px;font-weight:700;margin:0">' + l.name + '</h2><span style="font-size:12px;color:#6b7280">' + l.source + ' · ' + l.stage + '</span></div></div><button onclick="document.getElementById(\'fubLeadProfile\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Email</div><a href="mailto:' + l.email + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + (l.email||'—') + '</a></div><div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Phone</div><a href="tel:' + l.phone + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + (l.phone||'—') + '</a></div><div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Score</div><span style="font-size:13px;font-weight:600">' + (l.score==='hot'?'🔥 Hot':l.score==='warm'?'😊 Warm':'❄️ Cold') + '</span></div><div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">AI Status</div><span style="font-size:13px;font-weight:600">' + l.aiStatus + '</span></div></div>' + (l.interest ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Interest</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px">' + l.interest + '</div></div>' : '') + '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#374151">📝 Call Notes & AI Activity</div>' + notesHtml + '<div style="margin-top:10px"><textarea id="new-call-note" rows="2" placeholder="Add a note..." style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea><button onclick="addCallNote(' + l.id + ')" style="margin-top:6px;padding:6px 14px;background:#1a56db;color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Save Note</button></div></div><div style="display:flex;gap:8px;justify-content:flex-end">' + (l.phone ? '<button onclick="document.getElementById(\'fubLeadProfile\').remove();simulateCall(\'' + l.name.replace(/'/g,"\\'") + '\',\'' + l.phone + '\',' + l.id + ')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">📞 Call with Aria</button>' : '') + '<button onclick="document.getElementById(\'fubLeadProfile\').remove();editLead(\'' + encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest})) + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">✏️ Edit</button></div></div></div>';
+  var ex = document.getElementById('fubLeadProfile');
+  if (ex) ex.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function addCallNote(leadId) {
+  const text = document.getElementById('new-call-note')?.value?.trim();
+  if (!text) return;
+  const notes = EP.store.get('ep_call_notes_' + leadId) || [];
+  notes.unshift({ date: new Date().toLocaleString(), type: 'Manual Note', text: text });
+  EP.store.set('ep_call_notes_' + leadId, notes);
+  document.getElementById('new-call-note').value = '';
+  openFUBLeadProfile(leadId); // Refresh profile
 }
 
 function simulateCall(name, phone, id) {
@@ -665,12 +700,19 @@ function simulateCall(name, phone, id) {
 
   setTimeout(() => {
     clearInterval(timer);
+    // Save call note
+    const notes = EP.store.get('ep_call_notes_' + id) || [];
+    notes.unshift({ date: new Date().toLocaleString(), type: 'AI Call (Aria)', text: 'Called lead. Duration: 25 sec. Appointment booked for Saturday 11am.' });
+    EP.store.set('ep_call_notes_' + id, notes);
     addActivity('call', `📞 Aria called ${name}`, 'Call duration: 25 seconds — Appointment booked for Saturday 11am');
     EP.notify(`✅ Aria booked an appointment with ${name.split(' ')[0]}!`, 'success');
   }, 24000);
 }
 
 function sendText(name, id) {
+  const notes = EP.store.get('ep_call_notes_' + id) || [];
+  notes.unshift({ date: new Date().toLocaleString(), type: 'AI Text (Aria)', text: 'Follow-up text sent: "Hi! This is Aria from EmporionPros. I\'d love to help you find your next home..."' });
+  EP.store.set('ep_call_notes_' + id, notes);
   EP.notify(`💬 Text sent to ${name.split(' ')[0]}!`, 'success');
   addActivity('text', `💬 Text sent to ${name}`, 'Hi! This is Aria, Carlos\'s AI assistant. I\'d love to help you find a home in Newark...');
 }
