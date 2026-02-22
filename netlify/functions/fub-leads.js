@@ -14,8 +14,8 @@ exports.handler = async function(event, context) {
 
   const AUTH = 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64');
   const params = event.queryStringParameters || {};
-  const days = parseInt(params.days) || 30;
-  const maxLeads = parseInt(params.max) || 500;
+  const days = parseInt(params.days) || 90;
+  const maxLeads = parseInt(params.max) || 1000;
 
   try {
     const afterDate = Math.floor((Date.now() - days * 86400000) / 1000);
