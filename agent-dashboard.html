@@ -180,7 +180,7 @@ function renderLeadsTable(leads) {
         +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
         +'<td>'+aiStatus+'</td>'
         +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
-        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<a href="tel:'+(l.phone||'')+'" class="btn btn-sm btn-primary" onclick="event.stopPropagation()" style="text-decoration:none;color:white;display:inline-flex;align-items:center">📞</a>':'')+(l.email?'<a href="mailto:'+(l.email||'')+'" class="btn btn-sm btn-outline" onclick="event.stopPropagation()" style="text-decoration:none;display:inline-flex;align-items:center">📧</a>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
+        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
         +'</tr>';
     }).join('')}</tbody></table>`;
 }
@@ -267,6 +267,20 @@ async function executeMerge() {
   } catch(err) { alert('Error: ' + err.message); }
 }
 
+function callLead(phone) {
+  navigator.clipboard.writeText(phone).then(function(){}).catch(function(){});
+  var w = window.open('tel:' + phone, '_self');
+  if (!w || w.closed) {
+    alert('📞 Phone: ' + phone + '\n\nCopied to clipboard! Paste into your dialer.');
+  }
+}
+function emailLead(email) {
+  navigator.clipboard.writeText(email).then(function(){}).catch(function(){});
+  var w = window.open('mailto:' + email, '_self');
+  if (!w || w.closed) {
+    alert('📧 Email: ' + email + '\n\nCopied to clipboard! Paste into your email app.');
+  }
+}
 function openLeadProfile(j) {
   const l = JSON.parse(decodeURIComponent(j));
   const parsed = l.message ? (function(m){var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2)d[parts[0].trim()]=parts.slice(1).join(': ').trim();});}d._notes=m.split('---')[0].trim();return d;})(l.message) : {};
