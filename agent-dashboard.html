@@ -75,8 +75,6 @@ tr:hover td{background:#f9fafb}
     <a href="/list-property.html">➕ Add Listing</a>
     <a href="/vendors.html">🔧 Vendors</a>
     <a href="/">🌐 View Site</a>
-    <a href="/fub-aria-dashboard.html">🔗 FUB Integration</a>
-    <a href="tel:8622887972">🤖 AI Calling (Aria)</a>
     <button class="signout-btn" onclick="EPAuth.signOut()">🚪 Sign Out</button>
   </nav>
   <div class="main">
@@ -88,11 +86,11 @@ tr:hover td{background:#f9fafb}
         <div class="stat-card"><div class="stat-label">Appointments</div><div class="stat-value" id="stat-appointments">0</div></div>
         <div class="stat-card"><div class="stat-label">Campaigns</div><div class="stat-value" id="stat-campaigns">0</div></div>
       </div>
-      <div class="section"><div class="section-header"><h2>Recent Leads</h2></div><div class="section-body" id="recent-leads"><div class="loading">Loading...</div></div></div>
+      <div class="section"><div class="section-header"><h2>Recent Leads</h2><button class="btn btn-sm btn-primary" onclick="openUploadModal()" style="margin-left:auto">📤 Upload Excel</button></div><div class="section-body" id="recent-leads"><div class="loading">Loading...</div></div></div>
       <div class="section"><div class="section-header"><h2>Upcoming Appointments</h2></div><div class="section-body" id="recent-appointments"><div class="loading">Loading...</div></div></div>
     </div>
     <div class="tab-content" id="tab-leads">
-      <div class="main-header"><h1>Leads</h1></div>
+      <div class="main-header"><h1>Leads</h1><button class="btn btn-primary" onclick="openUploadModal()">📤 Upload Excel/CSV</button></div>
       <div class="section"><div class="section-body" id="all-leads"><div class="loading">Loading...</div></div></div>
     </div>
     <div class="tab-content" id="tab-listings">
@@ -188,6 +186,167 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadOverview();
   checkHash();
 });
+</script>
+<!-- EXCEL UPLOAD MODAL -->
+<div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h2 style="font-size:18px;font-weight:700">📤 Upload Leads</h2>
+      <button onclick="closeUploadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
+    </div>
+    <div id="uploadDropZone" style="border:2px dashed #d1d5db;border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:16px"
+      ondragover="event.preventDefault();this.style.borderColor='#1a56db';this.style.background='#eff6ff'"
+      ondragleave="this.style.borderColor='#d1d5db';this.style.background='white'"
+      ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='white';handleUploadFile(event.dataTransfer.files[0])"
+      onclick="document.getElementById('uploadFileInput').click()">
+      <div style="font-size:36px;margin-bottom:8px">📁</div>
+      <div style="font-size:14px;font-weight:600;color:#374151">Drag & drop Excel or CSV file here</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:4px">or click to browse — .xlsx, .xls, .csv</div>
+    </div>
+    <input type="file" id="uploadFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleUploadFile(this.files[0])">
+    <div id="uploadPreview" style="display:none;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="uploadFileName"></div>
+      <div style="max-height:200px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px" id="uploadPreviewTable"></div>
+      <div style="font-size:12px;color:#6b7280;margin-top:8px" id="uploadSummary"></div>
+    </div>
+    <div id="uploadProgress" style="display:none;margin-bottom:16px">
+      <div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div id="uploadBar" style="height:100%;background:#1a56db;border-radius:3px;width:0%;transition:width .3s"></div></div>
+      <div style="font-size:12px;color:#6b7280;margin-top:6px" id="uploadStatus">Uploading...</div>
+    </div>
+    <div id="uploadResult" style="display:none;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <a href="/.netlify/functions/fub-leads" target="_blank" style="font-size:12px;color:#1a56db;text-decoration:none">📥 Download template</a>
+      <div style="display:flex;gap:8px">
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151"><input type="checkbox" id="uploadPushFUB" checked> Also push to FUB</label>
+        <button class="btn btn-primary" id="uploadBtn" onclick="submitUpload()" disabled>Upload Leads</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+let uploadedLeads = [];
+
+function openUploadModal() {
+  document.getElementById('uploadModal').style.display = 'flex';
+  resetUploadModal();
+}
+function closeUploadModal() {
+  document.getElementById('uploadModal').style.display = 'none';
+}
+function resetUploadModal() {
+  uploadedLeads = [];
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('uploadResult').style.display = 'none';
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('uploadDropZone').style.display = 'block';
+  document.getElementById('uploadFileInput').value = '';
+}
+
+function handleUploadFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx', 'xls', 'csv'].includes(ext)) {
+    alert('Please upload an Excel (.xlsx/.xls) or CSV file');
+    return;
+  }
+  document.getElementById('uploadFileName').textContent = '📄 ' + file.name;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let data;
+      if (ext === 'csv') {
+        const text = e.target.result;
+        const rows = text.split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
+        const headers = rows[0];
+        data = rows.slice(1).filter(r => r.some(c => c)).map(r => {
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = r[i] || ''; });
+          return obj;
+        });
+      } else {
+        const wb = XLSX.read(e.target.result, { type: 'binary' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        data = XLSX.utils.sheet_to_json(ws);
+      }
+      uploadedLeads = data;
+      showUploadPreview(data, file.name);
+    } catch (err) {
+      alert('Error reading file: ' + err.message);
+    }
+  };
+  if (ext === 'csv') reader.readAsText(file);
+  else reader.readAsBinaryString(file);
+}
+
+function showUploadPreview(data, fileName) {
+  if (!data.length) { alert('No data found in file'); return; }
+  const keys = Object.keys(data[0]);
+  const preview = data.slice(0, 5);
+  let html = '<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr>';
+  keys.forEach(k => { html += '<th style="padding:6px 8px;background:#f9fafb;text-align:left;font-size:11px;color:#6b7280">' + k + '</th>'; });
+  html += '</tr></thead><tbody>';
+  preview.forEach(row => {
+    html += '<tr>';
+    keys.forEach(k => { html += '<td style="padding:5px 8px;border-top:1px solid #f3f4f6;font-size:12px">' + (row[k] || '') + '</td>'; });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('uploadPreviewTable').innerHTML = html;
+  document.getElementById('uploadSummary').textContent = data.length + ' leads found' + (data.length > 5 ? ' (showing first 5)' : '');
+  document.getElementById('uploadPreview').style.display = 'block';
+  document.getElementById('uploadDropZone').style.display = 'none';
+  document.getElementById('uploadBtn').disabled = false;
+}
+
+async function submitUpload() {
+  if (!uploadedLeads.length) return;
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+  document.getElementById('uploadProgress').style.display = 'block';
+  document.getElementById('uploadBar').style.width = '30%';
+  document.getElementById('uploadStatus').textContent = 'Sending ' + uploadedLeads.length + ' leads...';
+
+  const pushToFUB = document.getElementById('uploadPushFUB').checked;
+
+  try {
+    document.getElementById('uploadBar').style.width = '60%';
+    const res = await fetch('/.netlify/functions/upload-leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads: uploadedLeads, pushToFUB })
+    });
+    const data = await res.json();
+    document.getElementById('uploadBar').style.width = '100%';
+
+    const resultEl = document.getElementById('uploadResult');
+    if (data.success) {
+      resultEl.style.background = '#d1fae5';
+      resultEl.style.color = '#065f46';
+      resultEl.innerHTML = '✅ <strong>Upload complete!</strong><br>Created: ' + data.created + ' | Updated: ' + data.updated + ' | Skipped: ' + data.skipped + (data.fubPushed ? ' | Pushed to FUB: ' + data.fubPushed : '') + (data.errors ? ' | Errors: ' + data.errors : '');
+    } else {
+      resultEl.style.background = '#fee2e2';
+      resultEl.style.color = '#991b1b';
+      resultEl.innerHTML = '❌ Upload failed: ' + (data.error || 'Unknown error');
+    }
+    resultEl.style.display = 'block';
+    document.getElementById('uploadStatus').textContent = 'Done!';
+
+    // Refresh leads table
+    if (typeof loadOverview === 'function') loadOverview();
+    if (typeof loadLeads === 'function') loadLeads();
+  } catch (err) {
+    document.getElementById('uploadResult').style.display = 'block';
+    document.getElementById('uploadResult').style.background = '#fee2e2';
+    document.getElementById('uploadResult').style.color = '#991b1b';
+    document.getElementById('uploadResult').innerHTML = '❌ Error: ' + err.message;
+  }
+  btn.textContent = 'Upload Leads';
+  btn.disabled = false;
+}
 </script>
 </body>
 </html>
