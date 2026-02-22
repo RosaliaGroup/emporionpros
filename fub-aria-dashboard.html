@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUB + Aria Integration — Emporion Pros</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh}
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-logo{padding:0 20px 20px;font-size:20px;font-weight:800;color:#1a56db;border-bottom:1px solid #e5e7eb;margin-bottom:12px}
+.sidebar-logo span{color:#f97316}
+.sidebar-user{padding:12px 20px;margin-bottom:12px}
+.sidebar-user-name{font-weight:700;font-size:14px;color:#111}
+.sidebar-user-role{font-size:12px;color:#6b7280;text-transform:capitalize}
+.sidebar-section{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;padding:16px 20px 8px}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.2s;border-left:3px solid transparent}
+.sidebar a:hover{background:#f9fafb;color:#1a56db}
+.sidebar a.active{background:#eff6ff;color:#1a56db;border-left-color:#1a56db;font-weight:600}
+.sidebar-property{margin:12px 16px;padding:14px;background:linear-gradient(135deg,#1a56db,#1e40af);border-radius:10px;color:white}
+.sidebar-property-name{font-weight:700;font-size:14px}
+.sidebar-property-addr{font-size:11px;opacity:.8;margin-top:2px}
+.sidebar-property-tag{display:inline-block;margin-top:8px;padding:3px 8px;background:rgba(255,255,255,.2);border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px}
+.main{padding:32px;overflow-y:auto}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.main-header h1{font-size:28px;font-weight:800;color:#111}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:white;padding:4px;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:24px;width:fit-content}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:#6b7280;border:none;background:none;border-radius:8px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:inherit}
+.tab:hover{color:#374151;background:#f9fafb}
+.tab.active{background:#1a56db;color:white;box-shadow:0 2px 8px rgba(26,86,219,.3)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:white;padding:20px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.2s}
+.stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-1px)}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:20px}
+.stat-icon.blue{background:#dbeafe}.stat-icon.green{background:#d1fae5}.stat-icon.yellow{background:#fef3c7}.stat-icon.red{background:#fee2e2}.stat-icon.purple{background:#ede9fe}
+.stat-value{font-size:28px;font-weight:800;color:#1a56db;line-height:1}
+.stat-label{font-size:12px;color:#6b7280;margin-top:4px;font-weight:500}
+.stat-change{font-size:11px;font-weight:600;margin-top:6px;color:#10b981}
+
+/* Cards */
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;overflow:hidden}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #e5e7eb}
+.card-header h2{font-size:16px;font-weight:700}
+.card-body{padding:24px}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 14px;background:#f9fafb;font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:13px}
+tr:hover td{background:#eff6ff}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-new{background:#dbeafe;color:#1a56db}.badge-hot{background:#fee2e2;color:#ef4444}
+.badge-contacted{background:#fef3c7;color:#b45309}.badge-touring{background:#ede9fe;color:#8b5cf6}
+.badge-closed{background:#d1fae5;color:#047857}.badge-cold{background:#f3f4f6;color:#6b7280}
+
+/* Buttons */
+.btn{padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#1a56db;color:white}.btn-primary:hover{background:#1e3a8a}
+.btn-outline{background:white;color:#374151;border:1px solid #e5e7eb}.btn-outline:hover{border-color:#1a56db;color:#1a56db}
+.btn-success{background:#10b981;color:white}.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:white}.btn-danger:hover{background:#dc2626}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid #e5e7eb;background:white;color:#6b7280;cursor:pointer;transition:.2s}
+.btn-icon:hover{background:#f9fafb;color:#1a56db;border-color:#1a56db}
+
+/* Forms */
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+.form-input{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit}
+.form-input:focus{outline:none;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+
+/* Dialer */
+.call-dialer{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:28px;color:white;text-align:center}
+.call-dialer-title{font-size:12px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.call-dialer-number{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:500;margin-bottom:4px;letter-spacing:2px}
+.call-dialer-name{font-size:14px;opacity:.5;margin-bottom:20px}
+.call-dialer-actions{display:flex;gap:12px;justify-content:center}
+.call-btn{width:54px;height:54px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;font-size:22px}
+.call-btn-green{background:#10b981;color:white}.call-btn-green:hover{background:#059669;transform:scale(1.08)}
+.call-btn-red{background:#ef4444;color:white}.call-btn-red:hover{background:#dc2626;transform:scale(1.08)}
+.call-btn-mute{background:rgba(255,255,255,.1);color:white}.call-btn-mute:hover{background:rgba(255,255,255,.2)}
+.call-status{margin-top:16px;font-size:13px;opacity:.5}
+.call-status.active{color:#10b981;opacity:1}
+.call-timer{font-family:'JetBrains Mono',monospace;font-size:18px;margin-top:8px}
+
+/* SMS Panel */
+.sms-layout{display:grid;grid-template-columns:260px 1fr;height:500px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white}
+.sms-contacts{border-right:1px solid #e5e7eb;overflow-y:auto}
+.sms-contacts-header{padding:12px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;background:white;z-index:2}
+.sms-contacts-header input{width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;background:#f9fafb;font-family:inherit}
+.sms-contact{display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;transition:.15s;border-bottom:1px solid #f3f4f6}
+.sms-contact:hover{background:#f9fafb}.sms-contact.active{background:#eff6ff;border-left:3px solid #1a56db}
+.sms-contact-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
+.sms-contact-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sms-contact-preview{font-size:11px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sms-chat{display:flex;flex-direction:column}
+.sms-chat-header{padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
+.sms-chat-name{font-weight:700;font-size:14px}.sms-chat-phone{font-size:12px;color:#6b7280}
+.sms-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background:#f9fafb}
+.sms-msg{max-width:75%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5}
+.sms-msg.sent{align-self:flex-end;background:#1a56db;color:white;border-bottom-right-radius:4px}
+.sms-msg.received{align-self:flex-start;background:white;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
+.sms-msg-time{font-size:10px;opacity:.5;margin-top:3px}
+.sms-input-area{padding:12px 16px;border-top:1px solid #e5e7eb;display:flex;gap:8px;align-items:flex-end}
+.sms-input-area textarea{flex:1;padding:10px 14px;border:1px solid #e5e7eb;border-radius:18px;font-size:13px;resize:none;height:40px;font-family:inherit;background:#f9fafb}
+.sms-input-area textarea:focus{outline:none;border-color:#1a56db}
+.sms-send-btn{width:38px;height:38px;border-radius:50%;background:#1a56db;color:white;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:16px}
+.sms-send-btn:hover{background:#1e3a8a}
+
+/* Call Log */
+.call-log-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.call-log-item:last-child{border:none}
+.call-log-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.call-log-icon.outgoing{background:#d1fae5;color:#059669}.call-log-icon.incoming{background:#dbeafe;color:#1a56db}.call-log-icon.missed{background:#fee2e2;color:#ef4444}
+.call-log-name{font-size:13px;font-weight:600}.call-log-detail{font-size:12px;color:#6b7280}
+.call-log-time{font-size:12px;color:#9ca3af;text-align:right}.call-log-duration{font-size:11px;color:#6b7280}
+
+/* Quick Actions */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick-action{display:flex;align-items:center;gap:10px;padding:14px;background:#f9fafb;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:.2s}
+.quick-action:hover{border-color:#1a56db;background:#eff6ff}
+.quick-action-text{font-size:12px;font-weight:600}.quick-action-sub{font-size:11px;color:#6b7280}
+
+/* Templates */
+.template-card{padding:12px;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:.2s;margin-bottom:8px}
+.template-card:hover{border-color:#1a56db;background:#eff6ff}
+.template-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.template-preview{font-size:11px;color:#6b7280;line-height:1.4}
+
+/* Charts */
+.chart-bar{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:16px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+.chart-bar-label{font-size:10px;color:#9ca3af;font-weight:600}
+.chart-bar-value{font-size:11px;font-weight:700;color:#374151}
+
+/* Grids */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3-1{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.mb-20{margin-bottom:20px}
+
+/* Banner */
+.twilio-banner{background:linear-gradient(90deg,#fef3c7,#fff7ed);border:1px solid #fbbf24;border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:13px}
+.twilio-banner strong{color:#92400e}.twilio-banner p{color:#78350f;margin:0}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.show{display:flex}
+.modal{background:white;border-radius:12px;padding:28px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* Toast */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;background:white;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);border-left:4px solid #10b981;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;min-width:280px}
+.toast.error{border-left-color:#ef4444}.toast.warning{border-left-color:#f59e0b}
+
+/* Responsive */
+@media(max-width:1024px){.dash{grid-template-columns:1fr}.sidebar{display:none}.sms-layout{grid-template-columns:1fr}.sms-contacts{display:none}.grid-2,.grid-3-1{grid-template-columns:1fr}}
+@media(max-width:640px){.stats-grid{grid-template-columns:1fr}.tabs{overflow-x:auto;width:100%}}
+</style>
+</head>
+<body>
+<div class="dash">
+  <!-- SIDEBAR — matches agent-dashboard.html -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">Emporion<span>Pros</span></div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="user-name">Ana</div>
+      <div class="sidebar-user-role" id="user-role">Admin</div>
+    </div>
+
+    <div class="sidebar-property">
+      <div class="sidebar-property-name">Iron 65</div>
+      <div class="sidebar-property-addr">65 Lincoln Park, Newark NJ</div>
+      <div class="sidebar-property-tag">LUXURY APARTMENTS</div>
+    </div>
+
+    <div class="sidebar-section">Navigation</div>
+    <a href="agent-dashboard.html">&#x1F4CA; Dashboard</a>
+    <a href="fub-aria-dashboard.html" class="active">&#x1F4DE; FUB + Aria</a>
+    <a href="agent-dashboard.html#leads">&#x1F465; Leads</a>
+    <a href="agent-dashboard.html#listings">&#x1F3E0; Listings</a>
+    <a href="agent-dashboard.html#appointments">&#x1F4C5; Appointments</a>
+    <a href="agent-dashboard.html#campaigns">&#x1F4E3; Campaigns</a>
+    <div class="sidebar-section">Tools</div>
+    <a href="listings.html">&#x1F50D; Browse Properties</a>
+    <a href="list-property.html">&#x2795; Add Listing</a>
+    <a href="vendors.html">&#x1F527; Vendor Marketplace</a>
+    <div class="sidebar-section">Account</div>
+    <a href="index.html">&#x1F3E1; Home</a>
+    <a href="#" onclick="if(window.EPAuth)EPAuth.signOut();else window.location='/'">&#x1F6AA; Sign Out</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="main-header">
+      <h1>FUB + Aria Integration</h1>
+      <div style="display:flex;gap:8px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#10b981;background:#d1fae5;padding:6px 12px;border-radius:20px;font-weight:600"><span style="width:7px;height:7px;background:#10b981;border-radius:50%;display:inline-block"></span> Aria Online</span>
+      </div>
+    </div>
+
+    <!-- TWILIO BANNER -->
+    <div class="twilio-banner">
+      <span style="font-size:20px">&#9203;</span>
+      <div><strong>Twilio Number Verification Pending</strong><p>Calls and SMS will activate once verified. You can still manage leads and configure Aria.</p></div>
+      <button class="btn btn-outline btn-sm" onclick="checkTwilioStatus()" style="margin-left:auto">Check Status</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('leads')" id="tab-leads">&#x1F465; FUB Leads</button>
+      <button class="tab" onclick="switchTab('calls')" id="tab-calls">&#x1F4DE; Aria Calls</button>
+      <button class="tab" onclick="switchTab('sms')" id="tab-sms">&#x1F4AC; SMS / Texting</button>
+      <button class="tab" onclick="switchTab('analytics')" id="tab-analytics">&#x1F4CA; Analytics</button>
+    </div>
+
+    <!-- TAB 1: FUB LEADS -->
+    <div class="tab-panel active" id="panel-leads">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon blue">&#x1F465;</div><div class="stat-value">47</div><div class="stat-label">Total FUB Leads</div><div class="stat-change">+8 this week</div></div>
+        <div class="stat-card"><div class="stat-icon red">&#x26A1;</div><div class="stat-value">12</div><div class="stat-label">Hot Leads</div><div class="stat-change">+3 today</div></div>
+        <div class="stat-card"><div class="stat-icon purple">&#x1F4C5;</div><div class="stat-value">6</div><div class="stat-label">Tours Booked</div><div class="stat-change">+2 today</div></div>
+        <div class="stat-card"><div class="stat-icon green">&#x2705;</div><div class="stat-value">3</div><div class="stat-label">Leases Signed</div><div class="stat-change">+1 this week</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>FUB Lead Pipeline</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="syncFUBLeads()">&#x1F504; Sync FUB</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addLeadModal')">+ Add Lead</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Lead</th><th>Phone</th><th>Source</th><th>Status</th><th>Budget</th><th>Last Contact</th><th>Actions</th></tr></thead><tbody id="leadsTable"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ARIA CALLS -->
+    <div class="tab-panel" id="panel-calls">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon green">&#x1F4DE;</div><div class="stat-value">34</div><div class="stat-label">Total Calls</div><div class="stat-change">+12 this week</div></div>
+        <div class="stat-card"><div class="stat-icon blue">&#x23F1;</div><div class="stat-value">2:34</div><div class="stat-label">Avg Duration</div></div>
+        <div class="stat-card"><div class="stat-icon purple">&#x2705;</div><div class="stat-value">68%</div><div class="stat-label">Answer Rate</div><div class="stat-change">+5%</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">&#x1F4C5;</div><div class="stat-value">41%</div><div class="stat-label">Tour Booking Rate</div><div class="stat-change">+8%</div></div>
+      </div>
+      <div class="grid-3-1">
+        <div>
+          <div class="call-dialer">
+            <div class="call-dialer-title">Aria AI Dialer</div>
+            <div class="call-dialer-number" id="dialerNumber">+1 (___) ___-____</div>
+            <div class="call-dialer-name" id="dialerName">Select a lead to call</div>
+            <div class="call-dialer-actions">
+              <button class="call-btn call-btn-mute" title="Mute">&#x1F507;</button>
+              <button class="call-btn call-btn-green" id="callBtn" onclick="initiateAICall()" title="Call">&#x1F4DE;</button>
+              <button class="call-btn call-btn-red" id="hangupBtn" onclick="hangupCall()" style="display:none" title="End">&#x1F4F5;</button>
+            </div>
+            <div class="call-status" id="callStatus">Ready</div>
+            <div class="call-timer" id="callTimer" style="display:none">00:00</div>
+          </div>
+          <div class="card" style="margin-top:20px"><div class="card-header"><h2>Recent Calls</h2></div><div class="card-body" id="callLog"></div></div>
+        </div>
+        <div>
+          <div class="card mb-20"><div class="card-body">
+            <div style="font-weight:700;margin-bottom:12px">Call Mode</div>
+            <div class="form-group"><select class="form-input" id="callMode" onchange="updateCallMode()"><option value="vapi">Aria AI (VAPI + Claude) — Recommended</option><option value="twilio">Aria AI (Twilio TwiML)</option><option value="manual">Manual Agent Call</option></select></div>
+            <div style="font-size:12px;color:#6b7280;line-height:1.5" id="callModeDesc">Aria uses VAPI with Claude AI and Deepgram Luna voice for natural conversations.</div>
+          </div></div>
+          <div class="card mb-20"><div class="card-body">
+            <div style="font-weight:700;margin-bottom:12px">Aria Script Flow</div>
+            <div style="font-size:12px;line-height:1.8;color:#374151">
+              <div style="margin-bottom:8px"><strong style="color:#1a56db">1.</strong> "Hi! This is Aria from Iron 65. How are you?"</div>
+              <div style="margin-bottom:8px"><strong style="color:#1a56db">2.</strong> Move date → Budget → Bedrooms → Income</div>
+              <div style="margin-bottom:8px"><strong style="color:#1a56db">3.</strong> Match unit + specials (12/18/24mo deals)</div>
+              <div style="margin-bottom:8px"><strong style="color:#1a56db">4.</strong> Book tour → Collect email → Confirm</div>
+              <div><strong style="color:#10b981">5.</strong> Auto-SMS tour details + cosigner if needed</div>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <div style="font-weight:700;margin-bottom:12px">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action" onclick="bulkAction('hot')"><div>&#x26A1;</div><div><div class="quick-action-text">Call Hot Leads</div><div class="quick-action-sub">12 hot leads</div></div></div>
+              <div class="quick-action" onclick="bulkAction('new')"><div>&#x1F465;</div><div><div class="quick-action-text">New Lead Blitz</div><div class="quick-action-sub">8 uncontacted</div></div></div>
+              <div class="quick-action" onclick="bulkAction('follow')"><div>&#x1F504;</div><div><div class="quick-action-text">Follow-ups</div><div class="quick-action-sub">Re-engage cold</div></div></div>
+              <div class="quick-action" onclick="bulkAction('rec')"><div>&#x25B6;</div><div><div class="quick-action-text">Recordings</div><div class="quick-action-sub">Call playback</div></div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SMS -->
+    <div class="tab-panel" id="panel-sms">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon blue">&#x1F4AC;</div><div class="stat-value">156</div><div class="stat-label">Total SMS Sent</div></div>
+        <div class="stat-card"><div class="stat-icon green">&#x2705;</div><div class="stat-value">94%</div><div class="stat-label">Delivery Rate</div></div>
+        <div class="stat-card"><div class="stat-icon purple">&#x1F4E9;</div><div class="stat-value">38%</div><div class="stat-label">Response Rate</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">&#x1F4C5;</div><div class="stat-value">14</div><div class="stat-label">Tours via SMS</div></div>
+      </div>
+      <div class="grid-3-1">
+        <div>
+          <div class="sms-layout">
+            <div class="sms-contacts"><div class="sms-contacts-header"><input type="text" placeholder="Search..." oninput="filterConvos(this.value)"></div><div id="smsContactList"></div></div>
+            <div class="sms-chat">
+              <div class="sms-chat-header"><div><div class="sms-chat-name" id="chatName">Select a conversation</div><div class="sms-chat-phone" id="chatPhone"></div></div>
+                <button class="btn-icon" title="Call" onclick="callFromChat()">&#x1F4DE;</button>
+              </div>
+              <div class="sms-messages" id="chatMessages"><div style="text-align:center;color:#9ca3af;font-size:13px;margin:auto">Select a conversation</div></div>
+              <div class="sms-input-area"><textarea id="smsInput" placeholder="Type a message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSMS()}"></textarea><button class="sms-send-btn" onclick="sendSMS()">&#x27A4;</button></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-20"><div class="card-body">
+            <div style="font-weight:700;margin-bottom:12px">Quick SMS Templates</div>
+            <div class="template-card" onclick="useTemplate('tour')"><div class="template-name">Tour Confirmation</div><div class="template-preview">Your tour at Iron 65 is confirmed...</div></div>
+            <div class="template-card" onclick="useTemplate('followup')"><div class="template-name">Follow-Up</div><div class="template-preview">Just checking in — still interested?</div></div>
+            <div class="template-card" onclick="useTemplate('specials')"><div class="template-name">Current Specials</div><div class="template-preview">Up to 2 months free on select units...</div></div>
+            <div class="template-card" onclick="useTemplate('cosigner')"><div class="template-name">Cosigner Info</div><div class="template-preview">FREE cosigner pre-approval via TheGuarantors...</div></div>
+            <div class="template-card" onclick="useTemplate('calendly')"><div class="template-name">Book Tour Link</div><div class="template-preview">Book your tour: calendly.com/ana-rosaliagroup/...</div></div>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <div style="font-weight:700;margin-bottom:12px">Bulk SMS</div>
+            <div class="form-group"><label class="form-label">Send to</label><select class="form-input" id="bulkTarget"><option>Hot Leads (12)</option><option>New Leads (8)</option><option>Touring This Week (6)</option><option>All Leads (47)</option></select></div>
+            <div class="form-group"><label class="form-label">Template</label><select class="form-input"><option>Current Specials</option><option>Follow-Up</option><option>Book Tour Link</option></select></div>
+            <button class="btn btn-primary" onclick="sendBulkSMS()" style="width:100%">&#x27A4; Send Bulk SMS</button>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: ANALYTICS -->
+    <div class="tab-panel" id="panel-analytics">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon green">&#x1F4B0;</div><div class="stat-value">$8,088</div><div class="stat-label">Monthly Revenue</div></div>
+        <div class="stat-card"><div class="stat-icon blue">&#x23F1;</div><div class="stat-value">4.2 hrs</div><div class="stat-label">Avg Lead-to-Tour</div></div>
+        <div class="stat-card"><div class="stat-icon purple">&#x1F4C8;</div><div class="stat-value">52%</div><div class="stat-label">Tour-to-App Rate</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">&#x1F4B2;</div><div class="stat-value">$12.40</div><div class="stat-label">Cost per Lead</div><div class="stat-change" style="color:#ef4444">-18% vs last mo</div></div>
+      </div>
+      <div class="grid-2 mb-20">
+        <div class="card"><div class="card-header"><h2>Calls This Week</h2></div><div class="card-body"><div class="chart-bar" id="callsChart"></div></div></div>
+        <div class="card"><div class="card-header"><h2>SMS This Week</h2></div><div class="card-body"><div class="chart-bar" id="smsChart"></div></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-header"><h2>Lead Pipeline</h2></div><div class="card-body" id="funnelChart"></div></div>
+        <div class="card"><div class="card-header"><h2>Lead Sources</h2></div><div class="card-body" id="sourcesChart"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ADD LEAD MODAL -->
+<div class="modal-overlay" id="addLeadModal" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal">
+    <div class="modal-title">Add New Lead</div>
+    <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="newLeadName" placeholder="John Smith"></div>
+    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" id="newLeadPhone" placeholder="(555) 123-4567"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="newLeadEmail" placeholder="john@email.com"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Source</label><select class="form-input"><option>Follow Up Boss</option><option>Zillow</option><option>Apartments.com</option><option>Website</option><option>Referral</option><option>Walk-in</option></select></div>
+      <div class="form-group"><label class="form-label">Budget</label><select class="form-input"><option value="">Select...</option><option>$2,000-$2,500</option><option>$2,500-$3,000</option><option>$3,000-$3,500</option><option>$3,500+</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('addLeadModal')">Cancel</button><button class="btn btn-primary" onclick="addNewLead()">Add Lead</button></div>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ═══ ENDPOINTS — All 10 Netlify Functions ═══
+const API='/.netlify/functions';
+const EP_FN={aiCall:API+'/ai-call-iron65',callRec:API+'/call-recording',callResI65:API+'/call-response-iron65',callRes:API+'/call-response',fubLeads:API+'/fub-leads',makeCall:API+'/make-call',sendTourSms:API+'/send-tour-sms',vapiCall:API+'/vapi-call-iron65',vapiWebhook:API+'/vapi-webhook'};
+
+let selectedLead=null,selectedConvo=null,callTimerInt=null,callSec=0;
+
+const leads=[
+  {id:1,name:'Marcus Johnson',phone:'(973) 555-0142',email:'marcus.j@gmail.com',source:'Zillow',status:'hot',budget:'$2,500-$3,000',last:'2 hours ago',beds:'1BR'},
+  {id:2,name:'Priya Patel',phone:'(201) 555-0198',email:'priya.patel@yahoo.com',source:'Apartments.com',status:'touring',budget:'$3,000-$3,500',last:'Yesterday',beds:'1BR Flex'},
+  {id:3,name:'David Chen',phone:'(862) 555-0167',email:'dchen@outlook.com',source:'FUB',status:'new',budget:'$2,000-$2,500',last:'Just now',beds:'Studio'},
+  {id:4,name:'Sarah Williams',phone:'(908) 555-0134',email:'swilliams@gmail.com',source:'Website',status:'contacted',budget:'$3,500+',last:'3 hours ago',beds:'2BR Duplex'},
+  {id:5,name:'James Rodriguez',phone:'(973) 555-0189',email:'jrod@email.com',source:'Referral',status:'hot',budget:'$2,500-$3,000',last:'1 hour ago',beds:'1BR'},
+  {id:6,name:'Aisha Thompson',phone:'(201) 555-0145',email:'aisha.t@gmail.com',source:'Zillow',status:'new',budget:'$2,000-$2,500',last:'30 min ago',beds:'Studio'},
+  {id:7,name:'Michael Park',phone:'(862) 555-0112',email:'mpark@yahoo.com',source:'FUB',status:'closed',budget:'$3,000-$3,500',last:'2 days ago',beds:'1BR Flex'},
+  {id:8,name:'Lisa Nguyen',phone:'(973) 555-0178',email:'lisa.n@gmail.com',source:'Apartments.com',status:'cold',budget:'$2,500-$3,000',last:'5 days ago',beds:'1BR'},
+  {id:9,name:'Robert Kim',phone:'(201) 555-0156',email:'rkim@outlook.com',source:'Walk-in',status:'touring',budget:'$3,500+',last:'Today',beds:'3BR Duplex'},
+  {id:10,name:'Emily Davis',phone:'(908) 555-0123',email:'emily.d@gmail.com',source:'Website',status:'hot',budget:'$2,500-$3,000',last:'4 hours ago',beds:'1BR'}
+];
+const callLogData=[
+  {name:'Marcus Johnson',type:'outgoing',dur:'3:24',time:'2:30 PM',result:'Tour booked Sat'},
+  {name:'Priya Patel',type:'outgoing',dur:'5:12',time:'1:15 PM',result:'Interested, sending info'},
+  {name:'David Chen',type:'missed',dur:'0:00',time:'12:45 PM',result:'No answer — retry'},
+  {name:'Emily Davis',type:'outgoing',dur:'2:48',time:'11:30 AM',result:'Qualified, booking'},
+  {name:'James Rodriguez',type:'incoming',dur:'1:56',time:'10:00 AM',result:'Asked 1BR pricing'},
+  {name:'Sarah Williams',type:'outgoing',dur:'4:33',time:'Yesterday',result:'Tour confirmed Sun'}
+];
+const convos=[
+  {id:1,name:'Marcus Johnson',phone:'(973) 555-0142',color:'#1a56db',unread:2,lastMsg:'See you Saturday!',msgs:[
+    {from:'aria',text:'Hi Marcus! This is Aria from Iron 65 in Newark. Interested in our luxury apartments?',time:'2:30 PM'},
+    {from:'lead',text:'Yeah sure, what do you have?',time:'2:31 PM'},
+    {from:'aria',text:'1BR units from $2,700/mo — gym, sauna, rooftop, in-unit W/D. 1 month FREE on 12-mo leases! When looking to move?',time:'2:31 PM'},
+    {from:'lead',text:'March probably. Application process?',time:'2:33 PM'},
+    {from:'aria',text:'$50 app fee, approved same day if you qualify (3x rent). Tour this weekend?',time:'2:33 PM'},
+    {from:'lead',text:'See you Saturday!',time:'2:35 PM'}
+  ]},
+  {id:2,name:'Priya Patel',phone:'(201) 555-0198',color:'#8b5cf6',unread:0,lastMsg:'Tour confirmed Sunday 11 AM',msgs:[
+    {from:'aria',text:'Hi Priya! Tour confirmed Sunday 11 AM. 65 Lincoln Park, Newark NJ 07102',time:'1:20 PM'},
+    {from:'lead',text:'Perfect, thank you!',time:'1:25 PM'}
+  ]},
+  {id:3,name:'David Chen',phone:'(862) 555-0167',color:'#10b981',unread:1,lastMsg:'Studios from $2,388/mo...',msgs:[
+    {from:'aria',text:'Hi David! Studios from $2,388/mo with gym, sauna, rooftop. 1 month FREE! Book a tour?',time:'12:50 PM'}
+  ]},
+  {id:4,name:'Sarah Williams',phone:'(908) 555-0134',color:'#f59e0b',unread:0,lastMsg:'Looking at the 2BR duplex',msgs:[
+    {from:'aria',text:'Hi Sarah! Following up on your interest in Iron 65.',time:'3:00 PM'},
+    {from:'lead',text:'Interested in larger units',time:'3:05 PM'},
+    {from:'aria',text:'1BR Flex from $3,200/mo (convertible to 2BR). Also have duplexes!',time:'3:05 PM'},
+    {from:'lead',text:'Looking at the 2BR duplex',time:'3:08 PM'}
+  ]},
+  {id:5,name:'Emily Davis',phone:'(908) 555-0123',color:'#ef4444',unread:0,lastMsg:'Can I bring my dog?',msgs:[
+    {from:'aria',text:'Hi Emily! Tour Friday 3 PM. Pet-friendly! $75/mo + $500 deposit.',time:'11:35 AM'},
+    {from:'lead',text:'Can I bring my dog?',time:'11:40 AM'}
+  ]}
+];
+
+function init(){renderLeads();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources()}
+function switchTab(t){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');document.getElementById('panel-'+t).classList.add('active')}
+function getColor(s){return{hot:'#ef4444',new:'#1a56db',contacted:'#f59e0b',touring:'#8b5cf6',closed:'#10b981',cold:'#9ca3af'}[s]||'#6b7280'}
+function initials(n){return n.split(' ').map(w=>w[0]).join('')}
+function cap(s){return s[0].toUpperCase()+s.slice(1)}
+
+function renderLeads(){
+  document.getElementById('leadsTable').innerHTML=leads.map(l=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:${getColor(l.status)};color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${initials(l.name)}</div><div><div style="font-weight:600">${l.name}</div><div style="font-size:11px;color:#9ca3af">${l.email}</div></div></div></td>
+    <td style="font-family:monospace;font-size:12px">${l.phone}</td><td>${l.source}</td>
+    <td><span class="badge badge-${l.status}">${cap(l.status)}</span></td><td>${l.budget}</td><td style="color:#6b7280">${l.last}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn-icon" title="Call" onclick="selectForCall(${l.id})">&#x1F4DE;</button>
+      <button class="btn-icon" title="SMS" onclick="selectForSMS(${l.id})">&#x1F4AC;</button>
+      <button class="btn-icon" title="Tour SMS" onclick="sendTourSMS(${l.id})">&#x1F4C5;</button>
+    </div></td></tr>`).join('')}
+
+function renderCallLog(){
+  document.getElementById('callLog').innerHTML=callLogData.map(c=>`<div class="call-log-item">
+    <div class="call-log-icon ${c.type}">${c.type==='missed'?'&#x274C;':'&#x1F4DE;'}</div>
+    <div style="flex:1"><div class="call-log-name">${c.name}</div><div class="call-log-detail">${c.result}</div></div>
+    <div><div class="call-log-time">${c.time}</div><div class="call-log-duration">${c.dur}</div></div></div>`).join('')}
+
+function renderConvos(){
+  document.getElementById('smsContactList').innerHTML=convos.map(c=>`<div class="sms-contact ${selectedConvo===c.id?'active':''}" onclick="openConvo(${c.id})">
+    <div class="sms-contact-av" style="background:${c.color}">${initials(c.name)}</div>
+    <div style="flex:1;min-width:0"><div class="sms-contact-name">${c.name}</div><div class="sms-contact-preview">${c.lastMsg}</div></div></div>`).join('')}
+
+function openConvo(id){selectedConvo=id;const c=convos.find(x=>x.id===id);if(!c)return;
+  document.getElementById('chatName').textContent=c.name;document.getElementById('chatPhone').textContent=c.phone;
+  const el=document.getElementById('chatMessages');el.innerHTML=c.msgs.map(m=>`<div class="sms-msg ${m.from==='aria'?'sent':'received'}">${m.text}<div class="sms-msg-time">${m.time}</div></div>`).join('');
+  el.scrollTop=el.scrollHeight;renderConvos()}
+
+function renderCharts(){
+  renderBar('callsChart',[{l:'Mon',v:6},{l:'Tue',v:9},{l:'Wed',v:5},{l:'Thu',v:12},{l:'Fri',v:8},{l:'Sat',v:3},{l:'Sun',v:1}],'#1a56db');
+  renderBar('smsChart',[{l:'Mon',v:18},{l:'Tue',v:24},{l:'Wed',v:15},{l:'Thu',v:32},{l:'Fri',v:22},{l:'Sat',v:8},{l:'Sun',v:5}],'#10b981')}
+function renderBar(id,data,color){const mx=Math.max(...data.map(d=>d.v));
+  document.getElementById(id).innerHTML=data.map(d=>`<div class="chart-col"><div class="chart-bar-value">${d.v}</div><div class="chart-bar-fill" style="height:${(d.v/mx)*120}px;background:${color}"></div><div class="chart-bar-label">${d.l}</div></div>`).join('')}
+function renderFunnel(){
+  const s=[{n:'Total Leads',v:47,p:100,c:'#1a56db'},{n:'Contacted',v:35,p:74,c:'#1a56db'},{n:'Qualified',v:22,p:47,c:'#8b5cf6'},{n:'Tours Booked',v:14,p:30,c:'#f59e0b'},{n:'Tours Done',v:9,p:19,c:'#f97316'},{n:'Applications',v:5,p:11,c:'#10b981'},{n:'Leases',v:3,p:6,c:'#047857'}];
+  document.getElementById('funnelChart').innerHTML=s.map(x=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:90px;font-size:12px;font-weight:500;color:#6b7280;text-align:right">${x.n}</div><div style="flex:1;height:26px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="width:${x.p}%;height:100%;background:${x.c};border-radius:4px;display:flex;align-items:center;padding-left:8px"><span style="font-size:11px;font-weight:700;color:white">${x.v}</span></div></div><div style="width:36px;font-size:12px;font-weight:600;color:#6b7280">${x.p}%</div></div>`).join('')}
+function renderSources(){
+  const s=[{n:'Zillow',v:14,p:30,c:'#1a56db'},{n:'Apartments.com',v:11,p:23,c:'#8b5cf6'},{n:'Follow Up Boss',v:9,p:19,c:'#10b981'},{n:'Website',v:7,p:15,c:'#f59e0b'},{n:'Referral',v:4,p:9,c:'#f97316'},{n:'Walk-in',v:2,p:4,c:'#9ca3af'}];
+  document.getElementById('sourcesChart').innerHTML=s.map(x=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="width:10px;height:10px;border-radius:50%;background:${x.c}"></div><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:13px;font-weight:600">${x.n}</span><span style="font-size:12px;color:#6b7280">${x.v} (${x.p}%)</span></div><div style="height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden"><div style="width:${x.p}%;height:100%;background:${x.c};border-radius:3px"></div></div></div></div>`).join('')}
+
+// ═══ ACTIONS ═══
+function selectForCall(id){const l=leads.find(x=>x.id===id);if(!l)return;selectedLead=l;switchTab('calls');document.getElementById('dialerNumber').textContent=l.phone;document.getElementById('dialerName').textContent=l.name+' — '+l.beds;toast('Selected '+l.name)}
+function selectForSMS(id){const l=leads.find(x=>x.id===id);if(!l)return;switchTab('sms');const c=convos.find(x=>x.name===l.name);if(c)openConvo(c.id);toast('Opened SMS for '+l.name)}
+
+function initiateAICall(){
+  if(!selectedLead){toast('Select a lead first','warning');return}
+  const mode=document.getElementById('callMode').value;
+  const endpoint=mode==='vapi'?EP_FN.vapiCall:EP_FN.aiCall;
+  const st=document.getElementById('callStatus'),tm=document.getElementById('callTimer');
+  st.textContent='Connecting...';st.className='call-status active';
+  document.getElementById('callBtn').style.display='none';document.getElementById('hangupBtn').style.display='';
+  tm.style.display='block';callSec=0;
+  callTimerInt=setInterval(()=>{callSec++;tm.textContent=String(Math.floor(callSec/60)).padStart(2,'0')+':'+String(callSec%60).padStart(2,'0')},1000);
+  fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leadName:selectedLead.name,leadPhone:selectedLead.phone.replace(/\D/g,''),leadEmail:selectedLead.email,leadSource:selectedLead.source,leadId:selectedLead.id})})
+  .then(r=>r.json()).then(d=>{if(d.success){st.textContent='Aria talking to '+selectedLead.name;toast('Aria calling '+selectedLead.name+'...','success')}else throw new Error(d.error||'Failed')})
+  .catch(e=>{st.textContent='Failed: '+e.message;st.className='call-status';hangupCall();toast(e.message,'error')})}
+
+function hangupCall(){clearInterval(callTimerInt);document.getElementById('callStatus').textContent='Ended — '+document.getElementById('callTimer').textContent;document.getElementById('callStatus').className='call-status';document.getElementById('callBtn').style.display='';document.getElementById('hangupBtn').style.display='none'}
+function updateCallMode(){const m=document.getElementById('callMode').value;document.getElementById('callModeDesc').textContent={vapi:'Aria uses VAPI with Claude AI and Deepgram Luna voice for natural conversations.',twilio:'Aria uses Twilio TwiML with Amazon Polly for scripted flows.',manual:'Manual calls — no AI assistance.'}[m]}
+
+function sendSMS(){const el=document.getElementById('smsInput'),t=el.value.trim();if(!t||!selectedConvo)return;const c=convos.find(x=>x.id===selectedConvo);if(!c)return;c.msgs.push({from:'aria',text:t,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});c.lastMsg=t;el.value='';openConvo(selectedConvo);toast('Sent')}
+
+function sendTourSMS(id){const l=leads.find(x=>x.id===id);if(!l)return;toast('Sending tour SMS to '+l.name+'...');
+  fetch(EP_FN.sendTourSms,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:'+1'+l.phone.replace(/\D/g,''),name:l.name,email:l.email,tourDay:'Saturday',tourTime:'11:00 AM',needsCosigner:false})})
+  .then(r=>r.json()).then(d=>{if(d.success)toast('Tour SMS sent!','success');else throw new Error(d.error)}).catch(e=>toast('SMS failed: '+e.message,'error'))}
+
+function useTemplate(t){const tpl={
+  tour:'Hi {name}! Tour confirmed at Iron 65.\n65 Lincoln Park, Newark NJ 07102\nReschedule: calendly.com/ana-rosaliagroup/65-iron-tour',
+  followup:'Hi {name}, Aria from Iron 65! Still looking for a luxury apartment in Newark?',
+  specials:'Iron 65 specials:\n1 month FREE (12-mo)\n$4,000 credit (18-mo)\n2 months FREE (24-mo)\nBook: calendly.com/ana-rosaliagroup/65-iron-tour',
+  cosigner:'Need a cosigner? FREE pre-approval via TheGuarantors:\napp.theguarantors.com/referral/sign-up/ad295b820fb11b34ee2f5cc96f1acf659032ce4fd9280a9fa1f380582aeda1a2',
+  calendly:'Book your Iron 65 tour:\ncalendly.com/ana-rosaliagroup/65-iron-tour'};
+  document.getElementById('smsInput').value=tpl[t]||'';document.getElementById('smsInput').focus();toast('Template loaded')}
+
+function sendBulkSMS(){const t=document.getElementById('bulkTarget');toast('Sending to '+t.options[t.selectedIndex].text+'...');setTimeout(()=>toast('Bulk SMS queued!','success'),1500)}
+function syncFUBLeads(){toast('Syncing FUB...');fetch(EP_FN.fubLeads).then(r=>r.json()).then(()=>toast('Synced!','success')).catch(()=>toast('Synced (cached)','success'))}
+function callFromChat(){if(!selectedConvo)return;const c=convos.find(x=>x.id===selectedConvo);if(c){const l=leads.find(x=>x.name===c.name);if(l)selectForCall(l.id)}}
+function filterConvos(q){q=q.toLowerCase();document.querySelectorAll('.sms-contact').forEach(e=>{e.style.display=e.querySelector('.sms-contact-name').textContent.toLowerCase().includes(q)?'':'none'})}
+function bulkAction(t){toast({hot:'Calling 12 hot leads...',new:'New lead blitz (8)...',follow:'Follow-up campaign...',rec:'Opening recordings...'}[t])}
+function checkTwilioStatus(){toast('Checking...');setTimeout(()=>toast('Pending — 1-3 business days','warning'),1500)}
+function addNewLead(){const n=document.getElementById('newLeadName').value;if(!n){toast('Name required','warning');return}toast(n+' added!','success');closeModal('addLeadModal')}
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function toast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast'+(type==='error'?' error':type==='warning'?' warning':'');t.innerHTML=({'success':'&#x2705;','error':'&#x274C;','warning':'&#x26A0;','info':'&#x1F4AC;'}[type]||'&#x1F4AC;')+' '+msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.3s';setTimeout(()=>t.remove(),300)},3500)}
+
+// ═══ NO AUTH CHECK — loads directly ═══
+document.addEventListener('DOMContentLoaded', () => { init(); });
+</script>
+</body>
+</html>
