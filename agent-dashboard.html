@@ -142,15 +142,99 @@ function filterLeads() {
   if (!q) { renderLeadsTable(allLeadsCache); return; }
   renderLeadsTable(allLeadsCache.filter(l => (l.name||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q) || (l.phone||'').toLowerCase().includes(q) || (l.source||'').toLowerCase().includes(q) || (l.message||'').toLowerCase().includes(q)));
 }
+function getLeadType(l) {
+  if (!l.message) return '';
+  const m = l.message.match(/Type:\s*([^|]+)/);
+  return m ? m[1].trim() : '';
+}
+function getLeadTypeBadge(type) {
+  if (!type) return '';
+  const colors = {Renter:'#eff6ff;color:#1e40af',Buyer:'#f0fdf4;color:#166534',Seller:'#fef3c7;color:#92400e',Commercial:'#fae8ff;color:#7e22ce',Investor:'#fce7f3;color:#9d174d',Vendor:'#f1f5f9;color:#475569'};
+  const bg = colors[type] || '#f3f4f6;color:#374151';
+  return '<span style="background:'+bg+';padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">'+type+'</span>';
+}
+let mergeSelection = [];
+function toggleMerge(id, el) {
+  el.stopPropagation && el.stopPropagation();
+  if (mergeSelection.includes(id)) { mergeSelection = mergeSelection.filter(x=>x!==id); }
+  else { mergeSelection.push(id); }
+  document.querySelectorAll('.merge-cb').forEach(cb => { cb.checked = mergeSelection.includes(cb.dataset.id); });
+  document.getElementById('merge-bar').style.display = mergeSelection.length >= 2 ? 'flex' : 'none';
+  document.getElementById('merge-count').textContent = mergeSelection.length;
+}
 function renderLeadsTable(leads) {
   const c = document.getElementById('all-leads');
   if (!leads || !leads.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No leads found.</p></div>'; return; }
-  c.innerHTML = `<div style="font-size:12px;color:#6b7280;margin-bottom:8px">Showing ${leads.length} lead${leads.length===1?'':'s'}</div><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Source</th><th>AI Status</th><th>Date</th><th>Actions</th></tr></thead>
+  mergeSelection = [];
+  c.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#6b7280">Showing ${leads.length} lead${leads.length===1?'':'s'}</span></div><div id="merge-bar" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 16px;border-radius:8px;margin-bottom:12px;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e40af;font-weight:600"><span id="merge-count">0</span> leads selected</span><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" onclick="mergeSelection=[];renderLeadsTable(allLeadsCache)">Cancel</button><button class="btn btn-sm btn-primary" onclick="openMergeModal()">🔗 Merge Selected</button></div></div><table><thead><tr><th style="width:30px"></th><th>Name</th><th>Type</th><th>Email</th><th>Phone</th><th>Source</th><th>AI Status</th><th>Date</th><th>Actions</th></tr></thead>
     <tbody>${leads.map(l => {
       const hasPhone = l.phone && l.phone.length > 5;
+      const leadType = getLeadType(l);
       const aiStatus = hasPhone ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">🤖 AI Ready</span>' : '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">No Phone</span>';
-      return `<tr style="cursor:pointer" onclick="openLeadProfile('${encodeURIComponent(JSON.stringify(l))}')"><td><strong>${l.name||'—'}</strong></td><td style="font-size:12px">${l.email||'—'}</td><td style="font-size:12px">${l.phone||'—'}</td><td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">${l.source||'—'}</span></td><td>${aiStatus}</td><td style="font-size:12px">${new Date(l.created_at).toLocaleDateString()}</td><td><div style="display:flex;gap:4px">${hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();aiCallLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">📞</button>':''}<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td></tr>`;
+      return '<tr style="cursor:pointer" onclick="openLeadProfile(\''+encodeURIComponent(JSON.stringify(l))+'\')">'
+        +'<td onclick="event.stopPropagation()"><input type="checkbox" class="merge-cb" data-id="'+l.id+'" onchange="toggleMerge(\''+l.id+'\',event)" style="cursor:pointer"></td>'
+        +'<td><strong>'+(l.name||'—')+'</strong></td>'
+        +'<td>'+getLeadTypeBadge(leadType)+'</td>'
+        +'<td style="font-size:12px">'+(l.email||'—')+'</td>'
+        +'<td style="font-size:12px">'+(l.phone||'—')+'</td>'
+        +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
+        +'<td>'+aiStatus+'</td>'
+        +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
+        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();aiCallLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">📞</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
+        +'</tr>';
     }).join('')}</tbody></table>`;
+}
+function openMergeModal() {
+  if (mergeSelection.length < 2) { alert('Select at least 2 leads to merge'); return; }
+  const leads = allLeadsCache.filter(l => mergeSelection.includes(String(l.id)));
+  if (leads.length < 2) { alert('Could not find selected leads'); return; }
+  // Pick the one with most data as primary
+  const primary = leads.sort((a,b) => ((b.message||'').length + (b.phone||'').length) - ((a.message||'').length + (a.phone||'').length))[0];
+  const others = leads.filter(l => l.id !== primary.id);
+  // Collect all types
+  const types = [...new Set(leads.map(l => getLeadType(l)).filter(Boolean))];
+  const allNotes = leads.map(l => {
+    const parsed = l.message ? l.message.split('---')[0].trim() : '';
+    return parsed ? l.name + ': ' + parsed : '';
+  }).filter(Boolean);
+
+  const html = '<div id="mergeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">🔗 Merge '+leads.length+' Leads</h2><button onclick="document.getElementById(\'mergeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button></div>'
+    +'<div style="background:#eff6ff;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px"><strong>Primary lead (keeps record):</strong> '+primary.name+' ('+primary.email+')<br><strong>Will merge in:</strong> '+others.map(o=>o.name).join(', ')+'</div>'
+    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Types</label><input type="text" id="merge-types" value="'+types.join(', ')+'" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box" placeholder="Renter, Commercial, Investor..."></div>'
+    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Phone</label><select id="merge-phone" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">'+ leads.filter(l=>l.phone).map(l=>'<option value="'+l.phone+'">'+l.phone+' ('+l.name+')</option>').join('') +'</select></div>'
+    +'<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Email</label><select id="merge-email" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">'+ leads.filter(l=>l.email).map(l=>'<option value="'+l.email+'">'+l.email+' ('+l.name+')</option>').join('') +'</select></div>'
+    +'<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Notes</label><textarea id="merge-notes" rows="3" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">'+allNotes.join('\\n')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="document.getElementById(\'mergeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><button onclick="executeMerge(\''+primary.id+'\',\''+others.map(o=>o.id).join(',')+'\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">🔗 Merge Leads</button></div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+async function executeMerge(primaryId, otherIds) {
+  const phone = document.getElementById('merge-phone')?.value || '';
+  const email = document.getElementById('merge-email')?.value || '';
+  const types = document.getElementById('merge-types')?.value || '';
+  const notes = document.getElementById('merge-notes')?.value || '';
+  const primary = allLeadsCache.find(l => String(l.id) === String(primaryId));
+  if (!primary) { alert('Primary lead not found'); return; }
+
+  // Build merged message
+  const message = notes + (types ? '\n--- Type: ' + types : '');
+
+  try {
+    // Update primary lead with merged data
+    const res = await fetch('/.netlify/functions/upload-leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads: [{ name: primary.name, email: email, phone: phone, source: primary.source, message: message, role: 'user' }], pushToFUB: false })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('mergeModal').remove();
+      mergeSelection = [];
+      alert('✅ Leads merged! Note: duplicate records still exist in Supabase — clean up manually if needed.');
+      loadLeads();
+    } else {
+      alert('Error: ' + (data.error || 'Unknown'));
+    }
+  } catch(err) { alert('Error: ' + err.message); }
 }
 function aiCallLead(j) {
   const l = JSON.parse(decodeURIComponent(j));
