@@ -433,8 +433,8 @@ let activityLog = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   const user = EP.auth.user();
-  if (!user) { window.location.href = 'login.html'; return; }
-  if (user.role !== 'agent') { window.location.href = user.role === 'vendor' ? 'vendor-dashboard.html' : 'listings.html'; return; }
+  if (!user) { console.warn('No auth session — loading dashboard anyway'); }
+  const isAgent = user && user.role === 'agent';
   document.getElementById('header-mount').innerHTML = EP.renderHeader('');
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
   // Show real user name
