@@ -670,14 +670,28 @@ function addCallNote(leadId) {
 }
 
 function callLead(phone) {
-  navigator.clipboard.writeText(phone).then(function(){}).catch(function(){});
-  window.location.href = 'tel:' + phone;
-  setTimeout(function(){ alert('📞 Phone: ' + phone + '\n\nNumber copied to clipboard!'); }, 300);
+  if (!phone) { alert('No phone number'); return; }
+  if (!confirm('Call ' + phone + ' using Aria AI?\n\nAria will call this number and have a conversation with the lead.')) return;
+  var btn = event.target; btn.disabled = true; btn.textContent = '⏳';
+  fetch('/.netlify/functions/vapi-call-iron65', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    btn.disabled = false; btn.textContent = '📞 Call';
+    if (d.error) { alert('Call failed: ' + d.error); }
+    else {
+      EP.notify('📞 Aria is calling ' + phone + '!', 'success');
+      addActivity('call', '📞 AI call initiated to ' + phone, 'Aria is calling the lead now...');
+    }
+  }).catch(function(err){
+    btn.disabled = false; btn.textContent = '📞 Call';
+    alert('Call error: ' + err.message);
+  });
 }
 function emailLead(email) {
-  navigator.clipboard.writeText(email).then(function(){}).catch(function(){});
+  if (!email) { alert('No email'); return; }
   window.location.href = 'mailto:' + email;
-  setTimeout(function(){ alert('📧 Email: ' + email + '\n\nAddress copied to clipboard!'); }, 300);
 }
 function simulateCall(name, phone, id) {
   document.getElementById('call-avatar').textContent = name.charAt(0);
