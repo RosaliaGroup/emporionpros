@@ -434,18 +434,22 @@ let activityLog = [];
 document.addEventListener('DOMContentLoaded', () => {
   const user = EP.auth.user();
   if (!user) { console.warn('No auth session — loading dashboard anyway'); }
-  const isAgent = user && user.role === 'agent';
-  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
-  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
-  // Show real user name
-  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase();
+
+  try {
+    document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+    document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  } catch(e) { console.warn('Header/AI widget error:', e); }
+
+  // Show user name (fallback if no auth)
+  const userName = (user && user.name) ? user.name : 'Ana';
+  const initials = userName.split(' ').map(n=>n[0]).join('').toUpperCase();
   document.getElementById('fub-av').textContent = initials;
-  document.getElementById('fub-name').textContent = user.name;
-  fubConnected = !!EP.store.get('ep_fub_key');
-  if (fubConnected) {
-    showConnected();
-    syncFUBLeads(); // Auto-sync on page load
-  }
+  document.getElementById('fub-name').textContent = userName;
+
+  // Auto-connect FUB — always connect since API key is in Netlify env vars
+  fubConnected = true;
+  showConnected();
+  syncFUBLeads();
 });
 
 
