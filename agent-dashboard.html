@@ -274,7 +274,7 @@ function callLead(phone) {
   fetch('/.netlify/functions/vapi-call-iron65', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone: phone })
+    body: JSON.stringify({ leadPhone: phone })
   }).then(function(r){ return r.json(); }).then(function(d){
     btn.disabled = false; btn.textContent = '📞';
     if (d.error) { alert('Call failed: ' + d.error); }
