@@ -180,7 +180,7 @@ function renderLeadsTable(leads) {
         +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
         +'<td>'+aiStatus+'</td>'
         +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
-        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
+        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(event,\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
         +'</tr>';
     }).join('')}</tbody></table>`;
 }
@@ -267,20 +267,53 @@ async function executeMerge() {
   } catch(err) { alert('Error: ' + err.message); }
 }
 
-function callLead(phone) {
+function callLead(eventOrPhone, phoneArg) {
+  // Support both: callLead('(555) 123-4567') and callLead(event, '(555) 123-4567')
+  var phone, btn;
+  if (typeof eventOrPhone === 'string') {
+    // Called directly with phone string: callLead('(555) 123-4567')
+    phone = eventOrPhone;
+    // Try to find the button in the DOM by matching the phone number
+    var cleanPhone = phone.replace(/[^0-9]/g, '');
+    var allBtns = document.querySelectorAll('.btn-sm.btn-primary');
+    for (var i = 0; i < allBtns.length; i++) {
+      var onclickAttr = allBtns[i].getAttribute('onclick') || '';
+      if (onclickAttr.indexOf(phone) !== -1 || onclickAttr.indexOf(cleanPhone) !== -1) {
+        btn = allBtns[i];
+        break;
+      }
+    }
+  } else {
+    // Called from onclick with event object: callLead(event, '(555) 123-4567')
+    phone = phoneArg;
+    btn = eventOrPhone && eventOrPhone.target ? eventOrPhone.target : null;
+    // Make sure we got the button, not a child element
+    if (btn && !btn.classList.contains('btn')) {
+      btn = btn.closest('.btn');
+    }
+  }
+
   if (!phone) { alert('No phone number'); return; }
+  // Format phone: strip non-digits, add +1 if needed
+  var digits = phone.replace(/[^0-9]/g, '');
+  if (digits.length === 10) digits = '1' + digits;
+  if (digits.length === 11 && digits[0] === '1') digits = digits;
+  var formatted = '+' + digits;
+  if (digits.length < 10) { alert('Invalid phone number: ' + phone); return; }
   if (!confirm('Call ' + phone + ' using Aria AI?\n\nAria will call this number and have a conversation with the lead.')) return;
-  var btn = event.target; btn.disabled = true; btn.textContent = '⏳';
+
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+
   fetch('/.netlify/functions/vapi-call-iron65', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ leadPhone: phone })
+    body: JSON.stringify({ leadPhone: formatted })
   }).then(function(r){ return r.json(); }).then(function(d){
-    btn.disabled = false; btn.textContent = '📞';
+    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
     if (d.error) { alert('Call failed: ' + d.error); }
-    else { alert('📞 Call initiated to ' + phone + '!\n\nAria is now calling the lead. Check the FUB/Aria dashboard for call results.'); }
+    else { alert('📞 Call initiated to ' + phone + '!\n\nAria is now calling the lead.'); }
   }).catch(function(err){
-    btn.disabled = false; btn.textContent = '📞';
+    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
     alert('Call error: ' + err.message);
   });
 }
