@@ -92,7 +92,7 @@ tr:hover td{background:#f9fafb}
       <div class="section"><div class="section-header"><h2>Upcoming Appointments</h2></div><div class="section-body" id="recent-appointments"><div class="loading">Loading...</div></div></div>
     </div>
     <div class="tab-content" id="tab-leads">
-      <div class="main-header"><h1>Leads</h1><button class="btn btn-primary" onclick="openUploadModal()">📤 Upload Excel/CSV</button></div>
+      <div class="main-header"><h1>Leads</h1><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="openAddLeadModal()">➕ Add Lead</button><button class="btn btn-outline" onclick="openUploadModal()">📤 Upload Excel/CSV</button></div></div>
       <div class="section"><div class="section-body" id="all-leads"><div class="loading">Loading...</div></div></div>
     </div>
     <div class="tab-content" id="tab-listings">
@@ -189,6 +189,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   checkHash();
 });
 </script>
+<!-- ADD LEAD MODAL -->
+<div id="addLeadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h2 style="font-size:18px;font-weight:700">➕ Add New Lead</h2>
+      <button onclick="closeAddLeadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
+    </div>
+    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Full Name *</label><input type="text" id="newLeadName" placeholder="John Smith" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Email *</label><input type="email" id="newLeadEmail" placeholder="john@email.com" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Phone</label><input type="tel" id="newLeadPhone" placeholder="(555) 123-4567" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="newLeadSource" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option>Website</option><option>Zillow</option><option>Apartments.com</option><option>Referral</option><option>Walk-in</option><option>Other</option></select></div>
+      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Role</label><select id="newLeadRole" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="user">User</option><option value="agent">Agent</option><option value="vendor">Vendor</option></select></div>
+    </div>
+    <div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes</label><textarea id="newLeadMessage" rows="2" placeholder="Any notes..." style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeAddLeadModal()">Cancel</button>
+      <button class="btn btn-primary" id="addLeadBtn" onclick="submitNewLead()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
 <!-- EXCEL UPLOAD MODAL -->
 <div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
   <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
@@ -228,6 +250,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+// === ADD LEAD ===
+function openAddLeadModal() { document.getElementById('addLeadModal').style.display = 'flex'; }
+function closeAddLeadModal() { document.getElementById('addLeadModal').style.display = 'none'; }
+
+async function submitNewLead() {
+  const name = document.getElementById('newLeadName').value.trim();
+  const email = document.getElementById('newLeadEmail').value.trim();
+  const phone = document.getElementById('newLeadPhone').value.trim();
+  const source = document.getElementById('newLeadSource').value;
+  const role = document.getElementById('newLeadRole').value;
+  const message = document.getElementById('newLeadMessage').value.trim();
+
+  if (!name || !email) { alert('Name and email are required'); return; }
+
+  const btn = document.getElementById('addLeadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+
+  try {
+    // Add to Supabase + FUB via upload-leads function
+    const res = await fetch('/.netlify/functions/upload-leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads: [{ name, email, phone, source, role, message }], pushToFUB: true })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeAddLeadModal();
+      document.getElementById('newLeadName').value = '';
+      document.getElementById('newLeadEmail').value = '';
+      document.getElementById('newLeadPhone').value = '';
+      document.getElementById('newLeadMessage').value = '';
+      if (typeof loadOverview === 'function') loadOverview();
+      if (typeof loadLeads === 'function') loadLeads();
+      alert('✅ Lead added!' + (data.fubPushed ? ' Also pushed to FUB.' : ''));
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Add Lead';
+}
+
+// === EXCEL UPLOAD ===
 let uploadedLeads = [];
 
 function openUploadModal() {
