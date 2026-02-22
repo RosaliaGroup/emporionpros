@@ -1,451 +1,362 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agent Dashboard — Emporion Pros</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="ep-supabase.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh}
-.dash{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
-.sidebar-logo{padding:0 20px 20px;font-size:20px;font-weight:800;color:#1a56db;border-bottom:1px solid #e5e7eb;margin-bottom:12px}
-.sidebar-logo span{color:#f97316}
-.sidebar-user{padding:12px 20px;margin-bottom:12px}
-.sidebar-user-name{font-weight:700;font-size:14px;color:#111}
-.sidebar-user-role{font-size:12px;color:#6b7280;text-transform:capitalize}
-.sidebar a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.2s;border-left:3px solid transparent}
-.sidebar a:hover{background:#f9fafb;color:#1a56db}
-.sidebar a.active{background:#eff6ff;color:#1a56db;border-left-color:#1a56db;font-weight:600}
-.sidebar-section{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;padding:16px 20px 8px}
-.main{padding:32px;overflow-y:auto}
-.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.main-header h1{font-size:28px;font-weight:800;color:#111}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
-.stat-card{background:white;padding:24px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.stat-label{font-size:13px;color:#6b7280;margin-bottom:6px}
-.stat-value{font-size:32px;font-weight:800;color:#1a56db}
-.section{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:24px;overflow:hidden}
-.section-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #e5e7eb}
-.section-header h2{font-size:18px;font-weight:700}
-.section-body{padding:24px}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 16px;background:#f9fafb;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-td{padding:14px 16px;border-bottom:1px solid #f3f4f6;font-size:14px}
-tr:hover td{background:#f9fafb}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-new{background:#eff6ff;color:#1a56db}
-.badge-contacted{background:#fef3c7;color:#92400e}
-.badge-qualified{background:#d1fae5;color:#065f46}
-.badge-pending{background:#fef3c7;color:#92400e}
-.badge-confirmed{background:#d1fae5;color:#065f46}
-.badge-active{background:#d1fae5;color:#065f46}
-.badge-draft{background:#f3f4f6;color:#6b7280}
-.badge-completed{background:#e0e7ff;color:#3730a3}
-.badge-cancelled{background:#fee2e2;color:#991b1b}
-.btn{padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.2s}
-.btn-primary{background:#1a56db;color:white}.btn-primary:hover{background:#1e3a8a}
-.btn-outline{background:white;color:#374151;border:1px solid #e5e7eb}.btn-outline:hover{border-color:#1a56db;color:#1a56db}
-.btn-danger{background:#fee2e2;color:#dc2626}.btn-danger:hover{background:#fecaca}
-.btn-sm{padding:5px 12px;font-size:12px}
-.empty{text-align:center;padding:48px;color:#9ca3af}
-.empty-icon{font-size:48px;margin-bottom:12px}
-.tab-content{display:none}.tab-content.active{display:block}
-.signout-btn{margin-top:auto;padding:12px 20px;color:#ef4444;font-size:14px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:inherit;font-weight:500;display:flex;align-items:center;gap:10px}
-.signout-btn:hover{background:#fef2f2}
-.loading{text-align:center;padding:40px;color:#6b7280}
-@media(max-width:768px){.dash{grid-template-columns:1fr}.sidebar{display:none}.main{padding:16px}}
-</style>
-</head>
-<body>
-<div class="dash">
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Emporion<span>Pros</span></div>
-    <div class="sidebar-user">
-      <div class="sidebar-user-name" id="user-name">Loading...</div>
-      <div class="sidebar-user-role" id="user-role">—</div>
-    </div>
-    <a href="#overview" class="active" onclick="showTab('overview',this)">📊 Overview</a>
-    <a href="#leads" onclick="showTab('leads',this)">👥 Leads</a>
-    <a href="#listings" onclick="showTab('listings',this)">🏠 Listings</a>
-    <a href="#appointments" onclick="showTab('appointments',this)">📅 Appointments</a>
-    <a href="#campaigns" onclick="showTab('campaigns',this)">📣 Campaigns</a>
-    <div class="sidebar-section">Tools</div>
-    <a href="/list-property.html">➕ Add Listing</a>
-    <a href="/vendors.html">🔧 Vendors</a>
-    <a href="/">🌐 View Site</a>
-    <a href="/fub-aria-dashboard.html">🔗 FUB Integration</a>
-    <a href="/fub-aria-dashboard.html">🤖 AI Calling (Aria)</a>
-    <button class="signout-btn" onclick="EPAuth.signOut()">🚪 Sign Out</button>
-  </nav>
-  <div class="main">
-    <div class="tab-content active" id="tab-overview">
-      <div class="main-header"><h1>Welcome back, <span id="welcome-name">Agent</span>!</h1></div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-leads">0</div></div>
-        <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value" id="stat-listings">0</div></div>
-        <div class="stat-card"><div class="stat-label">Appointments</div><div class="stat-value" id="stat-appointments">0</div></div>
-        <div class="stat-card"><div class="stat-label">Campaigns</div><div class="stat-value" id="stat-campaigns">0</div></div>
-      </div>
-      <div class="section"><div class="section-header"><h2>Recent Leads</h2><button class="btn btn-sm btn-primary" onclick="openUploadModal()" style="margin-left:auto">📤 Upload Excel</button></div><div class="section-body" id="recent-leads"><div class="loading">Loading...</div></div></div>
-      <div class="section"><div class="section-header"><h2>Upcoming Appointments</h2></div><div class="section-body" id="recent-appointments"><div class="loading">Loading...</div></div></div>
-    </div>
-    <div class="tab-content" id="tab-leads">
-      <div class="main-header"><h1>Leads</h1><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="openAddLeadModal()">➕ Add Lead</button><button class="btn btn-outline" onclick="openUploadModal()">📤 Upload Excel/CSV</button></div></div>
-      <div class="section"><div class="section-body" id="all-leads"><div class="loading">Loading...</div></div></div>
-    </div>
-    <div class="tab-content" id="tab-listings">
-      <div class="main-header"><h1>My Listings</h1><a href="/list-property.html" class="btn btn-primary">➕ Add Listing</a></div>
-      <div class="section"><div class="section-body" id="all-listings"><div class="loading">Loading...</div></div></div>
-    </div>
-    <div class="tab-content" id="tab-appointments">
-      <div class="main-header"><h1>Appointments</h1></div>
-      <div class="section"><div class="section-body" id="all-appointments"><div class="loading">Loading...</div></div></div>
-    </div>
-    <div class="tab-content" id="tab-campaigns">
-      <div class="main-header"><h1>Campaigns</h1><button class="btn btn-primary" onclick="showCreateCampaign()">➕ New Campaign</button></div>
-      <div class="section"><div class="section-body" id="all-campaigns"><div class="loading">Loading...</div></div></div>
-    </div>
-  </div>
-</div>
-<script>
-function showTab(name, el) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-  const tab = document.getElementById('tab-' + name);
-  if (tab) tab.classList.add('active');
-  if (el) el.classList.add('active');
-  loadTabData(name);
-}
-function checkHash() {
-  const hash = window.location.hash.replace('#', '');
-  if (hash) { const link = document.querySelector(`.sidebar a[href="#${hash}"]`); if (link) showTab(hash, link); }
-}
-async function loadTabData(tab) {
-  switch(tab) {
-    case 'leads': await loadLeads(); break;
-    case 'listings': await loadListings(); break;
-    case 'appointments': await loadAppointments(); break;
-    case 'campaigns': await loadCampaigns(); break;
+// ============================================
+// EMPORIONPROS — Lead Form Module (ep-lead-form.js)
+// Shared by agent-dashboard.html & fub-aria-dashboard.html
+// Dynamic form based on lead type with edit support
+// ============================================
+
+const LeadForm = (function() {
+
+  // ─── OPTIONS ───
+  const LEAD_TYPES = ['Renter', 'Buyer', 'Seller', 'Commercial', 'Investor', 'Vendor'];
+
+  const RENTER_BUDGETS = ['Under $2,000', '$2,000–$2,400', '$2,400–$2,700', '$2,700–$3,000', '$3,000–$3,500', '$3,500+'];
+  const RENTER_SIZES = ['Studio', '1 Bedroom', '1BR Flex / Convertible', '2 Bedroom', '2BR Duplex', '3 Bedroom', '3BR Duplex', '4+ Bedroom'];
+
+  const BUYER_PROPERTY_TYPES = ['House', 'Condo', 'Townhouse', 'Multi-Family', 'Co-op', 'New Construction', 'Land'];
+  const BUYER_PRICE_POINTS = ['Under $100K', '$100K–$200K', '$200K–$300K', '$300K–$400K', '$400K–$500K', '$500K–$750K', '$750K–$1M', '$1M–$2M', '$2M+'];
+
+  const COMMERCIAL_TYPES = ['Office', 'Retail', 'Industrial', 'Mixed-Use', 'Warehouse', 'Restaurant/Bar', 'Medical', 'Other'];
+  const INVESTOR_TYPES = ['Multi-Family', 'Fix & Flip', 'Buy & Hold', 'Commercial', 'New Development', 'Mixed-Use', 'Land'];
+
+  const TIMEFRAMES = ['ASAP', '1 Month', '2 Months', '3 Months', '4–6 Months', '6–12 Months', '12+ Months', 'Just Browsing'];
+  const INCOMES = ['Under $4,000', '$4,000–$6,000', '$6,000–$8,000', '$8,000–$10,000', '$10,000+', 'Prefer not to say'];
+  const CREDITS = ['750+', '700–749', '650–699', '600–649', 'Below 600', 'No Credit', 'Prefer not to say'];
+  const SOURCES = ['Website', 'Zillow', 'Apartments.com', 'Realtor.com', 'Referral', 'Walk-in', 'Follow Up Boss', 'Social Media', 'Google', 'Other'];
+
+  // ─── HELPERS ───
+  function opt(val, selected) {
+    return `<option value="${val}" ${selected === val ? 'selected' : ''}>${val}</option>`;
   }
-}
-async function loadLeads() {
-  const { data: leads } = await EPLeads.getLeads();
-  const c = document.getElementById('all-leads');
-  if (!leads || !leads.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No leads yet.</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead>
-    <tbody>${leads.map(l => `<tr><td><strong>${l.name||'—'}</strong></td><td>${l.email}</td><td>${l.phone||'—'}</td><td>${l.source||'—'}</td><td><span class="badge badge-${l.status}">${l.status}</span></td><td>${new Date(l.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
-}
-async function loadListings() {
-  const { data: listings } = await EPListings.getMyListings();
-  const c = document.getElementById('all-listings');
-  if (!listings || !listings.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div><p>No listings yet.</p><a href="/list-property.html" class="btn btn-primary" style="margin-top:12px">Add Your First Listing</a></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Property</th><th>Price</th><th>Type</th><th>Status</th><th>Views</th><th>Date</th></tr></thead>
-    <tbody>${listings.map(l => `<tr><td><strong>${l.title}</strong><br><span style="font-size:12px;color:#6b7280">${l.address||''} ${l.city||''}</span></td><td>$${Number(l.price).toLocaleString()}${l.type==='rent'?'/mo':''}</td><td>${l.type}</td><td><span class="badge badge-${l.status}">${l.status}</span></td><td>${l.views_count||0}</td><td>${new Date(l.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
-}
-async function loadAppointments() {
-  const { data: appts } = await EPAppointments.getMyAppointments();
-  const c = document.getElementById('all-appointments');
-  if (!appts || !appts.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No appointments yet.</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Client</th><th>Property</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${appts.map(a => `<tr><td><strong>${a.client_name}</strong><br><span style="font-size:12px;color:#6b7280">${a.client_email}</span></td><td>${a.listings?a.listings.title:'—'}</td><td>${a.appointment_date}</td><td>${a.appointment_time}</td><td>${a.type}</td><td><span class="badge badge-${a.status}">${a.status}</span></td>
-      <td>${a.status==='pending'?`<button class="btn btn-sm btn-primary" onclick="updateAppt(${a.id},'confirmed')">Confirm</button> <button class="btn btn-sm btn-danger" onclick="updateAppt(${a.id},'cancelled')">Cancel</button>`:'—'}</td></tr>`).join('')}</tbody></table>`;
-}
-async function updateAppt(id, status) { await EPAppointments.updateStatus(id, status); loadAppointments(); }
-async function loadCampaigns() {
-  const { data: campaigns } = await EPCampaigns.getMyCampaigns();
-  const c = document.getElementById('all-campaigns');
-  if (!campaigns || !campaigns.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📣</div><p>No campaigns yet.</p><button class="btn btn-primary" onclick="showCreateCampaign()" style="margin-top:12px">Create Your First Campaign</button></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Campaign</th><th>Type</th><th>Property</th><th>Status</th><th>Date</th></tr></thead>
-    <tbody>${campaigns.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.type}</td><td>${c.listings?c.listings.title:'—'}</td><td><span class="badge badge-${c.status}">${c.status}</span></td><td>${new Date(c.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
-}
-function showCreateCampaign() { alert('Campaign builder coming soon!'); }
-async function loadOverview() {
-  const { data: leads } = await EPLeads.getLeads();
-  const { data: listings } = await EPListings.getMyListings();
-  const { data: appts } = await EPAppointments.getMyAppointments();
-  const { data: campaigns } = await EPCampaigns.getMyCampaigns();
-  document.getElementById('stat-leads').textContent = leads?.length || 0;
-  document.getElementById('stat-listings').textContent = listings?.length || 0;
-  document.getElementById('stat-appointments').textContent = appts?.length || 0;
-  document.getElementById('stat-campaigns').textContent = campaigns?.length || 0;
-  const rl = document.getElementById('recent-leads');
-  if (leads && leads.length) { rl.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th></tr></thead><tbody>${leads.slice(0,5).map(l=>`<tr><td>${l.name||'—'}</td><td>${l.email}</td><td>${l.source||'—'}</td><td><span class="badge badge-${l.status}">${l.status}</span></td></tr>`).join('')}</tbody></table>`; }
-  else { rl.innerHTML = '<div class="empty">No leads yet</div>'; }
-  const ra = document.getElementById('recent-appointments');
-  if (appts && appts.length) { ra.innerHTML = `<table><thead><tr><th>Client</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody>${appts.slice(0,5).map(a=>`<tr><td>${a.client_name}</td><td>${a.appointment_date}</td><td>${a.appointment_time}</td><td><span class="badge badge-${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`; }
-  else { ra.innerHTML = '<div class="empty">No appointments yet</div>'; }
-}
-document.addEventListener('DOMContentLoaded', async () => {
-  const user = await EPAuth.getUser();
-  if (!user) { window.location.href = '/login.html'; return; }
-  const profile = await EPAuth.getProfile();
-  const name = profile?.full_name || user.email.split('@')[0];
-  document.getElementById('user-name').textContent = name;
-  document.getElementById('user-role').textContent = profile?.role || 'user';
-  document.getElementById('welcome-name').textContent = name.split(' ')[0];
-  await loadOverview();
-  checkHash();
-});
-</script>
-<!-- ADD LEAD MODAL -->
-<div id="addLeadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="font-size:18px;font-weight:700">➕ Add New Lead</h2>
-      <button onclick="closeAddLeadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
-    </div>
-    <div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Full Name *</label><input type="text" id="newLeadName" placeholder="John Smith" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Email *</label><input type="email" id="newLeadEmail" placeholder="john@email.com" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Phone</label><input type="tel" id="newLeadPhone" placeholder="(555) 123-4567" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Lead Type</label><select id="newLeadType" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="renter">Renter</option><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="investor">Investor</option><option value="vendor">Vendor</option></select></div>
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="newLeadSource" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option>Website</option><option>Zillow</option><option>Apartments.com</option><option>Referral</option><option>Walk-in</option><option>Follow Up Boss</option><option>Other</option></select></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Budget</label><select id="newLeadBudget" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Under $2,000</option><option>$2,000-$2,500</option><option>$2,500-$3,000</option><option>$3,000-$3,500</option><option>$3,500-$4,000</option><option>$4,000+</option></select></div>
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Apartment Size</label><select id="newLeadAptSize" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Studio</option><option>1 Bedroom</option><option>1BR Flex / Convertible</option><option>2 Bedroom</option><option>2BR Duplex</option><option>3 Bedroom</option><option>3BR Duplex</option></select></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Move-in Date</label><input type="date" id="newLeadMoveDate" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"></div>
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Monthly Income</label><select id="newLeadIncome" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>Under $4,000</option><option>$4,000-$6,000</option><option>$6,000-$8,000</option><option>$8,000-$10,000</option><option>$10,000+</option></select></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Credit Score</label><select id="newLeadCredit" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="">Select...</option><option>750+</option><option>700-749</option><option>650-699</option><option>600-649</option><option>Below 600</option><option>No Credit</option></select></div>
-      <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Role</label><select id="newLeadRole" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px"><option value="user">User</option><option value="agent">Agent</option><option value="vendor">Vendor</option></select></div>
-    </div>
-    <div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes</label><textarea id="newLeadMessage" rows="2" placeholder="Any notes about this lead..." style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit"></textarea></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-outline" onclick="closeAddLeadModal()">Cancel</button>
-      <button class="btn btn-primary" id="addLeadBtn" onclick="submitNewLead()">Add Lead</button>
-    </div>
-  </div>
-</div>
+  function selectHtml(id, label, options, selected) {
+    return `<div><label class="lf-label">${label}</label><select id="${id}" class="lf-input">${options.map(o => opt(o, selected)).join('')}</select></div>`;
+  }
+  function selectHtmlEmpty(id, label, options, selected) {
+    return `<div><label class="lf-label">${label}</label><select id="${id}" class="lf-input"><option value="">Select...</option>${options.map(o => opt(o, selected)).join('')}</select></div>`;
+  }
+  function inputHtml(id, label, type, placeholder, value) {
+    return `<div><label class="lf-label">${label}</label><input type="${type}" id="${id}" class="lf-input" placeholder="${placeholder}" value="${value || ''}"></div>`;
+  }
+  function textareaHtml(id, label, placeholder, value) {
+    return `<div style="grid-column:1/-1"><label class="lf-label">${label}</label><textarea id="${id}" class="lf-input" rows="2" placeholder="${placeholder}" style="resize:vertical">${value || ''}</textarea></div>`;
+  }
 
-<!-- EXCEL UPLOAD MODAL -->
-<div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="font-size:18px;font-weight:700">📤 Upload Leads</h2>
-      <button onclick="closeUploadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
-    </div>
-    <div id="uploadDropZone" style="border:2px dashed #d1d5db;border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:16px"
-      ondragover="event.preventDefault();this.style.borderColor='#1a56db';this.style.background='#eff6ff'"
-      ondragleave="this.style.borderColor='#d1d5db';this.style.background='white'"
-      ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='white';handleUploadFile(event.dataTransfer.files[0])"
-      onclick="document.getElementById('uploadFileInput').click()">
-      <div style="font-size:36px;margin-bottom:8px">📁</div>
-      <div style="font-size:14px;font-weight:600;color:#374151">Drag & drop Excel or CSV file here</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:4px">or click to browse — .xlsx, .xls, .csv</div>
-    </div>
-    <input type="file" id="uploadFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleUploadFile(this.files[0])">
-    <div id="uploadPreview" style="display:none;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="uploadFileName"></div>
-      <div style="max-height:200px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px" id="uploadPreviewTable"></div>
-      <div style="font-size:12px;color:#6b7280;margin-top:8px" id="uploadSummary"></div>
-    </div>
-    <div id="uploadProgress" style="display:none;margin-bottom:16px">
-      <div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div id="uploadBar" style="height:100%;background:#1a56db;border-radius:3px;width:0%;transition:width .3s"></div></div>
-      <div style="font-size:12px;color:#6b7280;margin-top:6px" id="uploadStatus">Uploading...</div>
-    </div>
-    <div id="uploadResult" style="display:none;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px"></div>
-    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <a href="/.netlify/functions/fub-leads" target="_blank" style="font-size:12px;color:#1a56db;text-decoration:none">📥 Download template</a>
-      <div style="display:flex;gap:8px">
-        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151"><input type="checkbox" id="uploadPushFUB" checked> Also push to FUB</label>
-        <button class="btn btn-primary" id="uploadBtn" onclick="submitUpload()" disabled>Upload Leads</button>
+  // ─── DYNAMIC FIELDS BASED ON LEAD TYPE ───
+  function getDynamicFields(type, data) {
+    data = data || {};
+    switch(type) {
+      case 'Renter':
+        return `
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-budget', 'Budget *', RENTER_BUDGETS, data.budget)}
+            ${selectHtmlEmpty('lf-aptSize', 'Apartment Size', RENTER_SIZES, data.aptSize)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-timeframe', 'Move-in Timeline', TIMEFRAMES, data.timeframe)}
+            ${selectHtmlEmpty('lf-income', 'Monthly Income', INCOMES, data.income)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-credit', 'Credit Score', CREDITS, data.credit)}
+            ${inputHtml('lf-zip', 'Preferred Zip / Location', 'text', '07102, Downtown Newark...', data.zip)}
+          </div>`;
+
+      case 'Buyer':
+        return `
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-propType', 'Property Type *', BUYER_PROPERTY_TYPES, data.propType)}
+            ${selectHtmlEmpty('lf-priceRange', 'Price Range *', BUYER_PRICE_POINTS, data.priceRange)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-timeframe', 'Timeframe', TIMEFRAMES, data.timeframe)}
+            ${inputHtml('lf-beds', 'Bedrooms', 'text', '3+', data.beds)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-income', 'Income', INCOMES, data.income)}
+            ${selectHtmlEmpty('lf-credit', 'Credit Score', CREDITS, data.credit)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-zip', 'Preferred Zip / Location', 'text', '07102, South Ward...', data.zip)}
+            ${inputHtml('lf-preapproved', 'Pre-Approved?', 'text', 'Yes / No / Amount', data.preapproved)}
+          </div>`;
+
+      case 'Seller':
+        return `
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-propType', 'Property Type', BUYER_PROPERTY_TYPES, data.propType)}
+            ${inputHtml('lf-address', 'Property Address', 'text', '123 Main St, Newark NJ', data.address)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-priceRange', 'Asking Price Range', BUYER_PRICE_POINTS, data.priceRange)}
+            ${selectHtmlEmpty('lf-timeframe', 'Selling Timeline', TIMEFRAMES, data.timeframe)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-zip', 'Property Zip', 'text', '07102', data.zip)}
+            ${inputHtml('lf-beds', 'Beds / Baths', 'text', '3BR / 2BA', data.beds)}
+          </div>`;
+
+      case 'Commercial':
+        return `
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-commType', 'Commercial Type *', COMMERCIAL_TYPES, data.commType)}
+            ${selectHtmlEmpty('lf-priceRange', 'Budget / Price Range', BUYER_PRICE_POINTS, data.priceRange)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-sqft', 'Square Footage Needed', 'text', '1,000–5,000 sq ft', data.sqft)}
+            ${selectHtmlEmpty('lf-timeframe', 'Timeframe', TIMEFRAMES, data.timeframe)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-zip', 'Preferred Zip / Location', 'text', '07102, Downtown...', data.zip)}
+            ${inputHtml('lf-criteria', 'Search Criteria / Notes', 'text', 'Parking, loading dock...', data.criteria)}
+          </div>`;
+
+      case 'Investor':
+        return `
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-invType', 'Investment Type *', INVESTOR_TYPES, data.invType)}
+            ${selectHtmlEmpty('lf-priceRange', 'Investment Budget', BUYER_PRICE_POINTS, data.priceRange)}
+          </div>
+          <div class="lf-grid2">
+            ${selectHtmlEmpty('lf-timeframe', 'Timeframe', TIMEFRAMES, data.timeframe)}
+            ${inputHtml('lf-zip', 'Target Zip / Location', 'text', '07102, Newark...', data.zip)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-units', 'Min Units / Size', 'text', '4+ units, 10,000 sq ft...', data.units)}
+            ${inputHtml('lf-criteria', 'Search Criteria', 'text', 'Cap rate 8%+, value-add...', data.criteria)}
+          </div>`;
+
+      case 'Vendor':
+        return `
+          <div class="lf-grid2">
+            ${inputHtml('lf-business', 'Business Name', 'text', 'ABC Plumbing', data.business)}
+            ${inputHtml('lf-service', 'Service Type', 'text', 'Plumbing, HVAC, Cleaning...', data.service)}
+          </div>
+          <div class="lf-grid2">
+            ${inputHtml('lf-zip', 'Service Area / Zip', 'text', '07102, Essex County...', data.zip)}
+            ${inputHtml('lf-license', 'License #', 'text', 'Optional', data.license)}
+          </div>`;
+
+      default:
+        return '';
+    }
+  }
+
+  // ─── PARSE DATA FROM MESSAGE FIELD ───
+  function parseMessage(message) {
+    if (!message) return {};
+    const data = {};
+    const match = message.match(/---\s*(.+)/);
+    if (match) {
+      match[1].split(' | ').forEach(pair => {
+        const [key, val] = pair.split(': ');
+        if (key && val) {
+          const k = key.trim().toLowerCase();
+          if (k === 'type') data.leadType = val.trim();
+          else if (k === 'budget' || k === 'price range' || k === 'investment budget') data.budget = val.trim();
+          else if (k === 'size' || k === 'apartment size') data.aptSize = val.trim();
+          else if (k === 'move' || k === 'timeline' || k === 'timeframe') data.timeframe = val.trim();
+          else if (k === 'income') data.income = val.trim();
+          else if (k === 'credit') data.credit = val.trim();
+          else if (k === 'zip' || k === 'location') data.zip = val.trim();
+          else if (k === 'property type') data.propType = val.trim();
+          else if (k === 'beds') data.beds = val.trim();
+          else if (k === 'commercial type') data.commType = val.trim();
+          else if (k === 'investment type') data.invType = val.trim();
+          else if (k === 'criteria') data.criteria = val.trim();
+          else if (k === 'sqft') data.sqft = val.trim();
+          else if (k === 'pre-approved') data.preapproved = val.trim();
+          else if (k === 'address') data.address = val.trim();
+          else if (k === 'business') data.business = val.trim();
+          else if (k === 'service') data.service = val.trim();
+          else if (k === 'license') data.license = val.trim();
+          else if (k === 'units') data.units = val.trim();
+          else if (k === 'price') data.priceRange = val.trim();
+        }
+      });
+    }
+    // Get the message part before ---
+    data.notes = message.split('---')[0].trim();
+    return data;
+  }
+
+  // ─── BUILD MESSAGE FROM FORM FIELDS ───
+  function buildMessage(type, notes) {
+    const fields = [];
+    if (type) fields.push('Type: ' + type);
+
+    const tryAdd = (id, label) => {
+      const el = document.getElementById(id);
+      if (el && el.value && el.value !== 'Select...') fields.push(label + ': ' + el.value);
+    };
+
+    tryAdd('lf-budget', 'Budget');
+    tryAdd('lf-aptSize', 'Size');
+    tryAdd('lf-timeframe', 'Timeline');
+    tryAdd('lf-income', 'Income');
+    tryAdd('lf-credit', 'Credit');
+    tryAdd('lf-zip', 'Location');
+    tryAdd('lf-propType', 'Property Type');
+    tryAdd('lf-priceRange', 'Price');
+    tryAdd('lf-beds', 'Beds');
+    tryAdd('lf-preapproved', 'Pre-Approved');
+    tryAdd('lf-address', 'Address');
+    tryAdd('lf-commType', 'Commercial Type');
+    tryAdd('lf-invType', 'Investment Type');
+    tryAdd('lf-sqft', 'SqFt');
+    tryAdd('lf-criteria', 'Criteria');
+    tryAdd('lf-units', 'Units');
+    tryAdd('lf-business', 'Business');
+    tryAdd('lf-service', 'Service');
+    tryAdd('lf-license', 'License');
+
+    return [notes, fields.length ? '--- ' + fields.join(' | ') : ''].filter(Boolean).join('\n');
+  }
+
+  // ─── RENDER MODAL ───
+  function renderModal(lead) {
+    const isEdit = !!lead;
+    const title = isEdit ? '✏️ Edit Lead' : '➕ Add New Lead';
+    const btnText = isEdit ? 'Save Changes' : 'Add Lead';
+    const parsed = isEdit ? parseMessage(lead.message) : {};
+    const currentType = parsed.leadType || 'Renter';
+
+    return `
+    <div id="leadFormModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <style>
+          .lf-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+          .lf-input{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box}
+          .lf-input:focus{outline:none;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+          .lf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+          .lf-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+          .lf-type-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:white;color:#374151;cursor:pointer;transition:.2s}
+          .lf-type-btn:hover{border-color:#1a56db;color:#1a56db}
+          .lf-type-btn.active{background:#1a56db;color:white;border-color:#1a56db}
+        </style>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h2 style="font-size:18px;font-weight:700;margin:0">${title}</h2>
+          <button onclick="LeadForm.close()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label class="lf-label">Lead Type</label>
+          <div class="lf-types" id="lf-types">
+            ${LEAD_TYPES.map(t => `<button class="lf-type-btn ${t === currentType ? 'active' : ''}" onclick="LeadForm.switchType('${t}')">${t}</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="lf-grid2">
+          ${inputHtml('lf-name', 'Full Name *', 'text', 'John Smith', isEdit ? lead.name : '')}
+          ${inputHtml('lf-email', 'Email *', 'email', 'john@email.com', isEdit ? lead.email : '')}
+        </div>
+        <div class="lf-grid2">
+          ${inputHtml('lf-phone', 'Phone', 'tel', '(555) 123-4567', isEdit ? lead.phone : '')}
+          ${selectHtml('lf-source', 'Source', SOURCES, isEdit ? lead.source : 'Website')}
+        </div>
+
+        <div id="lf-dynamic">${getDynamicFields(currentType, parsed)}</div>
+
+        ${textareaHtml('lf-notes', 'Notes', 'Any notes about this lead...', parsed.notes || '')}
+
+        ${isEdit ? `<input type="hidden" id="lf-edit-id" value="${lead.id}"><input type="hidden" id="lf-edit-email-orig" value="${lead.email}">` : ''}
+        <input type="hidden" id="lf-lead-type" value="${currentType}">
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+          <button onclick="LeadForm.close()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151;margin-right:8px"><input type="checkbox" id="lf-pushFUB" checked> Push to FUB</label>
+          <button id="lf-submit-btn" onclick="LeadForm.submit()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">${btnText}</button>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+    </div>`;
+  }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-// === ADD LEAD ===
-function openAddLeadModal() { document.getElementById('addLeadModal').style.display = 'flex'; }
-function closeAddLeadModal() { document.getElementById('addLeadModal').style.display = 'none'; }
+  // ─── PUBLIC API ───
+  return {
+    open: function(lead) {
+      const existing = document.getElementById('leadFormModal');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', renderModal(lead));
+    },
 
-async function submitNewLead() {
-  const name = document.getElementById('newLeadName').value.trim();
-  const email = document.getElementById('newLeadEmail').value.trim();
-  const phone = document.getElementById('newLeadPhone').value.trim();
-  const source = document.getElementById('newLeadSource').value;
-  const role = document.getElementById('newLeadRole').value;
-  const message = document.getElementById('newLeadMessage').value.trim();
-  const leadType = document.getElementById('newLeadType').value;
-  const budget = document.getElementById('newLeadBudget').value;
-  const aptSize = document.getElementById('newLeadAptSize').value;
-  const moveDate = document.getElementById('newLeadMoveDate').value;
-  const income = document.getElementById('newLeadIncome').value;
-  const credit = document.getElementById('newLeadCredit').value;
+    close: function() {
+      const modal = document.getElementById('leadFormModal');
+      if (modal) modal.remove();
+    },
 
-  if (!name || !email) { alert('Name and email are required'); return; }
+    switchType: function(type) {
+      document.getElementById('lf-lead-type').value = type;
+      document.querySelectorAll('.lf-type-btn').forEach(b => b.classList.toggle('active', b.textContent === type));
+      document.getElementById('lf-dynamic').innerHTML = getDynamicFields(type, {});
+    },
 
-  // Build notes with all the extra fields
-  const details = [];
-  if (leadType) details.push('Type: ' + leadType);
-  if (budget) details.push('Budget: ' + budget);
-  if (aptSize) details.push('Size: ' + aptSize);
-  if (moveDate) details.push('Move: ' + moveDate);
-  if (income) details.push('Income: ' + income);
-  if (credit) details.push('Credit: ' + credit);
-  const fullMessage = [message, details.length ? '--- ' + details.join(' | ') : ''].filter(Boolean).join('\n');
+    submit: async function() {
+      const name = document.getElementById('lf-name').value.trim();
+      const email = document.getElementById('lf-email').value.trim();
+      const phone = document.getElementById('lf-phone').value.trim();
+      const source = document.getElementById('lf-source').value;
+      const leadType = document.getElementById('lf-lead-type').value;
+      const notes = document.getElementById('lf-notes').value.trim();
+      const pushToFUB = document.getElementById('lf-pushFUB').checked;
 
-  const btn = document.getElementById('addLeadBtn');
-  btn.disabled = true;
-  btn.textContent = 'Adding...';
+      if (!name || !email) { alert('Name and email are required'); return; }
 
-  try {
-    const res = await fetch('/.netlify/functions/upload-leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: [{ name, email, phone, source, role, message: fullMessage }], pushToFUB: true })
-    });
-    const data = await res.json();
-    if (data.success) {
-      closeAddLeadModal();
-      // Clear form
-      ['newLeadName','newLeadEmail','newLeadPhone','newLeadMessage'].forEach(id => document.getElementById(id).value = '');
-      ['newLeadMoveDate'].forEach(id => document.getElementById(id).value = '');
-      ['newLeadBudget','newLeadAptSize','newLeadIncome','newLeadCredit'].forEach(id => document.getElementById(id).selectedIndex = 0);
+      const message = buildMessage(leadType, notes);
+      const editId = document.getElementById('lf-edit-id');
+      const isEdit = !!editId;
+
+      const btn = document.getElementById('lf-submit-btn');
+      btn.disabled = true;
+      btn.textContent = isEdit ? 'Saving...' : 'Adding...';
+
+      try {
+        if (isEdit) {
+          // Update existing lead via upload-leads (upserts on email)
+          const res = await fetch('/.netlify/functions/upload-leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leads: [{ name, email, phone, source, message, role: 'user' }], pushToFUB })
+          });
+          const data = await res.json();
+          if (data.success) {
+            LeadForm.close();
+            LeadForm._refresh();
+            alert('✅ Lead updated!');
+          } else {
+            alert('Error: ' + (data.error || 'Unknown'));
+          }
+        } else {
+          // Add new lead
+          const res = await fetch('/.netlify/functions/upload-leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leads: [{ name, email, phone, source, message, role: 'user' }], pushToFUB })
+          });
+          const data = await res.json();
+          if (data.success) {
+            LeadForm.close();
+            LeadForm._refresh();
+            alert('✅ Lead added!' + (data.fubPushed ? ' Pushed to FUB.' : ''));
+          } else {
+            alert('Error: ' + (data.error || 'Unknown'));
+          }
+        }
+      } catch(err) {
+        alert('Error: ' + err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = isEdit ? 'Save Changes' : 'Add Lead';
+    },
+
+    // Override this in each dashboard
+    _refresh: function() {
       if (typeof loadOverview === 'function') loadOverview();
       if (typeof loadLeads === 'function') loadLeads();
-      alert('✅ Lead added!' + (data.fubPushed ? ' Also pushed to FUB.' : ''));
-    } else {
-      alert('Error: ' + (data.error || 'Unknown error'));
-    }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
-  btn.disabled = false;
-  btn.textContent = 'Add Lead';
-}
-
-// === EXCEL UPLOAD ===
-let uploadedLeads = [];
-
-function openUploadModal() {
-  document.getElementById('uploadModal').style.display = 'flex';
-  resetUploadModal();
-}
-function closeUploadModal() {
-  document.getElementById('uploadModal').style.display = 'none';
-}
-function resetUploadModal() {
-  uploadedLeads = [];
-  document.getElementById('uploadPreview').style.display = 'none';
-  document.getElementById('uploadProgress').style.display = 'none';
-  document.getElementById('uploadResult').style.display = 'none';
-  document.getElementById('uploadBtn').disabled = true;
-  document.getElementById('uploadDropZone').style.display = 'block';
-  document.getElementById('uploadFileInput').value = '';
-}
-
-function handleUploadFile(file) {
-  if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (!['xlsx', 'xls', 'csv'].includes(ext)) {
-    alert('Please upload an Excel (.xlsx/.xls) or CSV file');
-    return;
-  }
-  document.getElementById('uploadFileName').textContent = '📄 ' + file.name;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      let data;
-      if (ext === 'csv') {
-        const text = e.target.result;
-        const rows = text.split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
-        const headers = rows[0];
-        data = rows.slice(1).filter(r => r.some(c => c)).map(r => {
-          const obj = {};
-          headers.forEach((h, i) => { obj[h] = r[i] || ''; });
-          return obj;
-        });
-      } else {
-        const wb = XLSX.read(e.target.result, { type: 'binary' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        data = XLSX.utils.sheet_to_json(ws);
-      }
-      uploadedLeads = data;
-      showUploadPreview(data, file.name);
-    } catch (err) {
-      alert('Error reading file: ' + err.message);
+      if (typeof renderLeads === 'function') renderLeads();
+      if (typeof renderHotLeads === 'function') renderHotLeads();
+      if (typeof syncFUBLeads === 'function') syncFUBLeads();
     }
   };
-  if (ext === 'csv') reader.readAsText(file);
-  else reader.readAsBinaryString(file);
-}
+})();
 
-function showUploadPreview(data, fileName) {
-  if (!data.length) { alert('No data found in file'); return; }
-  const keys = Object.keys(data[0]);
-  const preview = data.slice(0, 5);
-  let html = '<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr>';
-  keys.forEach(k => { html += '<th style="padding:6px 8px;background:#f9fafb;text-align:left;font-size:11px;color:#6b7280">' + k + '</th>'; });
-  html += '</tr></thead><tbody>';
-  preview.forEach(row => {
-    html += '<tr>';
-    keys.forEach(k => { html += '<td style="padding:5px 8px;border-top:1px solid #f3f4f6;font-size:12px">' + (row[k] || '') + '</td>'; });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('uploadPreviewTable').innerHTML = html;
-  document.getElementById('uploadSummary').textContent = data.length + ' leads found' + (data.length > 5 ? ' (showing first 5)' : '');
-  document.getElementById('uploadPreview').style.display = 'block';
-  document.getElementById('uploadDropZone').style.display = 'none';
-  document.getElementById('uploadBtn').disabled = false;
-}
-
-async function submitUpload() {
-  if (!uploadedLeads.length) return;
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
-  document.getElementById('uploadProgress').style.display = 'block';
-  document.getElementById('uploadBar').style.width = '30%';
-  document.getElementById('uploadStatus').textContent = 'Sending ' + uploadedLeads.length + ' leads...';
-
-  const pushToFUB = document.getElementById('uploadPushFUB').checked;
-
-  try {
-    document.getElementById('uploadBar').style.width = '60%';
-    const res = await fetch('/.netlify/functions/upload-leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: uploadedLeads, pushToFUB })
-    });
-    const data = await res.json();
-    document.getElementById('uploadBar').style.width = '100%';
-
-    const resultEl = document.getElementById('uploadResult');
-    if (data.success) {
-      resultEl.style.background = '#d1fae5';
-      resultEl.style.color = '#065f46';
-      resultEl.innerHTML = '✅ <strong>Upload complete!</strong><br>Created: ' + data.created + ' | Updated: ' + data.updated + ' | Skipped: ' + data.skipped + (data.fubPushed ? ' | Pushed to FUB: ' + data.fubPushed : '') + (data.errors ? ' | Errors: ' + data.errors : '');
-    } else {
-      resultEl.style.background = '#fee2e2';
-      resultEl.style.color = '#991b1b';
-      resultEl.innerHTML = '❌ Upload failed: ' + (data.error || 'Unknown error');
-    }
-    resultEl.style.display = 'block';
-    document.getElementById('uploadStatus').textContent = 'Done!';
-
-    // Refresh leads table
-    if (typeof loadOverview === 'function') loadOverview();
-    if (typeof loadLeads === 'function') loadLeads();
-  } catch (err) {
-    document.getElementById('uploadResult').style.display = 'block';
-    document.getElementById('uploadResult').style.background = '#fee2e2';
-    document.getElementById('uploadResult').style.color = '#991b1b';
-    document.getElementById('uploadResult').innerHTML = '❌ Error: ' + err.message;
-  }
-  btn.textContent = 'Upload Leads';
-  btn.disabled = false;
-}
-</script>
-</body>
-</html>
+// Shortcut functions for onclick handlers
+function openAddLeadModal() { LeadForm.open(); }
+function closeAddLeadModal() { LeadForm.close(); }
+function editLead(leadJson) { LeadForm.open(JSON.parse(decodeURIComponent(leadJson))); }
