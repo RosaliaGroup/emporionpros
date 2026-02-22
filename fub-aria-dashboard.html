@@ -476,7 +476,8 @@ function renderHotLeads() {
       <td><span style="color:#ef4444;font-weight:600">${age}</span></td>
       <td>${l.stage}</td>
       <td>
-        <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
+        <a href="tel:${l.phone}" class="ai-action-btn btn-call" style="text-decoration:none;display:inline-flex;align-items:center">📞 Call</a>
+        ${l.email?'<a href="mailto:'+l.email+'" class="ai-action-btn btn-text" style="text-decoration:none;display:inline-flex;align-items:center">📧</a>':''}
         <button class="ai-action-btn btn-text" onclick="sendText(${l.id})">💬 Text</button>
         <button class="ai-action-btn" onclick="editLead('${encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest}))}')">✏️</button>
       </td>
@@ -632,7 +633,8 @@ function renderLeads(filterText) {
       <td><span style="font-size:12px;color:${l.aiStatus.includes('Booked')?'#065f46':l.aiStatus.includes('Pending')?'#92400e':'#374151'};font-weight:600">${l.aiStatus}</span></td>
       <td>
         <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-          <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name.replace(/'/g,"\\'")}','${l.phone}',${l.id})">📞 Call</button>
+          <a href="tel:${l.phone}" class="ai-action-btn btn-call" style="text-decoration:none;display:inline-flex;align-items:center">📞 Call</a>
+          ${l.email?'<a href="mailto:'+l.email+'" class="ai-action-btn btn-text" style="text-decoration:none;display:inline-flex;align-items:center">📧</a>':''}
           <button class="ai-action-btn btn-text" onclick="sendText('${l.name.replace(/'/g,"\\'")}',${l.id})">💬 Text</button>
           <button class="ai-action-btn" onclick="editLead('${encodeURIComponent(JSON.stringify({id:l.id,name:l.name,email:l.email,phone:l.phone,source:l.source,message:l.interest}))}')">✏️</button>
         </div>
