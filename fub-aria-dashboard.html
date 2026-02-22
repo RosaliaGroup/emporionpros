@@ -4,7 +4,6 @@
 <title>FUB Integration — Emporion Pros</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="app.js"></script>
-<script src="ep-lead-form.js"></script>
 <style>
 .dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
 .sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
@@ -830,6 +829,60 @@ function toggleSetting(el, name) {
   </div>
 </div>
 
+<script>
+// ============================================
+// LEAD FORM MODULE — Dynamic Add/Edit Lead
+// ============================================
+const LeadForm=(function(){const LEAD_TYPES=['Renter','Buyer','Seller','Commercial','Investor','Vendor'];
+const RENTER_BUDGETS=['Under $2,000','$2,000-$2,400','$2,400-$2,700','$2,700-$3,000','$3,000-$3,500','$3,500+'];
+const RENTER_SIZES=['Studio','1 Bedroom','1BR Flex / Convertible','2 Bedroom','2BR Duplex','3 Bedroom','3BR Duplex','4+ Bedroom'];
+const BUYER_PROPERTY_TYPES=['House','Condo','Townhouse','Multi-Family','Co-op','New Construction','Land'];
+const BUYER_PRICE_POINTS=['Under $100K','$100K-$200K','$200K-$300K','$300K-$400K','$400K-$500K','$500K-$750K','$750K-$1M','$1M-$2M','$2M+'];
+const COMMERCIAL_TYPES=['Office','Retail','Industrial','Mixed-Use','Warehouse','Restaurant/Bar','Medical','Other'];
+const INVESTOR_TYPES=['Multi-Family','Fix & Flip','Buy & Hold','Commercial','New Development','Mixed-Use','Land'];
+const TIMEFRAMES=['ASAP','1 Month','2 Months','3 Months','4-6 Months','6-12 Months','12+ Months','Just Browsing'];
+const INCOMES=['Under $4,000','$4,000-$6,000','$6,000-$8,000','$8,000-$10,000','$10,000+','Prefer not to say'];
+const CREDITS=['750+','700-749','650-699','600-649','Below 600','No Credit','Prefer not to say'];
+const SOURCES=['Website','Zillow','Apartments.com','Realtor.com','Referral','Walk-in','Follow Up Boss','Social Media','Google','Other'];
+function opt(v,s){return '<option value="'+v+'" '+(s===v?'selected':'')+'>'+v+'</option>';}
+function sel(id,lbl,opts,s){return '<div><label class="lf-label">'+lbl+'</label><select id="'+id+'" class="lf-input">'+opts.map(function(o){return opt(o,s);}).join('')+'</select></div>';}
+function selE(id,lbl,opts,s){return '<div><label class="lf-label">'+lbl+'</label><select id="'+id+'" class="lf-input"><option value="">Select...</option>'+opts.map(function(o){return opt(o,s);}).join('')+'</select></div>';}
+function inp(id,lbl,t,ph,v){return '<div><label class="lf-label">'+lbl+'</label><input type="'+t+'" id="'+id+'" class="lf-input" placeholder="'+ph+'" value="'+(v||'')+'"></div>';}
+function ta(id,lbl,ph,v){return '<div style="grid-column:1/-1"><label class="lf-label">'+lbl+'</label><textarea id="'+id+'" class="lf-input" rows="2" placeholder="'+ph+'" style="resize:vertical">'+(v||'')+'</textarea></div>';}
+function dynFields(type,d){d=d||{};switch(type){
+case 'Renter':return '<div class="lf-grid2">'+selE('lf-budget','Budget *',RENTER_BUDGETS,d.budget)+selE('lf-aptSize','Apartment Size',RENTER_SIZES,d.aptSize)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Move-in Timeline',TIMEFRAMES,d.timeframe)+selE('lf-income','Monthly Income',INCOMES,d.income)+'</div><div class="lf-grid2">'+selE('lf-credit','Credit Score',CREDITS,d.credit)+inp('lf-zip','Preferred Zip / Location','text','07102, Downtown Newark...',d.zip)+'</div>';
+case 'Buyer':return '<div class="lf-grid2">'+selE('lf-propType','Property Type *',BUYER_PROPERTY_TYPES,d.propType)+selE('lf-priceRange','Price Range *',BUYER_PRICE_POINTS,d.priceRange)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+inp('lf-beds','Bedrooms','text','3+',d.beds)+'</div><div class="lf-grid2">'+selE('lf-income','Income',INCOMES,d.income)+selE('lf-credit','Credit Score',CREDITS,d.credit)+'</div><div class="lf-grid2">'+inp('lf-zip','Preferred Zip / Location','text','07102, South Ward...',d.zip)+inp('lf-preapproved','Pre-Approved?','text','Yes / No / Amount',d.preapproved)+'</div>';
+case 'Seller':return '<div class="lf-grid2">'+selE('lf-propType','Property Type',BUYER_PROPERTY_TYPES,d.propType)+inp('lf-address','Property Address','text','123 Main St, Newark NJ',d.address)+'</div><div class="lf-grid2">'+selE('lf-priceRange','Asking Price Range',BUYER_PRICE_POINTS,d.priceRange)+selE('lf-timeframe','Selling Timeline',TIMEFRAMES,d.timeframe)+'</div><div class="lf-grid2">'+inp('lf-zip','Property Zip','text','07102',d.zip)+inp('lf-beds','Beds / Baths','text','3BR / 2BA',d.beds)+'</div>';
+case 'Commercial':return '<div class="lf-grid2">'+selE('lf-commType','Commercial Type *',COMMERCIAL_TYPES,d.commType)+selE('lf-priceRange','Budget / Price Range',BUYER_PRICE_POINTS,d.priceRange)+'</div><div class="lf-grid2">'+inp('lf-sqft','Square Footage Needed','text','1,000-5,000 sq ft',d.sqft)+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+'</div><div class="lf-grid2">'+inp('lf-zip','Preferred Zip / Location','text','07102, Downtown...',d.zip)+inp('lf-criteria','Search Criteria','text','Parking, loading dock...',d.criteria)+'</div>';
+case 'Investor':return '<div class="lf-grid2">'+selE('lf-invType','Investment Type *',INVESTOR_TYPES,d.invType)+selE('lf-priceRange','Investment Budget',BUYER_PRICE_POINTS,d.priceRange)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+inp('lf-zip','Target Zip / Location','text','07102, Newark...',d.zip)+'</div><div class="lf-grid2">'+inp('lf-units','Min Units / Size','text','4+ units, 10,000 sq ft...',d.units)+inp('lf-criteria','Search Criteria','text','Cap rate 8%+, value-add...',d.criteria)+'</div>';
+case 'Vendor':return '<div class="lf-grid2">'+inp('lf-business','Business Name','text','ABC Plumbing',d.business)+inp('lf-service','Service Type','text','Plumbing, HVAC, Cleaning...',d.service)+'</div><div class="lf-grid2">'+inp('lf-zip','Service Area / Zip','text','07102, Essex County...',d.zip)+inp('lf-license','License #','text','Optional',d.license)+'</div>';
+default:return '';}}
+function parseMsg(m){if(!m)return {};var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2){var k=parts[0].trim().toLowerCase(),v=parts.slice(1).join(': ').trim();if(k==='type')d.leadType=v;else if(k==='budget')d.budget=v;else if(k==='size')d.aptSize=v;else if(k==='timeline')d.timeframe=v;else if(k==='income')d.income=v;else if(k==='credit')d.credit=v;else if(k==='location')d.zip=v;else if(k==='property type')d.propType=v;else if(k==='price')d.priceRange=v;else if(k==='beds')d.beds=v;else if(k==='commercial type')d.commType=v;else if(k==='investment type')d.invType=v;else if(k==='criteria')d.criteria=v;else if(k==='sqft')d.sqft=v;else if(k==='pre-approved')d.preapproved=v;else if(k==='address')d.address=v;else if(k==='business')d.business=v;else if(k==='service')d.service=v;else if(k==='license')d.license=v;else if(k==='units')d.units=v;}});}d.notes=m.split('---')[0].trim();return d;}
+function buildMsg(type,notes){var f=[];if(type)f.push('Type: '+type);var tryA=function(id,lbl){var el=document.getElementById(id);if(el&&el.value&&el.value!=='Select...')f.push(lbl+': '+el.value);};tryA('lf-budget','Budget');tryA('lf-aptSize','Size');tryA('lf-timeframe','Timeline');tryA('lf-income','Income');tryA('lf-credit','Credit');tryA('lf-zip','Location');tryA('lf-propType','Property Type');tryA('lf-priceRange','Price');tryA('lf-beds','Beds');tryA('lf-preapproved','Pre-Approved');tryA('lf-address','Address');tryA('lf-commType','Commercial Type');tryA('lf-invType','Investment Type');tryA('lf-sqft','SqFt');tryA('lf-criteria','Criteria');tryA('lf-units','Units');tryA('lf-business','Business');tryA('lf-service','Service');tryA('lf-license','License');return [notes,f.length?'--- '+f.join(' | '):''].filter(Boolean).join('\n');}
+function renderModal(lead){var isEdit=!!lead;var title=isEdit?'Edit Lead':'Add New Lead';var btnText=isEdit?'Save Changes':'Add Lead';var parsed=isEdit?parseMsg(lead.message):{};var currentType=parsed.leadType||'Renter';
+var typeButtons='';LEAD_TYPES.forEach(function(t){typeButtons+='<button class="lf-type-btn '+(t===currentType?'active':'')+'" onclick="LeadForm.switchType(\''+t+'\')">'+t+'</button>';});
+var html='<div id="leadFormModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)"><style>.lf-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}.lf-input{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box}.lf-input:focus{outline:none;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.1)}.lf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.lf-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}.lf-type-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:white;color:#374151;cursor:pointer;transition:.2s}.lf-type-btn:hover{border-color:#1a56db;color:#1a56db}.lf-type-btn.active{background:#1a56db;color:white;border-color:#1a56db}</style>';
+html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">'+(isEdit?'&#9998; ':' &#10133; ')+title+'</h2><button onclick="LeadForm.close()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&#10005;</button></div>';
+html+='<div style="margin-bottom:14px"><label class="lf-label">Lead Type</label><div class="lf-types" id="lf-types">'+typeButtons+'</div></div>';
+html+='<div class="lf-grid2">'+inp('lf-name','Full Name *','text','John Smith',isEdit?lead.name:'')+inp('lf-email','Email *','email','john@email.com',isEdit?lead.email:'')+'</div>';
+html+='<div class="lf-grid2">'+inp('lf-phone','Phone','tel','(555) 123-4567',isEdit?lead.phone:'')+sel('lf-source','Source',SOURCES,isEdit?lead.source:'Website')+'</div>';
+html+='<div id="lf-dynamic">'+dynFields(currentType,parsed)+'</div>';
+html+=ta('lf-notes','Notes','Any notes about this lead...',parsed.notes||'');
+if(isEdit)html+='<input type="hidden" id="lf-edit-id" value="'+lead.id+'">';
+html+='<input type="hidden" id="lf-lead-type" value="'+currentType+'">';
+html+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;align-items:center"><button onclick="LeadForm.close()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151;margin-right:8px"><input type="checkbox" id="lf-pushFUB" checked> Push to FUB</label><button id="lf-submit-btn" onclick="LeadForm.submit()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">'+btnText+'</button></div>';
+html+='</div></div>';return html;}
+return {
+open:function(lead){var ex=document.getElementById('leadFormModal');if(ex)ex.remove();document.body.insertAdjacentHTML('beforeend',renderModal(lead));},
+close:function(){var m=document.getElementById('leadFormModal');if(m)m.remove();},
+switchType:function(type){document.getElementById('lf-lead-type').value=type;document.querySelectorAll('.lf-type-btn').forEach(function(b){b.classList.toggle('active',b.textContent===type);});document.getElementById('lf-dynamic').innerHTML=dynFields(type,{});},
+submit:async function(){var name=document.getElementById('lf-name').value.trim();var email=document.getElementById('lf-email').value.trim();var phone=document.getElementById('lf-phone').value.trim();var source=document.getElementById('lf-source').value;var leadType=document.getElementById('lf-lead-type').value;var notes=document.getElementById('lf-notes').value.trim();var pushToFUB=document.getElementById('lf-pushFUB').checked;if(!name||!email){alert('Name and email are required');return;}var message=buildMsg(leadType,notes);var editId=document.getElementById('lf-edit-id');var isEdit=!!editId;var btn=document.getElementById('lf-submit-btn');btn.disabled=true;btn.textContent=isEdit?'Saving...':'Adding...';try{var res=await fetch('/.netlify/functions/upload-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:[{name:name,email:email,phone:phone,source:source,message:message,role:'user'}],pushToFUB:pushToFUB})});var data=await res.json();if(data.success){LeadForm.close();LeadForm._refresh();alert(isEdit?'Lead updated!':'Lead added!'+(data.fubPushed?' Pushed to FUB.':''));}else{alert('Error: '+(data.error||'Unknown'));}}catch(err){alert('Error: '+err.message);}btn.disabled=false;btn.textContent=isEdit?'Save Changes':'Add Lead';},
+_refresh:function(){if(typeof loadOverview==='function')loadOverview();if(typeof loadLeads==='function')loadLeads();if(typeof renderLeads==='function')renderLeads();if(typeof renderHotLeads==='function')renderHotLeads();if(typeof syncFUBLeads==='function')syncFUBLeads();}
+};})();
+function openAddLeadModal(){LeadForm.open();}
+function closeAddLeadModal(){LeadForm.close();}
+function editLead(j){LeadForm.open(JSON.parse(decodeURIComponent(j)));}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 let uploadedLeads = [];
