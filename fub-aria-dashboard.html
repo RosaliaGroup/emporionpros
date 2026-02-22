@@ -210,8 +210,9 @@ tr.selected td{background:#dbeafe}
         <div>
           <div class="call-dialer">
             <div class="call-dialer-title">Aria AI Dialer</div>
+            <div style="margin-bottom:14px"><select class="form-input" id="dialerLeadSelect" onchange="selectDialerLead()" style="background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.2);text-align:center"><option value="">-- Select a lead to call --</option></select></div>
             <div class="call-dialer-number" id="dialerNumber">+1 (___) ___-____</div>
-            <div class="call-dialer-name" id="dialerName">Select a lead to call</div>
+            <div class="call-dialer-name" id="dialerName">Select a lead above</div>
             <div class="call-dialer-actions">
               <button class="call-btn call-btn-mute" title="Mute">&#x1F507;</button>
               <button class="call-btn call-btn-green" id="callBtn" onclick="initiateAICall()">&#x1F4DE;</button>
@@ -444,7 +445,7 @@ const sampleLeads=[
 
 function init(){
   leads=sampleLeads.slice();filteredLeads=leads.slice();
-  renderLeads();updateStats();renderSchedule();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources();loadSettings();
+  renderLeads();updateStats();updateDialerDropdown();renderSchedule();renderCallLog();renderConvos();renderCharts();renderFunnel();renderSources();loadSettings();
   // Auto-sync FUB on load
   syncFUBLeads(true);
 }
@@ -507,7 +508,7 @@ function syncFUBLeads(silent){
   fetch(EP_FN.fubLeads).then(r=>r.json()).then(d=>{
     if(d.success&&d.leads&&d.leads.length){
       leads=d.leads.map((l,i)=>({id:l.id||i+1,name:l.name||'Unknown',phone:l.phone||'',email:l.email||'',source:l.source||'FUB',status:{hot:'hot',warm:'contacted',cold:'cold'}[l.score]||'new',budget:l.interest||'',moveDate:'',income:'',credit:'',location:'',size:'',notes:l.tags?.join(', ')||'',last:l.lastActivity?timeAgo(l.lastActivity):''}));
-      filteredLeads=leads.slice();renderLeads();updateStats();
+      filteredLeads=leads.slice();renderLeads();updateStats();updateDialerDropdown();
       if(!silent)toast('Synced '+d.total+' leads from FUB!','success');
     } else if(d.error){
       if(!silent)toast('FUB: '+d.error,'error');
@@ -521,9 +522,11 @@ function syncFUBLeads(silent){
   });
 }
 
-function selectForCall(id){const l=leads.find(x=>x.id===id);if(!l)return;selectedLead=l;switchTab('calls');document.getElementById('dialerNumber').textContent=l.phone||'No phone';document.getElementById('dialerName').textContent=l.name;toast('Ready to call '+l.name)}
+function selectForCall(id){const l=leads.find(x=>x.id===id);if(!l)return;selectedLead=l;switchTab('calls');document.getElementById('dialerNumber').textContent=l.phone||'No phone';document.getElementById('dialerName').textContent=l.name;document.getElementById('dialerLeadSelect').value=id;toast('Ready to call '+l.name)}
+function selectDialerLead(){const id=parseInt(document.getElementById('dialerLeadSelect').value);if(!id)return;const l=leads.find(x=>x.id===id);if(!l)return;selectedLead=l;document.getElementById('dialerNumber').textContent=l.phone||'No phone';document.getElementById('dialerName').textContent=l.name}
+function updateDialerDropdown(){const sel=document.getElementById('dialerLeadSelect');if(!sel)return;const val=sel.value;sel.innerHTML='<option value="">-- Select a lead to call --</option>'+leads.map(l=>`<option value="${l.id}">${l.name} — ${l.phone||'no phone'}</option>`).join('');if(val)sel.value=val}
 function selectForSMS(id){const l=leads.find(x=>x.id===id);if(!l)return;switchTab('sms');const c=convos.find(x=>x.name===l.name);if(c)openConvo(c.id);else{document.getElementById('chatName').textContent=l.name;document.getElementById('chatPhone').textContent=l.phone;document.getElementById('chatMessages').innerHTML='<div style="text-align:center;color:#9ca3af;font-size:13px;margin:auto">Start a conversation with '+l.name+'</div>'}toast('SMS to '+l.name)}
-function emailLead(id){const l=leads.find(x=>x.id===id);if(!l)return;switchTab('sms');document.getElementById('emailTo').value=l.email||'';document.getElementById('emailSubject').value='Your Iron 65 Tour Information';toast('Email to '+l.name)}
+function emailLead(id){const l=leads.find(x=>x.id===id);if(!l)return;switchTab('sms');document.getElementById('emailTo').value=l.email||'';document.getElementById('emailSubject').value='Your Iron 65 Tour — '+l.name;document.getElementById('emailBody').value='Hi '+l.name+',\n\nThank you for your interest in Iron 65! I wanted to follow up regarding your apartment search.\n\nWe have beautiful units starting at $2,388/mo with amazing amenities including gym, sauna, rooftop, and in-unit W/D.\n\nCurrent specials:\n- 1 month FREE on 12-month lease\n- $4,000 credit on 18-month lease\n- 2 months FREE on 24-month lease\n\nWould you like to schedule a tour? Book here: https://calendly.com/ana-rosaliagroup/65-iron-tour\n\nBest,\nAna\nEmporion Pros | Iron 65';document.getElementById('emailTo').scrollIntoView({behavior:'smooth'});toast('Email ready for '+l.name)}
 function bookAppt(id){const l=leads.find(x=>x.id===id);if(!l)return;window.open('https://calendly.com/ana-rosaliagroup/65-iron-tour','_blank');toast('Opening Calendly for '+l.name)}
 
 function initiateAICall(){
