@@ -13,10 +13,37 @@ exports.handler = async function(event, context) {
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
   
   try {
-    const webhook = JSON.parse(event.body || '{}');
-    
+    // === DEBUG: Log raw event details ===
     console.log('=== WEBHOOK RECEIVED ===');
-    console.log('Full webhook:', JSON.stringify(webhook, null, 2));
+    console.log('HTTP Method:', event.httpMethod);
+    console.log('Is Base64:', event.isBase64Encoded);
+    console.log('Content-Type:', event.headers?.['content-type'] || event.headers?.['Content-Type'] || 'none');
+    console.log('Raw body type:', typeof event.body);
+    console.log('Raw body length:', (event.body || '').length);
+    console.log('Raw body preview:', (event.body || '').substring(0, 500));
+    
+    // === Parse body — handle base64, string, or already-parsed ===
+    let webhook = {};
+    let rawBody = event.body || '';
+    
+    if (event.isBase64Encoded && rawBody) {
+      rawBody = Buffer.from(rawBody, 'base64').toString('utf-8');
+      console.log('Decoded base64 body preview:', rawBody.substring(0, 500));
+    }
+    
+    if (typeof rawBody === 'string' && rawBody.length > 0) {
+      try {
+        webhook = JSON.parse(rawBody);
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr.message);
+        console.log('Body that failed to parse:', rawBody.substring(0, 1000));
+      }
+    } else if (typeof rawBody === 'object') {
+      webhook = rawBody;
+    }
+    
+    console.log('Parsed webhook keys:', Object.keys(webhook));
+    console.log('Full webhook:', JSON.stringify(webhook, null, 2).substring(0, 2000));
     
     // RESPOND IMMEDIATELY
     const response = {
@@ -25,13 +52,16 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({ received: true })
     };
     
-    // Check for status-update with ended status OR end-of-call-report
-    const message = webhook.message || {};
+    // === Detect call ended ===
+    // VAPI can send data at top level or nested in message
+    const message = webhook.message || webhook;
     const isCallEnded = (message.type === 'status-update' && message.status === 'ended') || 
-                        message.type === 'end-of-call-report';
+                        message.type === 'end-of-call-report' ||
+                        webhook.type === 'end-of-call-report' ||
+                        (webhook.type === 'status-update' && webhook.status === 'ended');
     
-    console.log('Message type:', message.type);
-    console.log('Message status:', message.status);
+    console.log('Message type:', message.type || webhook.type);
+    console.log('Message status:', message.status || webhook.status);
     console.log('Is call ended?', isCallEnded);
     
     // Process async AFTER responding
@@ -51,7 +81,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ received: true })
+      body: JSON.stringify({ received: true, error: err.message })
     };
   }
 };
@@ -59,11 +89,11 @@ exports.handler = async function(event, context) {
 async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY) {
   console.log('=== PROCESS CALL REPORT START ===');
   
-  // The data is in webhook.call
-  const call = webhook.call || {};
-  const customer = call.customer || webhook.customer || {};
+  // The data could be in webhook.call, webhook.message.call, or at top level
+  const call = webhook.call || webhook.message?.call || {};
+  const customer = call.customer || webhook.customer || webhook.message?.customer || {};
   
-  console.log('Customer:', customer);
+  console.log('Customer:', JSON.stringify(customer));
   
   // Wait for Vapi analysis to complete
   console.log('Waiting 3 seconds for Vapi analysis...');
@@ -71,7 +101,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   
   // Fetch the call details to get the analysis
   const VAPI_API_KEY = process.env.VAPI_API_KEY;
-  const callId = call.id || webhook.message?.call?.id;
+  const callId = call.id || webhook.message?.call?.id || webhook.call?.id;
   
   console.log('Call ID:', callId);
   
@@ -100,7 +130,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
     const structuredData = analysis.structuredData || {};
     const summary = analysis.summary || '';
     
-    console.log('Structured data:', structuredData);
+    console.log('Structured data:', JSON.stringify(structuredData));
     console.log('Tour booked:', structuredData.tourBooked);
     
     // Build the call notes string (reused for both FUB and Supabase)
@@ -132,7 +162,7 @@ Summary: ${summary}`;
           needsCosigner: structuredData.needsCosigner || false
         };
         
-        console.log('SMS Payload:', smsPayload);
+        console.log('SMS Payload:', JSON.stringify(smsPayload));
         
         const smsResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-sms', {
           method: 'POST',
@@ -169,8 +199,7 @@ Summary: ${summary}`;
         // Try multiple phone formats for matching
         const phone10 = phoneDigits.length === 11 && phoneDigits[0] === '1' ? phoneDigits.slice(1) : phoneDigits;
         
-        // Search for existing lead by phone (try multiple formats)
-        // Use ilike with wildcards to match regardless of formatting
+        // Search for existing lead by phone
         const searchUrl = `${SUPABASE_URL}/rest/v1/leads?or=(phone.ilike.*${phone10}*,phone.ilike.*${phoneDigits}*)&limit=1`;
         
         console.log('Searching Supabase for phone:', phone10);
