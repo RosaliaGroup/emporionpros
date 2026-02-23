@@ -117,18 +117,21 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   
   // Build the call notes string (reused for both FUB and Supabase)
   const callNotes = `🤖 AI Call (Aria) - ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}
-Email: ${cleanEmail || 'Not provided'}
-Budget: ${structuredData.budget || 'Not provided'}
-Move Date: ${structuredData.moveDate || 'Not provided'}
-Bedrooms: ${structuredData.bedroomsNeeded || 'Not provided'}
-Income: ${structuredData.income || 'Not provided'}
-Credit: ${structuredData.credit || 'Not provided'}
-Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDay + ' ' + structuredData.tourTime : 'No'}
-Needs Cosigner: ${structuredData.needsCosigner ? 'Yes' : 'No'}
-Summary: ${summary}`;
 
-  // Send SMS if tour was booked
-  if (structuredData.tourBooked && customer.number) {
+• Email: ${cleanEmail || 'Not provided'}
+• Budget: ${structuredData.budget || 'Not provided'}
+• Move Date: ${structuredData.moveDate || 'Not provided'}
+• Bedrooms: ${structuredData.bedroomsNeeded || 'Not provided'}
+• Income: ${structuredData.income || 'Not provided'}
+• Credit: ${structuredData.credit || 'Not provided'}
+• Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDay + ' ' + (structuredData.tourTime || '') : 'No'}
+• Needs Cosigner: ${structuredData.needsCosigner ? 'Yes' : 'No'}
+• Interested: ${structuredData.interested ? 'Yes' : structuredData.interested === false ? 'No' : 'Unknown'}
+${structuredData.concerns ? '• Concerns: ' + structuredData.concerns : ''}
+${summary ? '\n📝 Call Summary:\n' + summary : ''}`;
+
+  // Send SMS — tour confirmation if booked, follow-up if not
+  if (customer.number) {
     console.log('=== SENDING SMS ===');
     try {
       const smsPayload = {
@@ -137,7 +140,12 @@ Summary: ${summary}`;
         name: customer.name || 'there',
         tourDay: structuredData.tourDay || 'your scheduled date',
         tourTime: structuredData.tourTime || 'your scheduled time',
-        needsCosigner: structuredData.needsCosigner || false
+        needsCosigner: structuredData.needsCosigner || false,
+        tourBooked: structuredData.tourBooked || false,
+        budget: structuredData.budget || '',
+        bedroomsNeeded: structuredData.bedroomsNeeded || '',
+        concerns: structuredData.concerns || '',
+        summary: summary || ''
       };
       
       const smsResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-sms', {
@@ -158,7 +166,7 @@ Summary: ${summary}`;
       console.error('❌ SMS ERROR:', smsError);
     }
   } else {
-    console.log('Skipping SMS - tourBooked:', structuredData.tourBooked, 'phone:', customer.number);
+    console.log('Skipping SMS - no phone number');
   }
 
   // Send EMAIL if tour was booked and we have a valid email
