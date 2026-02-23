@@ -319,40 +319,46 @@ function callLead(eventOrPhone, phoneArg) {
 }
 function emailLead(email) {
   if (!email) { alert('No email'); return; }
-  window.location.href = 'mailto:' + email;
+  var a = document.createElement('a');
+  a.href = 'mailto:' + email;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 function openLeadProfile(j) {
   const l = JSON.parse(decodeURIComponent(j));
   const parsed = l.message ? (function(m){var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2)d[parts[0].trim()]=parts.slice(1).join(': ').trim();});}d._notes=m.split('---')[0].trim();return d;})(l.message) : {};
-  const detailRows = Object.entries(parsed).filter(([k,v]) => k !== '_notes' && v).map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-size:12px;color:#6b7280">${k}</span><span style="font-size:13px;font-weight:600">${v}</span></div>`).join('');
-  const html = `<div id="leadProfileModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-    <div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-            <div style="width:40px;height:40px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">${(l.name||'?')[0].toUpperCase()}</div>
-            <div><h2 style="font-size:20px;font-weight:700;margin:0">${l.name||'Unknown'}</h2>
-            <span style="font-size:12px;color:#6b7280">${parsed.Type||'Lead'} · ${l.source||'Unknown source'}</span></div>
-          </div>
-        </div>
-        <button onclick="document.getElementById('leadProfileModal').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Email</div>${l.email ? '<a href="mailto:'+l.email+'" style="font-size:13px;color:#1a56db;text-decoration:none">'+l.email+'</a>' : '<span style="font-size:13px;color:#9ca3af">—</span>'}</div>
-        <div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Phone</div><a href="tel:${l.phone}" style="font-size:13px;color:#1a56db;text-decoration:none">${l.phone||'—'}</a></div>
-        <div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Status</div><span class="badge badge-${l.status}" style="font-size:12px">${l.status||'new'}</span></div>
-        <div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Added</div><span style="font-size:13px">${l.created_at?new Date(l.created_at).toLocaleDateString():''}</span></div>
-      </div>
-      ${detailRows ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#374151">Lead Details</div>'+detailRows+'</div>' : ''}
-      ${parsed._notes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Notes</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px">'+parsed._notes+'</div></div>' : ''}
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button onclick="document.getElementById('leadProfileModal').remove();editLead('${encodeURIComponent(JSON.stringify(l))}')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">✏️ Edit</button>
-        ${l.email ? '<a href="mailto:'+l.email+'" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit;text-decoration:none;display:inline-block">📧 Email</a>' : ''}
-        ${l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\''+l.phone.replace(/'/g,'')+'\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">📞 Call via Aria</button> <a href="tel:'+l.phone+'" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">📱 Direct Call</a>' : ''}
-      </div>
-    </div>
-  </div>`;
-  const ex = document.getElementById('leadProfileModal');
+  const detailRows = Object.entries(parsed).filter(([k,v]) => k !== '_notes' && v).map(([k,v]) => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-size:12px;color:#6b7280">'+k+'</span><span style="font-size:13px;font-weight:600">'+v+'</span></div>').join('');
+  var safePhone = (l.phone || '').replace(/'/g, '').replace(/"/g, '');
+  var safeEmail = (l.email || '').replace(/'/g, '').replace(/"/g, '');
+  var encodedLead = encodeURIComponent(JSON.stringify(l));
+  var html = '<div id="leadProfileModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
+    + '<div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">'
+    + '<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'
+    + '<div style="width:40px;height:40px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">' + (l.name||'?')[0].toUpperCase() + '</div>'
+    + '<div><h2 style="font-size:20px;font-weight:700;margin:0">' + (l.name||'Unknown') + '</h2>'
+    + '<span style="font-size:12px;color:#6b7280">' + (parsed.Type||'Lead') + ' &middot; ' + (l.source||'Unknown source') + '</span></div>'
+    + '</div></div>'
+    + '<button onclick="document.getElementById(\'leadProfileModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
+    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Email</div>' + (l.email ? '<a href="mailto:' + safeEmail + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + safeEmail + '</a>' : '<span style="font-size:13px;color:#9ca3af">&mdash;</span>') + '</div>'
+    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Phone</div>' + (l.phone ? '<a href="tel:' + safePhone + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + safePhone + '</a>' : '<span style="font-size:13px;color:#9ca3af">&mdash;</span>') + '</div>'
+    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Status</div><span class="badge badge-' + (l.status||'new') + '" style="font-size:12px">' + (l.status||'new') + '</span></div>'
+    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Added</div><span style="font-size:13px">' + (l.created_at ? new Date(l.created_at).toLocaleDateString() : '') + '</span></div>'
+    + '</div>'
+    + (detailRows ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#374151">Lead Details</div>' + detailRows + '</div>' : '')
+    + (parsed._notes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Notes</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px">' + parsed._notes + '</div></div>' : '')
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">'
+    + '<button onclick="document.getElementById(\'leadProfileModal\').remove();editLead(\'' + encodedLead + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">&#9998; Edit</button>'
+    + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
+    + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\'' + safePhone + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">&#128222; Call via Aria</button>' : '')
+    + (l.phone ? '<a href="tel:' + safePhone + '" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">&#128241; Direct Call</a>' : '')
+    + '</div>'
+    + '</div></div>';
+  var ex = document.getElementById('leadProfileModal');
   if (ex) ex.remove();
   document.body.insertAdjacentHTML('beforeend', html);
 }
