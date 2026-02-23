@@ -340,8 +340,25 @@ function filterLeads() {
 }
 function getLeadType(l) {
   if (!l.message) return '';
-  const m = l.message.match(/Type:\s*([^|]+)/);
+  // Only match the structured "Type: X" format, not AI call notes
+  const m = l.message.match(/^Type:\s*([^|\n]+)/m);
   return m ? m[1].trim() : '';
+}
+function getAIStatus(l) {
+  const hasPhone = l.phone && l.phone.length > 5;
+  const msg = l.message || '';
+  // Check if Aria has already called this lead
+  if (msg.includes('AI Call (Aria)')) {
+    const tourMatch = msg.includes('Tour Booked: Yes');
+    if (tourMatch) {
+      return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
+    }
+    return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
+  }
+  if (hasPhone) {
+    return '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">🤖 AI Ready</span>';
+  }
+  return '<span style="background:#f3f4f6;color:#6b7280;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">No Phone</span>';
 }
 function getLeadTypeBadge(type) {
   if (!type) return '';
@@ -366,7 +383,7 @@ function renderLeadsTable(leads) {
     <tbody>${leads.map(l => {
       const hasPhone = l.phone && l.phone.length > 5;
       const leadType = getLeadType(l);
-      const aiStatus = hasPhone ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">🤖 AI Ready</span>' : '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">No Phone</span>';
+      const aiStatus = getAIStatus(l);
       return '<tr style="cursor:pointer" onclick="openLeadProfile(\''+encodeURIComponent(JSON.stringify(l))+'\')">'
         +'<td onclick="event.stopPropagation()"><input type="checkbox" class="merge-cb" data-id="'+l.id+'" onchange="toggleMerge(\''+l.id+'\',event)" style="cursor:pointer"></td>'
         +'<td><strong>'+(l.name||'—')+'</strong></td>'
