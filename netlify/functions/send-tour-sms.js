@@ -32,7 +32,7 @@ exports.handler = async function(event, context) {
 
 ✅ Your tour is confirmed!
 📅 ${tourDay || 'Your scheduled date'}${tourTime ? ' at ' + tourTime : ''}
-📍 65 Lincoln Park, Newark, NJ 07102
+📍 65 McWhorter St, Newark, NJ 07105
 
 What to bring:
 • Valid photo ID
@@ -74,7 +74,7 @@ See you soon! 🏠`;
 When you're ready to see the apartments, book a tour here:
 📅 https://calendly.com/ana-rosaliagroup/65-iron-tour
 
-📍 65 Lincoln Park, Newark, NJ 07102
+📍 65 McWhorter St, Newark, NJ 07105
 
 Reply anytime with questions! 🏢`;
     }
