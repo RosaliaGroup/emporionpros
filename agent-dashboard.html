@@ -111,6 +111,53 @@ tr:hover td{background:#f9fafb}
   </div>
 </div>
 <script>
+/* ========== CORE ACTION FUNCTIONS ========== */
+/* Isolated script block so these are always available even if other scripts error */
+function emailLead(email) {
+  if (!email) { alert('No email address available'); return; }
+  window.location.href = 'mailto:' + email;
+}
+
+function callLead(eventOrPhone, phoneArg) {
+  var phone, btn;
+  if (typeof eventOrPhone === 'string') {
+    phone = eventOrPhone;
+    var cleanPhone = phone.replace(/[^0-9]/g, '');
+    var allBtns = document.querySelectorAll('.btn-sm.btn-primary');
+    for (var i = 0; i < allBtns.length; i++) {
+      var onclickAttr = allBtns[i].getAttribute('onclick') || '';
+      if (onclickAttr.indexOf(phone) !== -1 || onclickAttr.indexOf(cleanPhone) !== -1) {
+        btn = allBtns[i];
+        break;
+      }
+    }
+  } else {
+    phone = phoneArg;
+    btn = eventOrPhone && eventOrPhone.target ? eventOrPhone.target : null;
+    if (btn && !btn.classList.contains('btn')) btn = btn.closest('.btn');
+  }
+  if (!phone) { alert('No phone number'); return; }
+  var digits = phone.replace(/[^0-9]/g, '');
+  if (digits.length === 10) digits = '1' + digits;
+  var formatted = '+' + digits;
+  if (digits.length < 10) { alert('Invalid phone number: ' + phone); return; }
+  if (!confirm('Call ' + phone + ' using Aria AI?\n\nAria will call this number and have a conversation with the lead.')) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  fetch('/.netlify/functions/vapi-call-iron65', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ leadPhone: formatted })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
+    if (d.error) { alert('Call failed: ' + d.error); }
+    else { alert('📞 Call initiated to ' + phone + '!\n\nAria is now calling the lead.'); }
+  }).catch(function(err){
+    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
+    alert('Call error: ' + err.message);
+  });
+}
+</script>
+<script>
 function showTab(name, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
@@ -267,64 +314,7 @@ async function executeMerge() {
   } catch(err) { alert('Error: ' + err.message); }
 }
 
-function callLead(eventOrPhone, phoneArg) {
-  // Support both: callLead('(555) 123-4567') and callLead(event, '(555) 123-4567')
-  var phone, btn;
-  if (typeof eventOrPhone === 'string') {
-    // Called directly with phone string: callLead('(555) 123-4567')
-    phone = eventOrPhone;
-    // Try to find the button in the DOM by matching the phone number
-    var cleanPhone = phone.replace(/[^0-9]/g, '');
-    var allBtns = document.querySelectorAll('.btn-sm.btn-primary');
-    for (var i = 0; i < allBtns.length; i++) {
-      var onclickAttr = allBtns[i].getAttribute('onclick') || '';
-      if (onclickAttr.indexOf(phone) !== -1 || onclickAttr.indexOf(cleanPhone) !== -1) {
-        btn = allBtns[i];
-        break;
-      }
-    }
-  } else {
-    // Called from onclick with event object: callLead(event, '(555) 123-4567')
-    phone = phoneArg;
-    btn = eventOrPhone && eventOrPhone.target ? eventOrPhone.target : null;
-    // Make sure we got the button, not a child element
-    if (btn && !btn.classList.contains('btn')) {
-      btn = btn.closest('.btn');
-    }
-  }
-
-  if (!phone) { alert('No phone number'); return; }
-  // Format phone: strip non-digits, add +1 if needed
-  var digits = phone.replace(/[^0-9]/g, '');
-  if (digits.length === 10) digits = '1' + digits;
-  if (digits.length === 11 && digits[0] === '1') digits = digits;
-  var formatted = '+' + digits;
-  if (digits.length < 10) { alert('Invalid phone number: ' + phone); return; }
-  if (!confirm('Call ' + phone + ' using Aria AI?\n\nAria will call this number and have a conversation with the lead.')) return;
-
-  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
-
-  fetch('/.netlify/functions/vapi-call-iron65', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ leadPhone: formatted })
-  }).then(function(r){ return r.json(); }).then(function(d){
-    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
-    if (d.error) { alert('Call failed: ' + d.error); }
-    else { alert('📞 Call initiated to ' + phone + '!\n\nAria is now calling the lead.'); }
-  }).catch(function(err){
-    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
-    alert('Call error: ' + err.message);
-  });
-}
-function emailLead(email) {
-  if (!email) { alert('No email address available'); return; }
-  try {
-    window.location.href = 'mailto:' + email;
-  } catch(e) {
-    alert('Email error: ' + e.message + '\nTrying to email: ' + email);
-  }
-}
+function emailLead_legacy() { /* moved to isolated script block above */ }
 function openLeadProfile(j) {
   const l = JSON.parse(decodeURIComponent(j));
   const parsed = l.message ? (function(m){var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2)d[parts[0].trim()]=parts.slice(1).join(': ').trim();});}d._notes=m.split('---')[0].trim();return d;})(l.message) : {};
