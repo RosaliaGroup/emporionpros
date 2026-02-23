@@ -109,9 +109,15 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   console.log('Summary:', summary);
   console.log('Tour booked:', structuredData.tourBooked);
   
+  // Clean up VAPI's spoken-format email transcription
+  // e.g. "Anna at school at g mail" → "anna@school.gmail.com"
+  // e.g. "cool at gmail dot com" → "cool@gmail.com"
+  const cleanEmail = cleanupTranscribedEmail(structuredData.email);
+  console.log('Raw email:', structuredData.email, '→ Cleaned:', cleanEmail);
+  
   // Build the call notes string (reused for both FUB and Supabase)
   const callNotes = `🤖 AI Call (Aria) - ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}
-Email: ${structuredData.email || 'Not provided'}
+Email: ${cleanEmail || 'Not provided'}
 Budget: ${structuredData.budget || 'Not provided'}
 Move Date: ${structuredData.moveDate || 'Not provided'}
 Bedrooms: ${structuredData.bedroomsNeeded || 'Not provided'}
@@ -127,7 +133,7 @@ Summary: ${summary}`;
     try {
       const smsPayload = {
         phone: customer.number,
-        email: structuredData.email || '',
+        email: cleanEmail || '',
         name: customer.name || 'there',
         tourDay: structuredData.tourDay || 'your scheduled date',
         tourTime: structuredData.tourTime || 'your scheduled time',
@@ -153,6 +159,40 @@ Summary: ${summary}`;
     }
   } else {
     console.log('Skipping SMS - tourBooked:', structuredData.tourBooked, 'phone:', customer.number);
+  }
+
+  // Send EMAIL if tour was booked and we have a valid email
+  if (structuredData.tourBooked && cleanEmail) {
+    console.log('=== SENDING EMAIL ===');
+    try {
+      const emailPayload = {
+        email: cleanEmail,
+        name: customer.name || 'there',
+        tourDay: structuredData.tourDay || 'your scheduled date',
+        tourTime: structuredData.tourTime || 'your scheduled time',
+        needsCosigner: structuredData.needsCosigner || false,
+        phone: customer.number || ''
+      };
+      
+      const emailResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailPayload)
+      });
+      
+      const emailResult = await emailResponse.text();
+      console.log('Email Response:', emailResponse.status, emailResult);
+      
+      if (emailResponse.ok) {
+        console.log('✅ EMAIL SENT SUCCESSFULLY');
+      } else {
+        console.error('❌ EMAIL FAILED:', emailResult);
+      }
+    } catch (emailError) {
+      console.error('❌ EMAIL ERROR:', emailError);
+    }
+  } else {
+    console.log('Skipping Email - tourBooked:', structuredData.tourBooked, 'email:', cleanEmail);
   }
   
   // ========================================
@@ -214,8 +254,8 @@ Summary: ${summary}`;
         
         const insertUrl = `${SUPABASE_URL}/rest/v1/leads`;
         const newLead = {
-          name: customer.name || structuredData.email || 'Unknown (AI Call)',
-          email: structuredData.email || '',
+          name: customer.name || cleanEmail || 'Unknown (AI Call)',
+          email: cleanEmail || '',
           phone: rawPhone,
           source: 'AI Call (Aria)',
           status: 'contacted',
@@ -250,19 +290,25 @@ Summary: ${summary}`;
   // ========================================
   // PUSH TO FUB
   // ========================================
-  if (FUB_API_KEY && structuredData.email) {
+  if (FUB_API_KEY && (cleanEmail || customer.number)) {
     console.log('=== PUSHING TO FUB ===');
     
     try {
+      const person = {
+        phones: customer.number ? [{ value: customer.number }] : [],
+        name: customer.name || 'Unknown'
+      };
+      
+      // Only include email if it's a valid format
+      if (cleanEmail) {
+        person.emails = [{ value: cleanEmail }];
+      }
+      
       const fubPayload = {
         source: 'Iron 65 AI Call',
         type: 'Note',
         message: `AI Call Completed:\n${callNotes}`,
-        person: {
-          emails: [{ value: structuredData.email }],
-          phones: customer.number ? [{ value: customer.number }] : [],
-          name: customer.name || 'Unknown'
-        }
+        person
       };
       
       const fubResponse = await fetch('https://api.followupboss.com/v1/events', {
@@ -282,14 +328,82 @@ Summary: ${summary}`;
       if (fubResponse.ok) {
         console.log('✅ FUB PUSH SUCCESSFUL');
       } else {
-        console.error('❌ FUB ERROR:', fubResult);
+        // If email caused the error, retry without email
+        if (fubResult.includes('email') && cleanEmail) {
+          console.log('FUB rejected email, retrying with phone only...');
+          delete fubPayload.person.emails;
+          
+          const retryResponse = await fetch('https://api.followupboss.com/v1/events', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
+              'Content-Type': 'application/json',
+              'X-System': 'EmporionPros',
+              'X-System-Key': 'emporionpros2026'
+            },
+            body: JSON.stringify(fubPayload)
+          });
+          
+          const retryResult = await retryResponse.text();
+          console.log('FUB Retry Response:', retryResponse.status, retryResult);
+          
+          if (retryResponse.ok) {
+            console.log('✅ FUB PUSH SUCCESSFUL (phone only)');
+          } else {
+            console.error('❌ FUB RETRY ERROR:', retryResult);
+          }
+        } else {
+          console.error('❌ FUB ERROR:', fubResult);
+        }
       }
     } catch (fubErr) {
       console.error('❌ FUB PUSH ERROR:', fubErr);
     }
   } else {
-    console.log('Skipping FUB - API Key:', !!FUB_API_KEY, 'Email:', structuredData.email);
+    console.log('Skipping FUB - API Key:', !!FUB_API_KEY, 'Email:', cleanEmail, 'Phone:', customer.number);
   }
   
   console.log('=== PROCESS CALL REPORT END ===');
+}
+
+// Clean up VAPI's spoken-format email transcriptions
+// Examples: "anna at gmail dot com" → "anna@gmail.com"
+//           "Anna at school at g mail" → null (ambiguous)
+//           "cool@gmail.com" → "cool@gmail.com" (already valid)
+function cleanupTranscribedEmail(raw) {
+  if (!raw) return null;
+  
+  let email = raw.trim().toLowerCase();
+  
+  // If it already looks like a valid email, return it
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return email;
+  }
+  
+  // Replace spoken patterns
+  email = email
+    .replace(/\s+at\s+/g, '@')        // "at" → @
+    .replace(/\s+dot\s+/g, '.')        // "dot" → .
+    .replace(/\s+period\s+/g, '.')     // "period" → .
+    .replace(/g\s*mail/gi, 'gmail')    // "g mail" → "gmail"
+    .replace(/hot\s*mail/gi, 'hotmail')
+    .replace(/out\s*look/gi, 'outlook')
+    .replace(/ya\s*hoo/gi, 'yahoo')
+    .replace(/i\s*cloud/gi, 'icloud')
+    .replace(/\s+/g, '')              // Remove remaining spaces
+    .replace(/@+/g, '@');             // Fix multiple @
+  
+  // If no domain extension, try adding .com
+  if (email.includes('@') && !email.includes('.')) {
+    email = email + '.com';
+  }
+  
+  // Validate the result
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return email;
+  }
+  
+  // If still not valid, return null
+  console.log('Could not parse email from:', raw);
+  return null;
 }
