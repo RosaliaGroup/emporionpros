@@ -4,6 +4,7 @@ const IRON65_DATA = {
   building: {
     name: "Iron Sixty-Five",
     nameShort: "Iron 65",
+    address: "65 McWhorter St, Newark, NJ 07105",
     location: "Newark, NJ",
     type: "Luxury Apartments"
   },
