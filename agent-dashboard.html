@@ -318,13 +318,12 @@ function callLead(eventOrPhone, phoneArg) {
   });
 }
 function emailLead(email) {
-  if (!email) { alert('No email'); return; }
-  var a = document.createElement('a');
-  a.href = 'mailto:' + email;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (!email) { alert('No email address available'); return; }
+  try {
+    window.location.href = 'mailto:' + email;
+  } catch(e) {
+    alert('Email error: ' + e.message + '\nTrying to email: ' + email);
+  }
 }
 function openLeadProfile(j) {
   const l = JSON.parse(decodeURIComponent(j));
