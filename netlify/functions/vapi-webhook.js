@@ -9,6 +9,8 @@ exports.handler = async function(event, context) {
   }
   
   const FUB_API_KEY = process.env.FUB_API_KEY;
+  const SUPABASE_URL = process.env.SUPABASE_URL || 'https://nfwxruzhgzkhklvzmfsw.supabase.co';
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
   
   try {
     const webhook = JSON.parse(event.body || '{}');
@@ -35,7 +37,7 @@ exports.handler = async function(event, context) {
     // Process async AFTER responding
     if (isCallEnded) {
       console.log('Processing ended call...');
-      processCallReport(webhook, FUB_API_KEY).catch(err => {
+      processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY).catch(err => {
         console.error('Process error:', err);
       });
     } else {
@@ -54,7 +56,7 @@ exports.handler = async function(event, context) {
   }
 };
 
-async function processCallReport(webhook, FUB_API_KEY) {
+async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY) {
   console.log('=== PROCESS CALL REPORT START ===');
   
   // The data is in webhook.call
@@ -101,6 +103,18 @@ async function processCallReport(webhook, FUB_API_KEY) {
     console.log('Structured data:', structuredData);
     console.log('Tour booked:', structuredData.tourBooked);
     
+    // Build the call notes string (reused for both FUB and Supabase)
+    const callNotes = `🤖 AI Call (Aria) - ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}
+Email: ${structuredData.email || 'Not provided'}
+Budget: ${structuredData.budget || 'Not provided'}
+Move Date: ${structuredData.moveDate || 'Not provided'}
+Bedrooms: ${structuredData.bedroomsNeeded || 'Not provided'}
+Income: ${structuredData.income || 'Not provided'}
+Credit: ${structuredData.credit || 'Not provided'}
+Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDay + ' ' + structuredData.tourTime : 'No'}
+Needs Cosigner: ${structuredData.needsCosigner ? 'Yes' : 'No'}
+Summary: ${summary}`;
+
     // Send SMS if tour was booked
     if (structuredData.tourBooked && customer.number) {
       console.log('=== SENDING SMS ===');
@@ -142,7 +156,116 @@ async function processCallReport(webhook, FUB_API_KEY) {
       console.log('Skipping SMS - tourBooked:', structuredData.tourBooked, 'customer.number:', customer.number);
     }
     
-    // Push to FUB
+    // ========================================
+    // PUSH TO SUPABASE (EmporionPros leads)
+    // ========================================
+    if (SUPABASE_SERVICE_KEY && customer.number) {
+      console.log('=== PUSHING TO SUPABASE ===');
+      
+      try {
+        // Normalize phone: strip to digits for matching
+        const rawPhone = customer.number;
+        const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
+        // Try multiple phone formats for matching
+        const phone10 = phoneDigits.length === 11 && phoneDigits[0] === '1' ? phoneDigits.slice(1) : phoneDigits;
+        
+        // Search for existing lead by phone (try multiple formats)
+        // Use ilike with wildcards to match regardless of formatting
+        const searchUrl = `${SUPABASE_URL}/rest/v1/leads?or=(phone.ilike.*${phone10}*,phone.ilike.*${phoneDigits}*)&limit=1`;
+        
+        console.log('Searching Supabase for phone:', phone10);
+        
+        const searchResponse = await fetch(searchUrl, {
+          headers: {
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const existingLeads = await searchResponse.json();
+        console.log('Found existing leads:', existingLeads.length);
+        
+        if (existingLeads && existingLeads.length > 0) {
+          // UPDATE existing lead — append call notes to message
+          const lead = existingLeads[0];
+          const existingMessage = lead.message || '';
+          const updatedMessage = existingMessage 
+            ? existingMessage + '\n\n' + callNotes 
+            : callNotes;
+          
+          // Also update status to 'contacted'
+          const updateUrl = `${SUPABASE_URL}/rest/v1/leads?id=eq.${lead.id}`;
+          
+          const updateResponse = await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              message: updatedMessage,
+              status: 'contacted'
+            })
+          });
+          
+          console.log('Supabase UPDATE status:', updateResponse.status);
+          
+          if (updateResponse.ok) {
+            console.log('✅ SUPABASE UPDATE SUCCESSFUL — Lead:', lead.name, '(ID:', lead.id, ')');
+          } else {
+            const errText = await updateResponse.text();
+            console.error('❌ SUPABASE UPDATE ERROR:', errText);
+          }
+          
+        } else {
+          // INSERT new lead if no match found
+          console.log('No existing lead found, creating new one...');
+          
+          const insertUrl = `${SUPABASE_URL}/rest/v1/leads`;
+          
+          const newLead = {
+            name: customer.name || structuredData.email || 'Unknown (AI Call)',
+            email: structuredData.email || '',
+            phone: rawPhone,
+            source: 'AI Call (Aria)',
+            status: 'contacted',
+            message: callNotes
+          };
+          
+          const insertResponse = await fetch(insertUrl, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(newLead)
+          });
+          
+          console.log('Supabase INSERT status:', insertResponse.status);
+          
+          if (insertResponse.ok) {
+            console.log('✅ SUPABASE INSERT SUCCESSFUL — New lead created');
+          } else {
+            const errText = await insertResponse.text();
+            console.error('❌ SUPABASE INSERT ERROR:', errText);
+          }
+        }
+        
+      } catch (supaErr) {
+        console.error('❌ SUPABASE PUSH ERROR:', supaErr);
+      }
+    } else {
+      console.log('Skipping Supabase - Service Key:', !!SUPABASE_SERVICE_KEY, 'Phone:', customer.number);
+    }
+    
+    // ========================================
+    // PUSH TO FUB
+    // ========================================
     if (FUB_API_KEY && structuredData.email) {
       console.log('=== PUSHING TO FUB ===');
       
@@ -150,17 +273,7 @@ async function processCallReport(webhook, FUB_API_KEY) {
         const fubPayload = {
           source: 'Iron 65 AI Call',
           type: 'Note',
-          message: `AI Call Completed:
-Email: ${structuredData.email || 'Not provided'}
-Budget: ${structuredData.budget || 'Not provided'}
-Move Date: ${structuredData.moveDate || 'Not provided'}
-Bedrooms: ${structuredData.bedroomsNeeded || 'Not provided'}
-Income: ${structuredData.income || 'Not provided'}
-Credit: ${structuredData.credit || 'Not provided'}
-Tour Booked: ${structuredData.tourBooked ? 'Yes - ' + structuredData.tourDay + ' ' + structuredData.tourTime : 'No'}
-Needs Cosigner: ${structuredData.needsCosigner ? 'Yes' : 'No'}
-
-Summary: ${summary}`,
+          message: `AI Call Completed:\n${callNotes}`,
           person: {
             emails: [{ value: structuredData.email }],
             phones: customer.number ? [{ value: customer.number }] : [],
