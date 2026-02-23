@@ -448,40 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-async function makeCall(leadId) {
-  const lead = scoreLeads().find(l => l.id === leadId);
-  if (!lead) return;
-  
-  EP.notify('📞 Initiating call to ' + lead.name + '...', 'info');
-  
-  try {
-    const user = EP.auth.user();
-    const res = await fetch('/.netlify/functions/vapi-call-iron65', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        leadId: lead.id,
-        leadName: lead.name,
-        leadPhone: lead.phone,
-        leadEmail: lead.email,
-        leadSource: lead.source,
-        agentName: user.name
-      })
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      EP.notify('✅ ' + data.message, 'success');
-      addActivity('call', '📞 AI call initiated to ' + lead.name, 'Status: ' + data.status);
-    } else {
-      EP.notify('❌ Call failed: ' + (data.error || 'Unknown error'), 'error');
-    }
-  } catch (err) {
-    EP.notify('❌ Could not initiate call: ' + err.message, 'error');
-  }
-}
-
 function renderHotLeads() {
   const allLeads = scoreLeads();
   const hotLeads = allLeads.filter(l => l.score === 'hot');
@@ -497,14 +463,15 @@ function renderHotLeads() {
     const age = l.ageText || 'Unknown';
     return `<tr>
       <td><div class="lead-score score-hot">🔥</div></td>
-      <td><strong>${l.name}</strong><br><small style="color:#6b7280">${l.email || 'No email'}</small></td>
+      <td><strong style="cursor:pointer;color:#1a56db" onclick="openLeadProfile(${l.id})">${l.name}</strong><br><small style="color:#6b7280">${l.email || 'No email'}</small></td>
       <td>${l.phone || 'No phone'}</td>
       <td>${l.source}</td>
       <td><span style="color:#ef4444;font-weight:600">${age}</span></td>
       <td>${l.stage}</td>
       <td>
         <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
-        <button class="ai-action-btn btn-text" onclick="sendText(${l.id})">💬 Text</button>
+        <button class="ai-action-btn btn-email" onclick="emailLead(${l.id})">📧</button>
+        <button class="ai-action-btn btn-text" onclick="sendText('${l.name}',${l.id})">💬</button>
       </td>
     </tr>`;
   }).join('');
@@ -644,7 +611,7 @@ function renderLeads() {
   document.getElementById('fub-leads-body').innerHTML = leads.map(l => `
     <tr>
       <td><div class="lead-score score-${l.score}">${l.score==='hot'?'🔥':l.score==='warm'?'😊':'❄️'}</div></td>
-      <td><div style="font-weight:700">${l.name}</div><div style="font-size:12px;color:#6b7280">${l.email}</div></td>
+      <td><div style="font-weight:700;cursor:pointer;color:#1a56db" onclick="openLeadProfile(${l.id})">${l.name}</div><div style="font-size:12px;color:#6b7280">${l.email}</div></td>
       <td style="font-family:monospace;font-size:13px">${l.phone}</td>
       <td><span style="background:#f3f4f6;padding:3px 8px;border-radius:6px;font-size:12px">${l.source}</span></td>
       <td style="font-size:13px;max-width:150px">${l.interest}</td>
@@ -652,11 +619,51 @@ function renderLeads() {
       <td><span style="font-size:12px;color:${l.aiStatus.includes('Booked')?'#065f46':l.aiStatus.includes('Pending')?'#92400e':'#374151'};font-weight:600">${l.aiStatus}</span></td>
       <td>
         <div style="display:flex;gap:4px">
-          <button class="ai-action-btn btn-call" onclick="simulateCall('${l.name}','${l.phone}',${l.id})">📞 Call</button>
+          <button class="ai-action-btn btn-call" onclick="makeCall(${l.id})">📞 Call</button>
+          <button class="ai-action-btn btn-email" onclick="emailLead(${l.id})">📧 Email</button>
           <button class="ai-action-btn btn-text" onclick="sendText('${l.name}',${l.id})">💬 Text</button>
         </div>
       </td>
     </tr>`).join('');
+}
+
+async function makeCall(leadId) {
+  const leads = fubConnected ? scoreLeads() : SAMPLE_FUB_LEADS;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) { EP.notify('Lead not found', 'error'); return; }
+  if (!lead.phone) { EP.notify('No phone number for this lead', 'error'); return; }
+
+  // Show the call modal with real data
+  document.getElementById('call-avatar').textContent = lead.name.charAt(0);
+  document.getElementById('call-name').textContent = lead.name;
+  document.getElementById('call-phone').textContent = lead.phone;
+  document.getElementById('call-transcript').innerHTML = '<div class="t-line"><span class="t-aria">🤖 Aria:</span> Initiating call...</div>';
+  document.getElementById('call-modal').classList.add('open');
+
+  let t = 0;
+  const timer = setInterval(() => { t++; document.getElementById('call-timer').textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; }, 1000);
+
+  try {
+    const res = await fetch('/.netlify/functions/vapi-call-iron65', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadName: lead.name, leadPhone: lead.phone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('call-transcript').innerHTML += '<div class="t-line"><span class="t-aria">🤖 Aria:</span> Call connected! Aria is speaking with ' + lead.name.split(' ')[0] + '...</div>';
+      EP.notify('📞 Aria is calling ' + lead.name + '!', 'success');
+      addActivity('call', '📞 Aria called ' + lead.name, 'Call ID: ' + data.callId);
+    } else {
+      clearInterval(timer);
+      document.getElementById('call-transcript').innerHTML += '<div class="t-line" style="color:#ef4444"><span class="t-aria">❌</span> Call failed: ' + (data.error || 'Unknown error') + '</div>';
+      EP.notify('❌ Call failed: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    clearInterval(timer);
+    document.getElementById('call-transcript').innerHTML += '<div class="t-line" style="color:#ef4444"><span class="t-aria">❌</span> Call error: ' + err.message + '</div>';
+    EP.notify('❌ Call error: ' + err.message, 'error');
+  }
 }
 
 function simulateCall(name, phone, id) {
@@ -767,5 +774,137 @@ function toggleSetting(el, name) {
   EP.notify(`AI ${name} ${el.classList.contains('on') ? 'enabled' : 'disabled'}`, 'info');
 }
 </script>
+<!-- LEAD PROFILE MODAL -->
+<div class="modal-overlay" id="lead-profile-modal" onclick="if(event.target===this)closeLeadProfile()">
+  <div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div style="background:linear-gradient(135deg,#0f172a,#1a56db);padding:24px 28px;border-radius:16px 16px 0 0;color:white;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:20px;font-weight:800" id="lp-name">—</div>
+        <div style="opacity:.7;font-size:14px;margin-top:4px" id="lp-source">—</div>
+      </div>
+      <button onclick="closeLeadProfile()" style="background:rgba(255,255,255,.2);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:24px 28px">
+      <!-- Editable fields -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Full Name</label>
+          <input type="text" id="lp-edit-name" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Phone</label>
+          <input type="tel" id="lp-edit-phone" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Email</label>
+          <input type="email" id="lp-edit-email" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Source</label>
+          <input type="text" id="lp-edit-source" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit" readonly />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Stage</label>
+          <select id="lp-edit-stage" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit">
+            <option>New</option><option>Contacted</option><option>Touring</option><option>Application</option><option>Closed</option><option>Lost</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Interest</label>
+          <input type="text" id="lp-edit-interest" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit" />
+        </div>
+      </div>
+      <!-- Quick actions -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;padding:16px;background:#f9fafb;border-radius:10px">
+        <button class="ai-action-btn btn-call" onclick="makeCall(window._lpLeadId)" style="flex:1;padding:10px">📞 Call with Aria</button>
+        <button class="ai-action-btn btn-email" onclick="emailLead(window._lpLeadId)" style="flex:1;padding:10px">📧 Send Email</button>
+        <button class="ai-action-btn btn-text" onclick="sendText(document.getElementById('lp-edit-name').value, window._lpLeadId)" style="flex:1;padding:10px">💬 Send Text</button>
+      </div>
+      <!-- Notes -->
+      <div style="margin-bottom:20px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">Notes</label>
+        <textarea id="lp-edit-notes" rows="3" placeholder="Add notes about this lead..." style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+      </div>
+      <!-- Save / Delete -->
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="closeLeadProfile()" style="padding:10px 20px;border:1px solid #e5e7eb;border-radius:8px;background:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+        <button onclick="saveLeadProfile()" style="padding:10px 20px;border:none;border-radius:8px;background:#1a56db;color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.open{display:flex}
+</style>
+
+<script>
+// ─── LEAD PROFILE FUNCTIONS ───
+function openLeadProfile(leadId) {
+  const leads = fubConnected ? scoreLeads() : SAMPLE_FUB_LEADS;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) { EP.notify('Lead not found', 'error'); return; }
+
+  window._lpLeadId = leadId;
+  document.getElementById('lp-name').textContent = lead.name;
+  document.getElementById('lp-source').textContent = lead.source + ' • ' + (lead.stage || 'New');
+  document.getElementById('lp-edit-name').value = lead.name || '';
+  document.getElementById('lp-edit-phone').value = lead.phone || '';
+  document.getElementById('lp-edit-email').value = lead.email || '';
+  document.getElementById('lp-edit-source').value = lead.source || '';
+  document.getElementById('lp-edit-stage').value = lead.stage || 'New';
+  document.getElementById('lp-edit-interest').value = lead.interest || '';
+  document.getElementById('lp-edit-notes').value = lead.notes || '';
+  document.getElementById('lead-profile-modal').classList.add('open');
+}
+
+function closeLeadProfile() {
+  document.getElementById('lead-profile-modal').classList.remove('open');
+}
+
+function saveLeadProfile() {
+  const leadId = window._lpLeadId;
+  const leads = fubConnected ? (EP.store.get('ep_fub_leads') || SAMPLE_FUB_LEADS) : SAMPLE_FUB_LEADS;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) { EP.notify('Lead not found', 'error'); return; }
+
+  lead.name = document.getElementById('lp-edit-name').value;
+  lead.phone = document.getElementById('lp-edit-phone').value;
+  lead.email = document.getElementById('lp-edit-email').value;
+  lead.stage = document.getElementById('lp-edit-stage').value;
+  lead.interest = document.getElementById('lp-edit-interest').value;
+  lead.notes = document.getElementById('lp-edit-notes').value;
+
+  if (fubConnected) EP.store.set('ep_fub_leads', leads);
+  EP.notify('✅ Lead updated!', 'success');
+  closeLeadProfile();
+  renderLeads();
+  renderHotLeads();
+}
+
+function emailLead(leadId) {
+  const leads = fubConnected ? scoreLeads() : SAMPLE_FUB_LEADS;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) { EP.notify('Lead not found', 'error'); return; }
+  if (!lead.email) { EP.notify('No email address for this lead', 'error'); return; }
+
+  const subject = encodeURIComponent('Iron 65 Apartments — Tour Information');
+  const body = encodeURIComponent(
+    'Hi ' + lead.name.split(' ')[0] + ',\n\n' +
+    'Thank you for your interest in Iron 65 Apartments!\n\n' +
+    'I\'d love to schedule a tour for you. We currently have specials running:\n' +
+    '• 12-month lease: 1 month free\n' +
+    '• 18-month lease: $4,000 credit\n' +
+    '• 24-month lease: 2 months free\n\n' +
+    'Book your tour here: https://calendly.com/ana-rosaliagroup/65-iron-tour\n\n' +
+    'Best regards,\nAna — Rosalia Group'
+  );
+  window.open('mailto:' + lead.email + '?subject=' + subject + '&body=' + body, '_blank');
+  EP.notify('📧 Opening email for ' + lead.name, 'success');
+  addActivity('text', '📧 Email opened for ' + lead.name, lead.email);
+}
+</script>
+
 </body>
 </html>
