@@ -113,9 +113,158 @@ tr:hover td{background:#f9fafb}
 <script>
 /* ========== CORE ACTION FUNCTIONS ========== */
 /* Isolated script block so these are always available even if other scripts error */
-function emailLead(email) {
+
+/* ---- EMAIL COMPOSE MODAL ---- */
+var emailTemplates = {
+  tour_confirmation: {
+    label: '🏠 Tour Confirmation',
+    subject: 'Your Apartment Tour is Confirmed!',
+    body: function(name, data) {
+      return 'Hi ' + (name || 'there') + ',\n\nThank you for your interest! We\'re excited to confirm your apartment tour.\n\n📅 Tour Details: {{tourDay}} at {{tourTime}}\n\nWhat to bring:\n✅ Valid photo ID\n✅ Proof of income (recent pay stubs or offer letter)\n✅ Any questions you have about the apartment\n\nIf you need to reschedule, simply reply to this email.\n\nBest regards,\nEmporionPros Team';
+    }
+  },
+  follow_up: {
+    label: '📋 Follow Up',
+    subject: 'Following Up — EmporionPros',
+    body: function(name) {
+      return 'Hi ' + (name || 'there') + ',\n\nI wanted to follow up on our recent conversation. Do you have any questions about the apartments we discussed?\n\nI\'m happy to help with anything you need — scheduling a tour, discussing pricing, or going over the application process.\n\nLooking forward to hearing from you!\n\nBest regards,\nEmporionPros Team';
+    }
+  },
+  application_reminder: {
+    label: '📝 Application Reminder',
+    subject: 'Complete Your Application — EmporionPros',
+    body: function(name) {
+      return 'Hi ' + (name || 'there') + ',\n\nJust a friendly reminder to complete your rental application. The sooner we receive it, the faster we can move forward!\n\nYou\'ll need:\n• Completed application form\n• Proof of income\n• Photo ID\n• Credit check authorization\n\nLet me know if you have any questions or need help with the process.\n\nBest regards,\nEmporionPros Team';
+    }
+  },
+  custom: {
+    label: '✏️ Custom Email',
+    subject: '',
+    body: function() { return ''; }
+  }
+};
+
+function emailLead(email, leadName) {
   if (!email) { alert('No email address available'); return; }
-  window.location.href = 'mailto:' + email;
+  
+  var name = leadName || '';
+  var firstName = name.split(' ')[0] || 'there';
+
+  var html = '<div id="emailComposeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
+    + '<div style="background:white;border-radius:12px;padding:0;width:94%;max-width:620px;max-height:90vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);display:flex;flex-direction:column">'
+    // Header
+    + '<div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
+    + '<h2 style="margin:0;font-size:17px;font-weight:700;color:#1a1a2e">📧 Compose Email</h2>'
+    + '<button onclick="document.getElementById(\'emailComposeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
+    + '</div>'
+    // Template selector
+    + '<div style="padding:12px 24px;background:#f9fafb;border-bottom:1px solid #e5e7eb;display:flex;gap:6px;flex-wrap:wrap">';
+  
+  Object.keys(emailTemplates).forEach(function(key) {
+    var t = emailTemplates[key];
+    html += '<button class="email-tpl-btn" data-tpl="' + key + '" onclick="selectEmailTemplate(\'' + key + '\',\'' + firstName.replace(/'/g, '') + '\')" '
+      + 'style="padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:white;color:#374151;cursor:pointer;transition:.2s">'
+      + t.label + '</button>';
+  });
+  
+  html += '</div>'
+    // Form
+    + '<div style="padding:20px 24px;overflow-y:auto;flex:1">'
+    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">To</label>'
+    + '<input type="text" id="email-to" value="' + email + '" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb;color:#6b7280" readonly></div>'
+    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Subject</label>'
+    + '<input type="text" id="email-subject" placeholder="Email subject..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
+    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Message</label>'
+    + '<textarea id="email-body" rows="10" placeholder="Type your message..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.5"></textarea></div>'
+    + '</div>'
+    // Footer
+    + '<div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
+    + '<span id="email-status" style="font-size:12px;color:#6b7280"></span>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button onclick="document.getElementById(\'emailComposeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
+    + '<button id="email-send-btn" onclick="sendComposedEmail()" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">Send Email ✉️</button>'
+    + '</div></div></div></div>';
+
+  var existing = document.getElementById('emailComposeModal');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+  
+  // Auto-select tour confirmation template
+  selectEmailTemplate('tour_confirmation', firstName);
+}
+
+function selectEmailTemplate(key, firstName) {
+  var t = emailTemplates[key];
+  document.getElementById('email-subject').value = t.subject;
+  document.getElementById('email-body').value = t.body(firstName);
+  
+  // Highlight active template button
+  var btns = document.querySelectorAll('.email-tpl-btn');
+  btns.forEach(function(b) {
+    if (b.dataset.tpl === key) {
+      b.style.background = '#1a56db';
+      b.style.color = 'white';
+      b.style.borderColor = '#1a56db';
+    } else {
+      b.style.background = 'white';
+      b.style.color = '#374151';
+      b.style.borderColor = '#e5e7eb';
+    }
+  });
+  
+  // Focus on subject if custom, body otherwise
+  if (key === 'custom') {
+    document.getElementById('email-subject').focus();
+  } else {
+    document.getElementById('email-body').focus();
+  }
+}
+
+async function sendComposedEmail() {
+  var to = document.getElementById('email-to').value.trim();
+  var subject = document.getElementById('email-subject').value.trim();
+  var body = document.getElementById('email-body').value.trim();
+  var btn = document.getElementById('email-send-btn');
+  var status = document.getElementById('email-status');
+  
+  if (!to) { alert('No email address'); return; }
+  if (!subject) { alert('Please enter a subject'); return; }
+  if (!body) { alert('Please enter a message'); return; }
+  
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  status.textContent = '';
+  status.style.color = '#6b7280';
+  
+  try {
+    var res = await fetch('/.netlify/functions/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: to, subject: subject, body: body })
+    });
+    
+    var data = await res.json();
+    
+    if (res.ok && data.success) {
+      status.textContent = '✅ Email sent successfully!';
+      status.style.color = '#0e9f6e';
+      btn.textContent = 'Sent! ✅';
+      setTimeout(function() {
+        var modal = document.getElementById('emailComposeModal');
+        if (modal) modal.remove();
+      }, 1500);
+    } else {
+      status.textContent = '❌ ' + (data.error || 'Failed to send');
+      status.style.color = '#e02424';
+      btn.disabled = false;
+      btn.textContent = 'Send Email ✉️';
+    }
+  } catch (err) {
+    status.textContent = '❌ ' + err.message;
+    status.style.color = '#e02424';
+    btn.disabled = false;
+    btn.textContent = 'Send Email ✉️';
+  }
 }
 
 function callLead(eventOrPhone, phoneArg) {
@@ -227,7 +376,7 @@ function renderLeadsTable(leads) {
         +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
         +'<td>'+aiStatus+'</td>'
         +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
-        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(event,\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
+        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(event,\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\\',\''+(l.name||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
         +'</tr>';
     }).join('')}</tbody></table>`;
 }
@@ -342,7 +491,7 @@ function openLeadProfile(j) {
     + (parsed._notes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Notes</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px">' + parsed._notes + '</div></div>' : '')
     + '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">'
     + '<button onclick="document.getElementById(\'leadProfileModal\').remove();editLead(\'' + encodedLead + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">&#9998; Edit</button>'
-    + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
+    + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
     + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\'' + safePhone + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">&#128222; Call via Aria</button>' : '')
     + (l.phone ? '<a href="tel:' + safePhone + '" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">&#128241; Direct Call</a>' : '')
     + '</div>'
