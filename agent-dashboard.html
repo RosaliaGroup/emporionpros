@@ -379,23 +379,39 @@ function renderLeadsTable(leads) {
   const c = document.getElementById('all-leads');
   if (!leads || !leads.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No leads found.</p></div>'; return; }
   mergeSelection = [];
-  c.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#6b7280">Showing ${leads.length} lead${leads.length===1?'':'s'}</span></div><div id="merge-bar" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 16px;border-radius:8px;margin-bottom:12px;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e40af;font-weight:600"><span id="merge-count">0</span> leads selected</span><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" onclick="mergeSelection=[];renderLeadsTable(allLeadsCache)">Cancel</button><button class="btn btn-sm btn-primary" onclick="openMergeModal()">🔗 Merge Selected</button></div></div><table><thead><tr><th style="width:30px"></th><th>Name</th><th>Type</th><th>Email</th><th>Phone</th><th>Source</th><th>AI Status</th><th>Date</th><th>Actions</th></tr></thead>
-    <tbody>${leads.map(l => {
-      const hasPhone = l.phone && l.phone.length > 5;
-      const leadType = getLeadType(l);
-      const aiStatus = getAIStatus(l);
-      return '<tr style="cursor:pointer" onclick="openLeadProfile(\''+encodeURIComponent(JSON.stringify(l))+'\')">'
-        +'<td onclick="event.stopPropagation()"><input type="checkbox" class="merge-cb" data-id="'+l.id+'" onchange="toggleMerge(\''+l.id+'\',event)" style="cursor:pointer"></td>'
-        +'<td><strong>'+(l.name||'—')+'</strong></td>'
-        +'<td>'+getLeadTypeBadge(leadType)+'</td>'
-        +'<td style="font-size:12px">'+(l.email||'—')+'</td>'
-        +'<td style="font-size:12px">'+(l.phone||'—')+'</td>'
-        +'<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>'
-        +'<td>'+aiStatus+'</td>'
-        +'<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>'
-        +'<td><div style="display:flex;gap:4px">'+(hasPhone?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLead(event,\''+(l.phone||'').replace(/'/g,"")+'\')" title="Call '+(l.phone||'')+'">📞</button>':'')+(l.email?'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLead(\''+(l.email||'').replace(/'/g,"")+'\\',\''+(l.name||'').replace(/'/g,"")+'\')" title="Email '+(l.email||'')+'">📧</button>':'')+'<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLead(\''+encodeURIComponent(JSON.stringify(l))+'\')">✏️</button></div></td>'
-        +'</tr>';
-    }).join('')}</tbody></table>`;
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#6b7280">Showing '+leads.length+' lead'+(leads.length===1?'':'s')+'</span></div>';
+  html += '<div id="merge-bar" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 16px;border-radius:8px;margin-bottom:12px;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e40af;font-weight:600"><span id="merge-count">0</span> leads selected</span><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" onclick="mergeSelection=[];renderLeadsTable(allLeadsCache)">Cancel</button><button class="btn btn-sm btn-primary" onclick="openMergeModal()">🔗 Merge Selected</button></div></div>';
+  html += '<table><thead><tr><th style="width:30px"></th><th>Name</th><th>Type</th><th>Email</th><th>Phone</th><th>Source</th><th>AI Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+  leads.forEach(function(l, idx) {
+    var hasPhone = l.phone && l.phone.length > 5;
+    var leadType = getLeadType(l);
+    var aiStatus = getAIStatus(l);
+    var encodedLead = encodeURIComponent(JSON.stringify(l));
+    var safePhone = (l.phone || '').replace(/'/g, '').replace(/"/g, '');
+    var safeEmail = (l.email || '').replace(/'/g, '').replace(/"/g, '');
+    var safeName = (l.name || '').replace(/'/g, '').replace(/"/g, '');
+    html += '<tr style="cursor:pointer" data-lead="'+encodedLead+'" onclick="openLeadProfile(this.dataset.lead)">';
+    html += '<td onclick="event.stopPropagation()"><input type="checkbox" class="merge-cb" data-id="'+l.id+'" onchange="toggleMerge(\''+l.id+'\',event)" style="cursor:pointer"></td>';
+    html += '<td><strong>'+(l.name||'—')+'</strong></td>';
+    html += '<td>'+getLeadTypeBadge(leadType)+'</td>';
+    html += '<td style="font-size:12px">'+(l.email||'—')+'</td>';
+    html += '<td style="font-size:12px">'+(l.phone||'—')+'</td>';
+    html += '<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>';
+    html += '<td>'+aiStatus+'</td>';
+    html += '<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>';
+    html += '<td><div style="display:flex;gap:4px">';
+    if (hasPhone) {
+      html += '<button class="btn btn-sm btn-primary" data-phone="'+safePhone+'" onclick="event.stopPropagation();callLead(this.dataset.phone)" title="Call '+safePhone+'">📞</button>';
+    }
+    if (l.email) {
+      html += '<button class="btn btn-sm btn-outline" data-email="'+safeEmail+'" data-name="'+safeName+'" onclick="event.stopPropagation();emailLead(this.dataset.email,this.dataset.name)" title="Email '+safeEmail+'">📧</button>';
+    }
+    html += '<button class="btn btn-sm btn-outline" data-lead="'+encodedLead+'" onclick="event.stopPropagation();editLead(this.dataset.lead)">✏️</button>';
+    html += '</div></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
 }
 function openMergeModal() {
   if (mergeSelection.length < 2) { alert('Select at least 2 leads to merge'); return; }
