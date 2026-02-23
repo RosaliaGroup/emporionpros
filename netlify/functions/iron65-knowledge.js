@@ -109,47 +109,4 @@ const IRON65_DATA = {
     closing: "Perfect! I've booked your tour for {time}. You'll get a confirmation text and email with the address and what to bring. Looking forward to showing you your new home!"
   }
 };
-module.exports = IRON65_DATA;      incentive: "2 months free rent + 12 months free amenities"
-    },
-    urgencyBonus: "Sign within 24 hours of touring to receive an additional 12 months of free building WiFi"
-  },
-  
-  qualifyingQuestions: [
-    {
-      question: "What's your monthly budget for rent?",
-      field: "budget",
-      purpose: "Determine which units to show"
-    },
-    {
-      question: "When are you looking to move in?",
-      field: "moveDate",
-      purpose: "Check availability"
-    },
-    {
-      question: "What's your approximate annual household income?",
-      field: "annualIncome",
-      purpose: "Income qualification (typically 3x rent)"
-    },
-    {
-      question: "How would you describe your credit? Excellent, Good, Fair, or Building?",
-      field: "creditScore",
-      purpose: "Credit qualification"
-    }
-  ],
-  
-  calendlyLink: "https://calendly.com/ana-rosaliagroup/65-iron-tour",
-  
-  conversationFlow: {
-    greeting: "Hi {name}, this is Aria from Iron 65 in Newark. I saw you were interested in our luxury apartments. Do you have 2 minutes to chat about what you're looking for?",
-    
-    afterYes: "Great! I'd love to learn a bit about what you're looking for so I can show you the perfect unit. {Ask qualifying questions}",
-    
-    afterNo: "No problem! I'll send you a text with all our pricing and amenities, plus a link to book a tour when you're ready. Sound good?",
-    
-    bookingPrompt: "Based on what you've shared, I think you'd love our {unitType}. Can I get you scheduled for a tour? I have availability {mention urgency bonus if applicable}.",
-    
-    closing: "Perfect! I've booked your tour for {time}. You'll get a confirmation text with the address and what to bring. Looking forward to showing you your new home!"
-  }
-};
-
 module.exports = IRON65_DATA;
