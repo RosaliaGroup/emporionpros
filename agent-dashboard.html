@@ -120,7 +120,9 @@ var emailTemplates = {
     label: '🏠 Tour Confirmation',
     subject: 'Your Apartment Tour is Confirmed!',
     body: function(name, data) {
-      return 'Hi ' + (name || 'there') + ',\n\nThank you for your interest! We\'re excited to confirm your apartment tour.\n\n📅 Tour Details: {{tourDay}} at {{tourTime}}\n\nWhat to bring:\n✅ Valid photo ID\n✅ Proof of income (recent pay stubs or offer letter)\n✅ Any questions you have about the apartment\n\nIf you need to reschedule, simply reply to this email.\n\nBest regards,\nEmporionPros Team';
+      var day = data && data.tourDay ? data.tourDay : '[Select date above]';
+      var time = data && data.tourTime ? data.tourTime : '[Select time above]';
+      return 'Hi ' + (name || 'there') + ',\n\nThank you for your interest! We\'re excited to confirm your apartment tour.\n\n📅 Tour Details: ' + day + ' at ' + time + '\n\nWhat to bring:\n✅ Valid photo ID\n✅ Proof of income (recent pay stubs or offer letter)\n✅ Any questions you have about the apartment\n\nIf you need to reschedule, simply reply to this email.\n\nBest regards,\nEmporionPros Team';
     }
   },
   follow_up: {
@@ -168,6 +170,13 @@ function emailLead(email, leadName) {
   });
   
   html += '</div>'
+    // Tour date/time picker (shown only for tour template)
+    + '<div id="tour-datetime-row" style="padding:8px 24px;background:#eff6ff;border-bottom:1px solid #e5e7eb;display:flex;gap:12px;align-items:center">'
+    + '<label style="font-size:12px;font-weight:600;color:#1e40af">📅 Tour Date:</label>'
+    + '<input type="date" id="tour-date" onchange="updateTourInBody()" style="padding:6px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:13px;font-family:inherit">'
+    + '<label style="font-size:12px;font-weight:600;color:#1e40af">🕐 Time:</label>'
+    + '<input type="time" id="tour-time" onchange="updateTourInBody()" style="padding:6px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:13px;font-family:inherit">'
+    + '</div>'
     // Form
     + '<div style="padding:20px 24px;overflow-y:auto;flex:1">'
     + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">To</label>'
@@ -195,8 +204,19 @@ function emailLead(email, leadName) {
 
 function selectEmailTemplate(key, firstName) {
   var t = emailTemplates[key];
-  document.getElementById('email-subject').value = t.subject;
-  document.getElementById('email-body').value = t.body(firstName);
+  var tourRow = document.getElementById('tour-datetime-row');
+  if (tourRow) { tourRow.style.display = key === 'tour_confirmation' ? 'flex' : 'none'; }
+  if (key === 'tour_confirmation') {
+    var dateEl = document.getElementById('tour-date');
+    var timeEl = document.getElementById('tour-time');
+    var day = dateEl && dateEl.value ? formatDateNice(dateEl.value) : '[Select date above]';
+    var time = timeEl && timeEl.value ? formatTimeNice(timeEl.value) : '[Select time above]';
+    document.getElementById('email-subject').value = t.subject;
+    document.getElementById('email-body').value = t.body(firstName, { tourDay: day, tourTime: time });
+  } else {
+    document.getElementById('email-subject').value = t.subject;
+    document.getElementById('email-body').value = t.body(firstName);
+  }
   
   // Highlight active template button
   var btns = document.querySelectorAll('.email-tpl-btn');
@@ -212,12 +232,43 @@ function selectEmailTemplate(key, firstName) {
     }
   });
   
-  // Focus on subject if custom, body otherwise
+  // Store current template key and firstName for updateTourInBody
+  window._currentTplKey = key;
+  window._currentFirstName = firstName;
+  
   if (key === 'custom') {
     document.getElementById('email-subject').focus();
   } else {
     document.getElementById('email-body').focus();
   }
+}
+
+function formatDateNice(dateStr) {
+  if (!dateStr) return '';
+  var d = new Date(dateStr + 'T12:00:00');
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function formatTimeNice(timeStr) {
+  if (!timeStr) return '';
+  var parts = timeStr.split(':');
+  var h = parseInt(parts[0]); var m = parts[1];
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + m + ' ' + ampm;
+}
+
+function updateTourInBody() {
+  var dateEl = document.getElementById('tour-date');
+  var timeEl = document.getElementById('tour-time');
+  if (!dateEl || !timeEl) return;
+  var day = dateEl.value ? formatDateNice(dateEl.value) : '[Select date above]';
+  var time = timeEl.value ? formatTimeNice(timeEl.value) : '[Select time above]';
+  var firstName = window._currentFirstName || 'there';
+  var t = emailTemplates.tour_confirmation;
+  document.getElementById('email-body').value = t.body(firstName, { tourDay: day, tourTime: time });
 }
 
 async function sendComposedEmail() {
@@ -249,6 +300,24 @@ async function sendComposedEmail() {
       status.textContent = '✅ Email sent successfully!';
       status.style.color = '#0e9f6e';
       btn.textContent = 'Sent! ✅';
+      // If tour confirmation, create appointment
+      if (window._currentTplKey === 'tour_confirmation') {
+        var tourDate = document.getElementById('tour-date');
+        var tourTime = document.getElementById('tour-time');
+        if (tourDate && tourDate.value && tourTime && tourTime.value) {
+          try {
+            await EPAppointments.create({
+              client_name: window._currentFirstName || 'Lead',
+              client_email: to,
+              appointment_date: tourDate.value,
+              appointment_time: formatTimeNice(tourTime.value),
+              type: 'tour',
+              status: 'confirmed'
+            });
+            status.textContent = '✅ Email sent & appointment booked!';
+          } catch(e) { console.log('Appointment save error:', e); }
+        }
+      }
       setTimeout(function() {
         var modal = document.getElementById('emailComposeModal');
         if (modal) modal.remove();
