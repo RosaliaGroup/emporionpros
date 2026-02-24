@@ -324,19 +324,20 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
     console.log('=== CREATING APPOINTMENT ===');
     try {
       const appointmentDate = parseTourDay(structuredData.tourDay);
+      const appointmentTime = parseTourTime(structuredData.tourTime);
       
       const appointment = {
         client_name: customer.name || cleanEmail || 'AI Call Lead',
-        client_email: cleanEmail || '',
+        client_email: cleanEmail || null,
+        client_phone: customer.number || null,
         appointment_date: appointmentDate,
-        appointment_time: structuredData.tourTime || '',
+        appointment_time: appointmentTime,
         type: 'tour',
         status: 'confirmed',
         notes: 'Booked via AI call (Aria). ' + (structuredData.bedroomsNeeded ? structuredData.bedroomsNeeded + ' BR, ' : '') + (structuredData.budget ? 'Budget: ' + structuredData.budget : '')
       };
 
-      // Link to lead if we have the ID
-      if (leadId) appointment.lead_id = leadId;
+      console.log('Appointment payload:', JSON.stringify(appointment));
 
       const apptResponse = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
         method: 'POST',
@@ -350,26 +351,10 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
       });
 
       if (apptResponse.ok) {
-        console.log('✅ APPOINTMENT CREATED:', appointmentDate, structuredData.tourTime, 'Lead ID:', leadId);
+        console.log('✅ APPOINTMENT CREATED:', appointmentDate, appointmentTime);
       } else {
         const errText = await apptResponse.text();
         console.error('❌ APPOINTMENT ERROR:', apptResponse.status, errText);
-        // If lead_id column doesn't exist, retry without it
-        if (errText.includes('lead_id')) {
-          delete appointment.lead_id;
-          const retryResp = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_SERVICE_KEY,
-              'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(appointment)
-          });
-          if (retryResp.ok) console.log('✅ APPOINTMENT CREATED (without lead_id)');
-          else console.error('❌ APPOINTMENT RETRY ERROR:', await retryResp.text());
-        }
       }
     } catch (apptErr) {
       console.error('❌ APPOINTMENT ERROR:', apptErr);
@@ -491,6 +476,36 @@ function parseTourDay(tourDay) {
   
   // Fallback — return the raw string (dashboard will display it)
   return tourDay;
+}
+
+// ========================================
+// PARSE TOUR TIME INTO HH:MM:SS FORMAT
+// ========================================
+function parseTourTime(tourTime) {
+  if (!tourTime) return '12:00:00';
+  
+  const lower = tourTime.toLowerCase().trim();
+  
+  // Already in HH:MM format
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(lower)) {
+    return lower.length <= 5 ? lower + ':00' : lower;
+  }
+  
+  // Match patterns like "3 PM", "3PM", "3:00 PM", "10 AM", "10:30am"
+  const match = lower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
+  if (match) {
+    let hour = parseInt(match[1]);
+    const minutes = match[2] || '00';
+    const ampm = match[3] || '';
+    
+    if (ampm.startsWith('p') && hour < 12) hour += 12;
+    if (ampm.startsWith('a') && hour === 12) hour = 0;
+    
+    return String(hour).padStart(2, '0') + ':' + minutes + ':00';
+  }
+  
+  // Fallback
+  return '12:00:00';
 }
 
 // ========================================
