@@ -493,6 +493,7 @@ function renderLeadsTable(leads) {
     if (l.email) {
       html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLeadByIndex('+idx+')" title="Email '+safeEmail+'">📧</button>';
     }
+    html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();bookTourByIndex('+idx+')" title="Book Tour" style="background:#eff6ff;border-color:#bfdbfe;color:#1a56db">📅</button>';
     html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLeadByIndex('+idx+')">✏️</button>';
     html += '</div></td>';
     html += '</tr>';
@@ -677,6 +678,11 @@ async function loadLeadAppointments(leadId, email) {
 function bookApptFromProfile(email, name) {
   document.getElementById('leadProfileModal').remove();
   emailLead(email, name);
+}
+function bookTourByIndex(idx) {
+  var l = window._renderedLeads && window._renderedLeads[idx];
+  if (!l) { alert('Lead not found'); return; }
+  emailLead(l.email, l.name);
 }
 async function loadListings() {
   const { data: listings } = await EPListings.getMyListings();
