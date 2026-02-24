@@ -220,49 +220,9 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   }
 
   // ========================================
-  // CREATE APPOINTMENT IN SUPABASE (if tour booked)
+  // PUSH TO SUPABASE (leads table) — do this BEFORE appointment so we have lead_id
   // ========================================
-  if (structuredData.tourBooked && SUPABASE_SERVICE_KEY) {
-    console.log('=== CREATING APPOINTMENT ===');
-    try {
-      // Parse tour day into a date
-      const appointmentDate = parseTourDay(structuredData.tourDay);
-      
-      const appointment = {
-        client_name: customer.name || cleanEmail || 'AI Call Lead',
-        client_email: cleanEmail || '',
-        appointment_date: appointmentDate,
-        appointment_time: structuredData.tourTime || '',
-        type: 'tour',
-        status: 'confirmed',
-        notes: 'Booked via AI call (Aria). ' + (structuredData.bedroomsNeeded ? structuredData.bedroomsNeeded + ' BR, ' : '') + (structuredData.budget ? 'Budget: ' + structuredData.budget : '')
-      };
-
-      const apptResponse = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_SERVICE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify(appointment)
-      });
-
-      if (apptResponse.ok) {
-        console.log('✅ APPOINTMENT CREATED:', appointmentDate, structuredData.tourTime);
-      } else {
-        const errText = await apptResponse.text();
-        console.error('❌ APPOINTMENT ERROR:', apptResponse.status, errText);
-      }
-    } catch (apptErr) {
-      console.error('❌ APPOINTMENT ERROR:', apptErr);
-    }
-  }
-
-  // ========================================
-  // PUSH TO SUPABASE (leads table)
-  // ========================================
+  let leadId = null;
   if (SUPABASE_SERVICE_KEY && customer.number) {
     console.log('=== PUSHING TO SUPABASE ===');
 
@@ -286,6 +246,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
 
       if (existingLeads && existingLeads.length > 0) {
         const lead = existingLeads[0];
+        leadId = lead.id;
         const existingMessage = lead.message || '';
         const updatedMessage = existingMessage
           ? existingMessage + '\n\n' + callNotes
@@ -295,7 +256,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
 
         const updatePayload = {
           message: updatedMessage,
-          status: structuredData.tourBooked ? 'contacted' : lead.status || 'new'
+          status: structuredData.tourBooked ? 'tour_booked' : 'contacted'
         };
 
         // Update email if we got one and lead doesn't have one
@@ -328,7 +289,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
           email: cleanEmail || '',
           phone: rawPhone,
           source: 'AI Call (Aria)',
-          status: structuredData.tourBooked ? 'contacted' : 'new',
+          status: structuredData.tourBooked ? 'tour_booked' : 'new',
           message: callNotes
         };
 
@@ -338,20 +299,80 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
             'apikey': SUPABASE_SERVICE_KEY,
             'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'return=representation'
           },
           body: JSON.stringify(newLead)
         });
 
-        console.log('Supabase INSERT:', insertResponse.status);
         if (insertResponse.ok) {
-          console.log('✅ SUPABASE INSERT — New lead created');
+          const inserted = await insertResponse.json();
+          if (inserted && inserted.length > 0) leadId = inserted[0].id;
+          console.log('✅ SUPABASE INSERT — New lead created, ID:', leadId);
         } else {
           console.error('❌ SUPABASE INSERT ERROR:', await insertResponse.text());
         }
       }
     } catch (supaErr) {
       console.error('❌ SUPABASE ERROR:', supaErr);
+    }
+  }
+
+  // ========================================
+  // CREATE APPOINTMENT IN SUPABASE (if tour booked)
+  // ========================================
+  if (structuredData.tourBooked && SUPABASE_SERVICE_KEY) {
+    console.log('=== CREATING APPOINTMENT ===');
+    try {
+      const appointmentDate = parseTourDay(structuredData.tourDay);
+      
+      const appointment = {
+        client_name: customer.name || cleanEmail || 'AI Call Lead',
+        client_email: cleanEmail || '',
+        appointment_date: appointmentDate,
+        appointment_time: structuredData.tourTime || '',
+        type: 'tour',
+        status: 'confirmed',
+        notes: 'Booked via AI call (Aria). ' + (structuredData.bedroomsNeeded ? structuredData.bedroomsNeeded + ' BR, ' : '') + (structuredData.budget ? 'Budget: ' + structuredData.budget : '')
+      };
+
+      // Link to lead if we have the ID
+      if (leadId) appointment.lead_id = leadId;
+
+      const apptResponse = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(appointment)
+      });
+
+      if (apptResponse.ok) {
+        console.log('✅ APPOINTMENT CREATED:', appointmentDate, structuredData.tourTime, 'Lead ID:', leadId);
+      } else {
+        const errText = await apptResponse.text();
+        console.error('❌ APPOINTMENT ERROR:', apptResponse.status, errText);
+        // If lead_id column doesn't exist, retry without it
+        if (errText.includes('lead_id')) {
+          delete appointment.lead_id;
+          const retryResp = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(appointment)
+          });
+          if (retryResp.ok) console.log('✅ APPOINTMENT CREATED (without lead_id)');
+          else console.error('❌ APPOINTMENT RETRY ERROR:', await retryResp.text());
+        }
+      }
+    } catch (apptErr) {
+      console.error('❌ APPOINTMENT ERROR:', apptErr);
     }
   }
 
