@@ -101,8 +101,26 @@ tr:hover td{background:#f9fafb}
       <div class="section"><div class="section-body" id="all-listings"><div class="loading">Loading...</div></div></div>
     </div>
     <div class="tab-content" id="tab-appointments">
-      <div class="main-header"><h1>Appointments</h1></div>
-      <div class="section"><div class="section-body" id="all-appointments"><div class="loading">Loading...</div></div></div>
+      <div class="main-header"><h1>📅 Appointments</h1></div>
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:20px">
+        <!-- Calendar -->
+        <div class="section" style="margin-bottom:0">
+          <div class="section-header"><h2 id="cal-month-title">February 2026</h2>
+            <div style="display:flex;gap:4px"><button class="btn btn-sm btn-outline" onclick="changeMonth(-1)">&laquo;</button><button class="btn btn-sm btn-outline" onclick="changeMonth(1)">&raquo;</button></div>
+          </div>
+          <div class="section-body" style="padding:12px">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+          </div>
+        </div>
+        <!-- Appointments list -->
+        <div class="section" style="margin-bottom:0">
+          <div class="section-header"><h2 id="appts-list-title">All Appointments</h2></div>
+          <div class="section-body" id="all-appointments"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
     </div>
     <div class="tab-content" id="tab-campaigns">
       <div class="main-header"><h1>Campaigns</h1><button class="btn btn-primary" onclick="showCreateCampaign()">➕ New Campaign</button></div>
@@ -617,10 +635,48 @@ function openLeadProfile(j) {
     + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\'' + safePhone + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">&#128222; Call via Aria</button>' : '')
     + (l.phone ? '<a href="tel:' + safePhone + '" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">&#128241; Direct Call</a>' : '')
     + '</div>'
+    // Appointments section
+    + '<div style="margin-top:20px;border-top:1px solid #e5e7eb;padding-top:16px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    + '<div style="font-size:14px;font-weight:700;color:#374151">📅 Appointments</div>'
+    + '<button onclick="bookApptFromProfile(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">+ Book Tour</button>'
+    + '</div>'
+    + '<div id="lead-appts-' + l.id + '" style="font-size:13px;color:#6b7280">Loading...</div>'
+    + '</div>'
     + '</div></div>';
   var ex = document.getElementById('leadProfileModal');
   if (ex) ex.remove();
   document.body.insertAdjacentHTML('beforeend', html);
+  // Load appointments for this lead
+  loadLeadAppointments(l.id, l.email);
+}
+
+async function loadLeadAppointments(leadId, email) {
+  var container = document.getElementById('lead-appts-' + leadId);
+  if (!container) return;
+  try {
+    var { data: appts } = await EPAppointments.getMyAppointments();
+    var leadAppts = (appts || []).filter(function(a) { return a.client_email === email; });
+    if (!leadAppts.length) {
+      container.innerHTML = '<div style="text-align:center;padding:12px;color:#9ca3af;font-size:12px">No appointments scheduled</div>';
+      return;
+    }
+    container.innerHTML = leadAppts.map(function(a) {
+      var statusColor = a.status === 'confirmed' ? '#0e9f6e' : a.status === 'cancelled' ? '#e02424' : '#d97706';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:6px">'
+        + '<div><span style="font-weight:600;font-size:13px">📅 ' + (a.appointment_date || '') + '</span>'
+        + '<span style="color:#6b7280;margin-left:8px">🕐 ' + (a.appointment_time || '') + '</span></div>'
+        + '<span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">' + (a.status || 'pending') + '</span>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:#e02424;font-size:12px">Could not load appointments</div>';
+  }
+}
+
+function bookApptFromProfile(email, name) {
+  document.getElementById('leadProfileModal').remove();
+  emailLead(email, name);
 }
 async function loadListings() {
   const { data: listings } = await EPListings.getMyListings();
@@ -629,13 +685,73 @@ async function loadListings() {
   c.innerHTML = `<table><thead><tr><th>Property</th><th>Price</th><th>Type</th><th>Status</th><th>Views</th><th>Date</th></tr></thead>
     <tbody>${listings.map(l => `<tr><td><strong>${l.title}</strong><br><span style="font-size:12px;color:#6b7280">${l.address||''} ${l.city||''}</span></td><td>$${Number(l.price).toLocaleString()}${l.type==='rent'?'/mo':''}</td><td>${l.type}</td><td><span class="badge badge-${l.status}">${l.status}</span></td><td>${l.views_count||0}</td><td>${new Date(l.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
 }
+// Calendar state
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var calAppts = [];
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var title = document.getElementById('cal-month-title');
+  if (title) title.textContent = months[calMonth] + ' ' + calYear;
+  var grid = document.getElementById('cal-grid');
+  if (!grid) return;
+  var firstDay = new Date(calYear, calMonth, 1).getDay();
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  var today = new Date();
+  var html = '';
+  // Empty cells before first day
+  for (var i = 0; i < firstDay; i++) { html += '<div style="padding:6px;text-align:center"></div>'; }
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var dayAppts = calAppts.filter(function(a) { return a.appointment_date === dateStr; });
+    var isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    var bg = isToday ? '#1a56db' : dayAppts.length ? '#d1fae5' : 'transparent';
+    var color = isToday ? 'white' : dayAppts.length ? '#065f46' : '#374151';
+    var cursor = dayAppts.length ? 'pointer' : 'default';
+    html += '<div onclick="filterApptsByDate(\'' + dateStr + '\')" style="padding:6px;text-align:center;border-radius:8px;background:' + bg + ';color:' + color + ';font-size:13px;font-weight:' + (dayAppts.length || isToday ? '700' : '400') + ';cursor:' + cursor + ';position:relative">' + d;
+    if (dayAppts.length) { html += '<div style="width:5px;height:5px;border-radius:50%;background:#0e9f6e;margin:2px auto 0"></div>'; }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function filterApptsByDate(dateStr) {
+  var filtered = calAppts.filter(function(a) { return a.appointment_date === dateStr; });
+  var titleEl = document.getElementById('appts-list-title');
+  if (titleEl) titleEl.textContent = 'Appointments on ' + formatDateNice(dateStr);
+  renderApptsList(filtered);
+}
+
+function renderApptsList(appts) {
+  var c = document.getElementById('all-appointments');
+  if (!appts || !appts.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No appointments for this date.</p></div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>Client</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>'
+    + '<tbody>' + appts.map(function(a) {
+      var statusBadge = '<span class="badge badge-' + (a.status||'pending') + '">' + (a.status||'pending') + '</span>';
+      var actions = a.status === 'pending' 
+        ? '<button class="btn btn-sm btn-primary" onclick="updateAppt(' + a.id + ',\'confirmed\')">Confirm</button> <button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>'
+        : a.status === 'confirmed' ? '<button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>' : '—';
+      return '<tr><td><strong>' + (a.client_name||'—') + '</strong><br><span style="font-size:12px;color:#6b7280">' + (a.client_email||'') + '</span></td>'
+        + '<td>' + (a.appointment_date||'') + '</td><td>' + (a.appointment_time||'') + '</td>'
+        + '<td>' + (a.type||'tour') + '</td><td>' + statusBadge + '</td><td>' + actions + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
 async function loadAppointments() {
-  const { data: appts } = await EPAppointments.getMyAppointments();
-  const c = document.getElementById('all-appointments');
-  if (!appts || !appts.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No appointments yet.</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Client</th><th>Property</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${appts.map(a => `<tr><td><strong>${a.client_name}</strong><br><span style="font-size:12px;color:#6b7280">${a.client_email}</span></td><td>${a.listings?a.listings.title:'—'}</td><td>${a.appointment_date}</td><td>${a.appointment_time}</td><td>${a.type}</td><td><span class="badge badge-${a.status}">${a.status}</span></td>
-      <td>${a.status==='pending'?`<button class="btn btn-sm btn-primary" onclick="updateAppt(${a.id},'confirmed')">Confirm</button> <button class="btn btn-sm btn-danger" onclick="updateAppt(${a.id},'cancelled')">Cancel</button>`:'—'}</td></tr>`).join('')}</tbody></table>`;
+  var { data: appts } = await EPAppointments.getMyAppointments();
+  calAppts = appts || [];
+  renderCalendar();
+  var titleEl = document.getElementById('appts-list-title');
+  if (titleEl) titleEl.textContent = 'All Appointments (' + calAppts.length + ')';
+  renderApptsList(calAppts);
 }
 async function updateAppt(id, status) { await EPAppointments.updateStatus(id, status); loadAppointments(); }
 async function loadCampaigns() {
