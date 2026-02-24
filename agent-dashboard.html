@@ -677,12 +677,108 @@ async function loadLeadAppointments(leadId, email) {
 
 function bookApptFromProfile(email, name) {
   document.getElementById('leadProfileModal').remove();
-  emailLead(email, name);
+  openBookTourModal(email, name);
 }
 function bookTourByIndex(idx) {
   var l = window._renderedLeads && window._renderedLeads[idx];
   if (!l) { alert('Lead not found'); return; }
-  emailLead(l.email, l.name);
+  openBookTourModal(l.email, l.name);
+}
+
+function openBookTourModal(email, name) {
+  var safeName = (name || '').replace(/'/g, '').replace(/"/g, '');
+  var safeEmail = (email || '').replace(/'/g, '').replace(/"/g, '');
+  var html = '<div id="bookTourModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
+    + '<div style="background:white;border-radius:12px;padding:0;width:94%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">'
+    // Header
+    + '<div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
+    + '<h2 style="margin:0;font-size:17px;font-weight:700;color:#1a1a2e">📅 Book Apartment Tour</h2>'
+    + '<button onclick="document.getElementById(\'bookTourModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
+    + '</div>'
+    // Body
+    + '<div style="padding:20px 24px">'
+    + '<div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px">'
+    + '<div style="font-weight:700;font-size:14px">' + (name || 'Lead') + '</div>'
+    + '<div style="font-size:12px;color:#6b7280">' + (email || 'No email') + '</div></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
+    + '<div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Tour Date</label>'
+    + '<input type="date" id="book-tour-date" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
+    + '<div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Tour Time</label>'
+    + '<input type="time" id="book-tour-time" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div></div>'
+    + '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes (optional)</label>'
+    + '<input type="text" id="book-tour-notes" placeholder="e.g. 1BR unit, bring ID..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
+    + '<div style="margin-bottom:16px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151">'
+    + '<input type="checkbox" id="book-tour-send-email" checked> Send confirmation email to lead</label></div>'
+    + '<div id="book-tour-status" style="font-size:12px;margin-bottom:8px"></div>'
+    + '</div>'
+    // Footer
+    + '<div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px">'
+    + '<button onclick="document.getElementById(\'bookTourModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
+    + '<button id="book-tour-btn" onclick="submitBookTour(\'' + safeEmail + '\',\'' + safeName + '\')" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">📅 Book Tour</button>'
+    + '</div></div></div>';
+  var ex = document.getElementById('bookTourModal');
+  if (ex) ex.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitBookTour(email, name) {
+  var dateEl = document.getElementById('book-tour-date');
+  var timeEl = document.getElementById('book-tour-time');
+  var notesEl = document.getElementById('book-tour-notes');
+  var sendEmail = document.getElementById('book-tour-send-email');
+  var btn = document.getElementById('book-tour-btn');
+  var status = document.getElementById('book-tour-status');
+
+  if (!dateEl.value) { alert('Please select a date'); return; }
+  if (!timeEl.value) { alert('Please select a time'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Booking...';
+  status.textContent = '';
+
+  var niceDate = formatDateNice(dateEl.value);
+  var niceTime = formatTimeNice(timeEl.value);
+
+  try {
+    // Create appointment
+    await EPAppointments.create({
+      client_name: name || 'Lead',
+      client_email: email,
+      appointment_date: dateEl.value,
+      appointment_time: niceTime,
+      type: 'tour',
+      status: 'confirmed',
+      notes: notesEl.value || ''
+    });
+
+    // Optionally send email
+    if (sendEmail && sendEmail.checked && email) {
+      var firstName = (name || '').split(' ')[0] || 'there';
+      var body = emailTemplates.tour_confirmation.body(firstName, { tourDay: niceDate, tourTime: niceTime });
+      await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          subject: 'Your Apartment Tour is Confirmed!',
+          body: body
+        })
+      });
+      status.innerHTML = '<span style="color:#0e9f6e">✅ Tour booked & email sent!</span>';
+    } else {
+      status.innerHTML = '<span style="color:#0e9f6e">✅ Tour booked!</span>';
+    }
+
+    btn.textContent = 'Booked! ✅';
+    setTimeout(function() {
+      var modal = document.getElementById('bookTourModal');
+      if (modal) modal.remove();
+    }, 1500);
+  } catch(e) {
+    status.innerHTML = '<span style="color:#e02424">❌ Error: ' + (e.message || 'Could not book') + '</span>';
+    btn.disabled = false;
+    btn.textContent = '📅 Book Tour';
+  }
 }
 async function loadListings() {
   const { data: listings } = await EPListings.getMyListings();
