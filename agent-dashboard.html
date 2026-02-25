@@ -462,7 +462,7 @@ async function loadTabData(tab) {
   }
 }
 let allLeadsCache = [];
-async function loadLeads() {
+async async function loadLeads() {
   const { data: leads } = await EPLeads.getLeads();
   allLeadsCache = leads || [];
   renderLeadsTable(allLeadsCache);
