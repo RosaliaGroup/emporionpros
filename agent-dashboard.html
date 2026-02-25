@@ -485,7 +485,7 @@ function getAIStatus(l) {
   if (msg.includes('AI Call (Aria)')) {
     var tourLine = msg.match(/Tour Booked:\s*Yes[^\n]*/); var tourMatch = !!tourLine;
     if (tourMatch) {
-      if (tourLine) { var tParts = tourLine[0].match(/[-\u2014\u2013]\s*(.+)/); if (tParts) { return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">Tour: ' + tParts[1].trim() + '</span>'; } } return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
+      var apptMatch = (window._apptCache||[]).find(function(a){ return (l.email && a.client_email && a.client_email.toLowerCase()===l.email.toLowerCase()) || (l.phone && a.client_phone && a.client_phone.replace(/\D/g,'').slice(-10)===l.phone.replace(/\D/g,'').slice(-10)); }); if (apptMatch) { var ad = new Date(apptMatch.appointment_date+'T00:00:00'); var at2 = new Date('2000-01-01T'+apptMatch.appointment_time); var dStr = ad.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); var tStr = at2.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">Tour: ' + dStr + ' @ ' + tStr + '</span>'; } return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
     }
     return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
   }
@@ -1122,6 +1122,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('user-role').textContent = profile?.role || 'user';
   document.getElementById('welcome-name').textContent = name.split(' ')[0];
   await loadOverview();
+  // Preload appointments for tour date display
+  try { var { data: _apptCache } = await EPAppointments.getMyAppointments(); window._apptCache = _apptCache || []; } catch(e) { window._apptCache = []; }
   checkHash();
 });
 </script>
