@@ -1081,6 +1081,7 @@ function renderApptsList(appts) {
 }
 
 async function loadAppointments() {
+  if (!allLeadsCache.length) { var { data: lds } = await EPLeads.getLeads(); allLeadsCache = lds || []; }
   var { data: appts } = await EPAppointments.getMyAppointments();
   calAppts = appts || [];
   renderCalendar();
