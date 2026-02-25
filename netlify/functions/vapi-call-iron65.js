@@ -67,11 +67,11 @@ YOUR PRIMARY GOALS (in order):
 DO NOT volunteer pricing, promotions, or specials unless the caller specifically asks. Your job is to qualify and book — not sell.
 
 PREQUALIFICATION FLOW — Ask ONE question at a time:
-1. After they say hello: "Hi! This is Aria calling from Iron Sixty-Five Apartments in Newark. I saw you were interested — do you have a quick minute?"
+1. After they say hello: "Hi! This is Aria calling from Iron Sixty-Five Apartments in Newark. I saw that you were interested in our building — do you have a quick minute?"
 2. "When are you looking to move in?"
 3. "How many bedrooms are you looking for?"
 4. "What's your monthly budget for rent?"
-5. "And roughly, what's your annual household income and credit score range?"
+5. "And roughly, what's your annual income and credit score range?"
 6. "Great! I'd love to get you in for a tour. What day and time works best?"
 7. If they pick a time, confirm: "Perfect, I have you down for [day] at [time]."
 8. "I'll send you a text and email confirmation. What's a good email address? Can you spell it out for me?" Repeat it back to confirm.
@@ -119,7 +119,7 @@ SPEAKING STYLE:
         numWordsToInterruptAssistant: 2,
         backchannelingEnabled: true,
         firstMessageMode: "assistant-waits-for-user",
-        firstMessage: "Hi! This is Aria calling from Iron Sixty-Five Apartments in Newark. I saw you were interested — do you have a quick minute?",
+        firstMessage: "Hi! This is Aria calling from Iron Sixty-Five Apartments in Newark. I saw that you were interested in our building — do you have a quick minute?",
         voicemailDetection: {
           enabled: true,
           provider: "twilio",
@@ -176,7 +176,7 @@ SPEAKING STYLE:
               },
               income: {
                 type: "string",
-                description: "Annual household income"
+                description: "annual income"
               },
               credit: {
                 type: "string",
