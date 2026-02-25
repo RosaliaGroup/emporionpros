@@ -483,9 +483,9 @@ function getAIStatus(l) {
   const msg = l.message || '';
   // Check if Aria has already called this lead
   if (msg.includes('AI Call (Aria)')) {
-    const tourMatch = msg.includes('Tour Booked: Yes');
+    var tourLine = msg.match(/Tour Booked:\s*Yes[^\n]*/); var tourMatch = !!tourLine;
     if (tourMatch) {
-      return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
+      if (tourLine) { var tParts = tourLine[0].match(/[-\u2014\u2013]\s*(.+)/); if (tParts) { return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">Tour: ' + tParts[1].trim() + '</span>'; } } return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
     }
     return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
   }
