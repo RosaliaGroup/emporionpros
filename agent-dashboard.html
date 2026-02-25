@@ -482,10 +482,11 @@ function getAIStatus(l) {
   const hasPhone = l.phone && l.phone.length > 5;
   const msg = l.message || '';
   // Check if Aria has already called this lead
-  if (msg.includes('AI Call (Aria)')) {
-    const tourMatch = msg.includes('Tour Booked: Yes');
+  if (msg.indexOf('AI Call') !== -1) {
+    var tourLine = msg.match(/Tour Booked:\s*Yes\s*(?:\([^)]*\))?\s*(?:-\s*(.+?))?/m); var tourMatch = !!tourLine;
     if (tourMatch) {
       return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
+      if (tourLine && tourLine[1]) { return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600>Tour: ' + tourLine[1].trim() + '</span>'; }
     }
     return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
   }
@@ -785,8 +786,11 @@ function openLeadProfile(j) {
     var d = {};
     
     // If multiple call note blocks exist, use the LAST one (most recent)
-    var blocks = m.split(/\n\n(?=\u{1F916}|\u{1F4DE}|AI Call)/u);
-    var latestBlock = blocks.length > 1 ? blocks[blocks.length - 1] : m;
+    var callBlocks = m.split(/(?=\[AI Call)/);
+    var latestBlock = m;
+    for (var cbi = callBlocks.length - 1; cbi >= 0; cbi--) {
+      if (callBlocks[cbi].indexOf('[AI Call') === 0) { latestBlock = callBlocks[cbi]; break; }
+    }
     
     // Try bullet point format (• Key: Value or - Key: Value)
     var bulletMatches = latestBlock.match(/[•·\-]\s*([^:•·\n]+):\s*([^\n•·]+)/g);
@@ -813,19 +817,19 @@ function openLeadProfile(j) {
     }
     
     // Extract side notes (📌 Side Notes: section)
-    var sideMatch = m.match(/📌\s*Side Notes?:\s*([\s\S]*?)(?=\n\n📝|\n\n🤖|$)/i);
+    var sideMatch = latestBlock.match(/^Side Notes?:\s*([\s\S]*?)(?=\nSummary:|\n\[AI Call|$)/im);
     if (sideMatch) {
       d._sideNotes = sideMatch[1].trim();
     }
     
     // Extract summary (📝 Summary: section)
-    var summaryMatch = m.match(/📝\s*(?:Summary|Call Summary):?\s*([\s\S]*?)(?=\n\n🤖|$)/i);
+    var summaryMatch = latestBlock.match(/^Summary:\s*([\s\S]*?)(?=\n\[AI Call|$)/im);
     if (summaryMatch) {
       d._summary = summaryMatch[1].trim();
     }
     
     // Extract general notes (everything before the first --- or • or 🤖)
-    var notesText = m.split(/---|🤖|📌|📝/)[0].trim();
+    var notesText = m.split(/---|\[AI Call|Side Notes:|Summary:/)[0].trim();
     if (notesText && !notesText.match(/^[•·\-]/)) {
       d._notes = notesText;
     }
@@ -855,8 +859,8 @@ function openLeadProfile(j) {
     + '</div>'
     + (detailRows ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#374151">Lead Details</div>' + detailRows + '</div>' : '')
     + (parsed._notes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Notes</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._notes + '</div></div>' : '')
-    + (parsed._summary ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">📝 Call Summary</div><div style="font-size:13px;color:#6b7280;background:#f0fdf4;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._summary + '</div></div>' : '')
-    + (parsed._sideNotes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">📌 Side Notes</div><div style="font-size:13px;color:#6b7280;background:#fffbeb;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._sideNotes + '</div></div>' : '')
+    + (parsed._summary ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Call Summary</div><div style="font-size:13px;color:#6b7280;background:#f0fdf4;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._summary + '</div></div>' : '')
+    + (parsed._sideNotes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Side Notes</div><div style="font-size:13px;color:#6b7280;background:#fffbeb;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._sideNotes + '</div></div>' : '')
     + '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">'
     + '<button onclick="document.getElementById(\'leadProfileModal\').remove();editLead(\'' + encodedLead + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">&#9998; Edit</button>'
     + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
