@@ -3,1353 +3,301 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Agent Dashboard — Emporion Pros</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="ep-supabase.js"></script>
-<script>
-// EPAppointments helper — hooks into Supabase client from ep-supabase.js
-(function() {
-  function getSb() {
-    // Try various ways ep-supabase.js might expose the client
-    if (typeof EPSupabase !== 'undefined') {
-      if (EPSupabase.client) return EPSupabase.client;
-      if (EPSupabase.sb) return EPSupabase.sb;
-      if (typeof EPSupabase === 'function') return EPSupabase();
-    }
-    if (typeof epSupabase !== 'undefined') return epSupabase;
-    if (typeof sb !== 'undefined') return sb;
-    if (typeof _supabase !== 'undefined') return _supabase;
-    // Last resort — check if EPLeads has a reference
-    if (typeof EPLeads !== 'undefined' && EPLeads._sb) return EPLeads._sb;
-    return null;
-  }
-  
-  // Delayed init — wait for ep-supabase.js to fully load
-  var _cachedSb = null;
-  function sb() {
-    if (_cachedSb) return _cachedSb;
-    _cachedSb = getSb();
-    return _cachedSb;
-  }
-  
-  if (typeof window.EPAppointments === 'undefined') {
-    window.EPAppointments = {
-      async getMyAppointments() {
-        var c = sb();
-        if (!c) { console.error('EPAppointments: No Supabase client found'); return { data: [], error: 'no client' }; }
-        return c.from('appointments').select('*').order('appointment_date', { ascending: true });
-      },
-      async create(appt) {
-        var c = sb();
-        if (!c) return { data: null, error: 'no client' };
-        return c.from('appointments').insert([appt]);
-      },
-      async updateStatus(id, status) {
-        var c = sb();
-        if (!c) return { data: null, error: 'no client' };
-        return c.from('appointments').update({ status: status }).eq('id', id);
-      }
-    };
-  }
-})();
-</script>
+<script src="app.js" defer></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh}
-.dash{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
-.sidebar-logo{padding:0 20px 20px;font-size:20px;font-weight:800;color:#1a56db;border-bottom:1px solid #e5e7eb;margin-bottom:12px}
-.sidebar-logo span{color:#f97316}
-.sidebar-user{padding:12px 20px;margin-bottom:12px}
-.sidebar-user-name{font-weight:700;font-size:14px;color:#111}
-.sidebar-user-role{font-size:12px;color:#6b7280;text-transform:capitalize}
-.sidebar a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.2s;border-left:3px solid transparent}
-.sidebar a:hover{background:#f9fafb;color:#1a56db}
-.sidebar a.active{background:#eff6ff;color:#1a56db;border-left-color:#1a56db;font-weight:600}
-.sidebar-section{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;padding:16px 20px 8px}
-.main{padding:32px;overflow-y:auto}
-.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.main-header h1{font-size:28px;font-weight:800;color:#111}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
-.stat-card{background:white;padding:24px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.stat-label{font-size:13px;color:#6b7280;margin-bottom:6px}
-.stat-value{font-size:32px;font-weight:800;color:#1a56db}
-.section{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:24px;overflow:hidden}
-.section-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #e5e7eb}
-.section-header h2{font-size:18px;font-weight:700}
-.section-body{padding:24px}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 16px;background:#f9fafb;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-td{padding:14px 16px;border-bottom:1px solid #f3f4f6;font-size:14px}
-tr:hover td{background:#f9fafb}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-new{background:#eff6ff;color:#1a56db}
-.badge-contacted{background:#fef3c7;color:#92400e}
-.badge-qualified{background:#d1fae5;color:#065f46}
-.badge-pending{background:#fef3c7;color:#92400e}
-.badge-confirmed{background:#d1fae5;color:#065f46}
-.badge-active{background:#d1fae5;color:#065f46}
-.badge-draft{background:#f3f4f6;color:#6b7280}
-.badge-completed{background:#e0e7ff;color:#3730a3}
-.badge-cancelled{background:#fee2e2;color:#991b1b}
-.btn{padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.2s}
-.btn-primary{background:#1a56db;color:white}.btn-primary:hover{background:#1e3a8a}
-.btn-outline{background:white;color:#374151;border:1px solid #e5e7eb}.btn-outline:hover{border-color:#1a56db;color:#1a56db}
-.btn-danger{background:#fee2e2;color:#dc2626}.btn-danger:hover{background:#fecaca}
-.btn-sm{padding:5px 12px;font-size:12px}
-.empty{text-align:center;padding:48px;color:#9ca3af}
-.empty-icon{font-size:48px;margin-bottom:12px}
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:20px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+.sidebar-user{padding:16px 20px 20px;border-bottom:1px solid #e5e7eb;margin-bottom:8px}
+.sidebar-av{width:52px;height:52px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin-bottom:8px}
+.sidebar-name{font-weight:700;font-size:15px}
+.sidebar-role{font-size:12px;color:#6b7280}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:#374151;text-decoration:none;font-size:14px;font-weight:500;transition:.15s;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+.nav-item:hover,.nav-item.active{background:#eff6ff;color:#1a56db}
+.nav-section{padding:8px 20px 4px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-top:8px}
+.dash-main{padding:28px;background:#f9fafb;overflow-y:auto}
 .tab-content{display:none}.tab-content.active{display:block}
-.signout-btn{margin-top:auto;padding:12px 20px;color:#ef4444;font-size:14px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:inherit;font-weight:500;display:flex;align-items:center;gap:10px}
-.signout-btn:hover{background:#fef2f2}
-.loading{text-align:center;padding:40px;color:#6b7280}
-@media(max-width:768px){.dash{grid-template-columns:1fr}.sidebar{display:none}.main{padding:16px}}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-box{background:white;padding:20px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.stat-box-val{font-size:28px;font-weight:800;color:#1a56db}
+.stat-box-label{font-size:12px;color:#6b7280;margin-top:2px}
+.stat-box-delta{font-size:12px;color:#10b981;margin-top:4px}
+.section-card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:20px}
+.section-card h2{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.lead-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.lead-av{width:38px;height:38px;border-radius:50%;background:#eff6ff;color:#1a56db;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.lead-info{flex:1}
+.lead-name{font-weight:600;font-size:14px}
+.lead-meta{font-size:12px;color:#6b7280}
+.status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-new{background:#eff6ff;color:#1a56db}
+.status-contacted{background:#f0fdf4;color:#15803d}
+.status-closed{background:#f9fafb;color:#6b7280}
+.ai-dash-panel{background:linear-gradient(135deg,#1e3a8a,#1a56db);border-radius:12px;padding:24px;color:white;margin-bottom:20px}
+.ai-dash-panel h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.ai-chat-area{background:rgba(255,255,255,.1);border-radius:10px;padding:16px;margin:16px 0;min-height:180px;max-height:260px;overflow-y:auto}
+.ai-msg-d{padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.5}
+.ai-msg-d.user{background:rgba(255,255,255,.2);text-align:right}
+.ai-msg-d.assistant{background:rgba(0,0,0,.2)}
+.ai-input-row-d{display:flex;gap:8px}
+.ai-input-d{flex:1;padding:10px 14px;border:none;border-radius:8px;font-family:inherit;font-size:13px;background:rgba(255,255,255,.15);color:white}
+.ai-input-d::placeholder{color:rgba(255,255,255,.6)}
+.ai-input-d:focus{outline:none;background:rgba(255,255,255,.25)}
+.ai-send-d{padding:10px 16px;background:white;color:#1a56db;border:none;border-radius:8px;cursor:pointer;font-weight:700}
+.listing-row{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.listing-thumb{width:60px;height:45px;object-fit:cover;border-radius:6px}
+.appt-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f3f4f6;font-size:14px}
+@media(max-width:900px){.dash{grid-template-columns:1fr}.sidebar{display:none}}
 </style>
 </head>
 <body>
+<div id="header-mount"></div>
 <div class="dash">
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Emporion<span>Pros</span></div>
+  <aside class="sidebar">
     <div class="sidebar-user">
-      <div class="sidebar-user-name" id="user-name">Loading...</div>
-      <div class="sidebar-user-role" id="user-role">—</div>
+      <div class="sidebar-av">CR</div>
+      <div class="sidebar-name">Carlos Rivera</div>
+      <div class="sidebar-role">Senior Agent · License NJ-RE-001234</div>
     </div>
-    <a href="#overview" class="active" onclick="showTab('overview',this)">📊 Overview</a>
-    <a href="#leads" onclick="showTab('leads',this)">👥 Leads</a>
-    <a href="#listings" onclick="showTab('listings',this)">🏠 Listings</a>
-    <a href="#appointments" onclick="showTab('appointments',this)">📅 Appointments</a>
-    <a href="#campaigns" onclick="showTab('campaigns',this)">📣 Campaigns</a>
-    <div class="sidebar-section">Tools</div>
-    <a href="/list-property.html">➕ Add Listing</a>
-    <a href="/vendors.html">🔧 Vendors</a>
-    <a href="/">🌐 View Site</a>
-    <a href="/fub-aria-dashboard.html">🔗 FUB Integration</a>
-    <a href="/fub-aria-dashboard.html">🤖 AI Calling (Aria)</a>
-    <button class="signout-btn" onclick="EPAuth.signOut()">🚪 Sign Out</button>
-  </nav>
-  <div class="main">
+    <button class="nav-item active" onclick="showTab('overview',this)">📊 Overview</button>
+    <button class="nav-item" onclick="showTab('leads',this)">📥 Leads <span style="background:#e02424;color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px" id="lead-badge">0</span></button>
+    <button class="nav-item" onclick="showTab('listings',this)">🏠 My Listings</button>
+    <button class="nav-item" onclick="showTab('appointments',this)">📅 Appointments</button>
+    <button class="nav-item" onclick="showTab('ai',this)">🤖 AI Assistant</button>
+    <div class="nav-section">Account</div>
+    <button class="nav-item" onclick="showTab('profile',this)">👤 My Profile</button>
+    <a href="index.html" class="nav-item">🏠 Back to Site</a>
+    <button class="nav-item" onclick="EP.auth.logout()">🚪 Sign Out</button>
+  </aside>
+
+  <main class="dash-main">
+    <!-- OVERVIEW -->
     <div class="tab-content active" id="tab-overview">
-      <div class="main-header"><h1>Welcome back, <span id="welcome-name">Agent</span>!</h1></div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-leads">0</div></div>
-        <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value" id="stat-listings">0</div></div>
-        <div class="stat-card"><div class="stat-label">Appointments</div><div class="stat-value" id="stat-appointments">0</div></div>
-        <div class="stat-card"><div class="stat-label">Campaigns</div><div class="stat-value" id="stat-campaigns">0</div></div>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Welcome back, Carlos 👋</h1>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-val" id="ov-leads">0</div><div class="stat-box-label">Total Leads</div><div class="stat-box-delta">↑ Live counter</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="ov-new">0</div><div class="stat-box-label">New Leads</div></div>
+        <div class="stat-box"><div class="stat-box-val" id="ov-appts">0</div><div class="stat-box-label">Appointments</div></div>
+        <div class="stat-box"><div class="stat-box-val">3</div><div class="stat-box-label">Active Listings</div></div>
+        <div class="stat-box"><div class="stat-box-val">$897</div><div class="stat-box-label">Revenue (MTD)</div><div class="stat-box-delta">3 transactions</div></div>
       </div>
-      <div class="section"><div class="section-header"><h2>Recent Leads</h2><button class="btn btn-sm btn-primary" onclick="openUploadModal()" style="margin-left:auto">📤 Upload Excel</button></div><div class="section-body" id="recent-leads"><div class="loading">Loading...</div></div></div>
-      <div class="section"><div class="section-header"><h2>Upcoming Appointments</h2></div><div class="section-body" id="recent-appointments"><div class="loading">Loading...</div></div></div>
+      <div class="section-card">
+        <h2>Recent Leads <button class="ep-btn ep-btn-primary" style="font-size:12px;padding:6px 14px" onclick="showTab('leads',document.querySelector('.nav-item:nth-child(3)'))">View All</button></h2>
+        <div id="recent-leads-list">No leads yet</div>
+      </div>
+      <div class="section-card">
+        <h2>Upcoming Appointments</h2>
+        <div id="upcoming-appts">No appointments yet</div>
+      </div>
     </div>
+
+    <!-- LEADS -->
     <div class="tab-content" id="tab-leads">
-      <div class="main-header"><h1>Leads</h1><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="openAddLeadModal()">➕ Add Lead</button><button class="btn btn-outline" onclick="openUploadModal()">📤 Upload Excel/CSV</button></div></div>
-      <div style="margin-bottom:16px"><input type="text" id="lead-search" placeholder="🔍 Search leads by name, email, phone, or source..." oninput="filterLeads()" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit"></div>
-      <div class="section"><div class="section-body" id="all-leads"><div class="loading">Loading...</div></div></div>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Lead Management</h1>
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('all')">All</button>
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('new')">🔵 New</button>
+        <button class="ep-btn ep-btn-outline" onclick="filterLeads('contacted')">🟢 Contacted</button>
+      </div>
+      <div class="section-card" id="leads-container">
+        <div id="leads-list">No leads yet. Share your profile to start generating leads!</div>
+      </div>
     </div>
+
+    <!-- LISTINGS -->
     <div class="tab-content" id="tab-listings">
-      <div class="main-header"><h1>My Listings</h1><a href="/list-property.html" class="btn btn-primary">➕ Add Listing</a></div>
-      <div class="section"><div class="section-body" id="all-listings"><div class="loading">Loading...</div></div></div>
-    </div>
-    <div class="tab-content" id="tab-appointments">
-      <div class="main-header"><h1>📅 Appointments</h1></div>
-      <div style="display:grid;grid-template-columns:340px 1fr;gap:20px">
-        <!-- Calendar -->
-        <div class="section" style="margin-bottom:0">
-          <div class="section-header"><h2 id="cal-month-title">February 2026</h2>
-            <div style="display:flex;gap:4px"><button class="btn btn-sm btn-outline" onclick="changeMonth(-1)">&laquo;</button><button class="btn btn-sm btn-outline" onclick="changeMonth(1)">&raquo;</button></div>
-          </div>
-          <div class="section-body" style="padding:12px">
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px">
-              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h1 style="font-size:24px;font-weight:800">My Listings</h1>
+        <a href="post-property.html" class="ep-btn ep-btn-primary">+ Add Listing</a>
+      </div>
+      <div class="section-card">
+        ${EP.properties.filter(p => p.agentId === 1).map(p => `
+          <div class="listing-row">
+            <img src="${p.img}" class="listing-thumb">
+            <div>
+              <div style="font-weight:600;font-size:14px">${p.title}</div>
+              <div style="font-size:12px;color:#6b7280">${p.address} · $${p.price.toLocaleString()} · ${p.daysListed}d listed</div>
+              <span class="ep-tag ep-tag-green">Active</span>
             </div>
-            <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
-          </div>
+            <div style="display:flex;gap:8px">
+              <button class="ep-btn ep-btn-outline" style="font-size:12px;padding:6px 12px" onclick="window.open('property-details.html?id=${p.id}')">View</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="tab-content" id="tab-appointments">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">Appointments</h1>
+      <div class="section-card">
+        <div id="appt-list">No appointments yet.</div>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="tab-content" id="tab-ai">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">AI Assistant — Aria</h1>
+      <div class="ai-dash-panel">
+        <h2>🤖 Aria is your 24/7 assistant</h2>
+        <p style="opacity:.85;font-size:14px;margin-bottom:4px">She auto-responds to leads, books showings, calls clients, and drafts messages.</p>
+        <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('Draft a follow-up message for my latest lead')">✉️ Draft Follow-up</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="dashAI('What are my leads today?')">📥 Today\'s Leads</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.simulatePhoneCall()">📞 Call a Lead</button>
+          <button class="ep-btn" style="background:rgba(255,255,255,.2);color:white;font-size:12px" onclick="EP.ai.showAppointmentModal()">📅 Book Showing</button>
         </div>
-        <!-- Appointments list -->
-        <div class="section" style="margin-bottom:0">
-          <div class="section-header"><h2 id="appts-list-title">All Appointments</h2></div>
-          <div class="section-body" id="all-appointments"><div class="loading">Loading...</div></div>
+        <div class="ai-chat-area" id="ai-dash-msgs"></div>
+        <div class="ai-input-row-d">
+          <input class="ai-input-d" id="ai-dash-input" placeholder="Ask Aria to do anything..." onkeydown="if(event.key==='Enter')sendDashAI()">
+          <button class="ai-send-d" onclick="sendDashAI()">Send</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <h2>AI Auto-Responder Settings</h2>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Auto-respond to new leads <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Auto-schedule showings <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            AI calls leads within 5 minutes <input type="checkbox" style="transform:scale(1.3)">
+          </label>
+          <label style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+            Send weekly performance reports <input type="checkbox" checked style="transform:scale(1.3)">
+          </label>
         </div>
       </div>
     </div>
-    <div class="tab-content" id="tab-campaigns">
-      <div class="main-header"><h1>Campaigns</h1><button class="btn btn-primary" onclick="showCreateCampaign()">➕ New Campaign</button></div>
-      <div class="section"><div class="section-body" id="all-campaigns"><div class="loading">Loading...</div></div></div>
+
+    <!-- PROFILE -->
+    <div class="tab-content" id="tab-profile">
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:20px">My Agent Profile</h1>
+      <div class="section-card">
+        <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
+          <div style="width:80px;height:80px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">CR</div>
+          <div><h2 style="font-size:22px;font-weight:700;margin:0">Carlos Rivera</h2><p style="color:#6b7280">Senior Listing Agent</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="ep-form-group"><label class="ep-label">First Name</label><input class="ep-input" value="Carlos"></div>
+          <div class="ep-form-group"><label class="ep-label">Last Name</label><input class="ep-input" value="Rivera"></div>
+          <div class="ep-form-group"><label class="ep-label">Phone</label><input class="ep-input" value="(973) 555-0101"></div>
+          <div class="ep-form-group"><label class="ep-label">License #</label><input class="ep-input" value="NJ-RE-001234"></div>
+          <div class="ep-form-group" style="grid-column:1/-1"><label class="ep-label">Bio</label><textarea class="ep-textarea">12+ years helping buyers and sellers in Essex County. Specializes in investment properties and first-time buyers.</textarea></div>
+        </div>
+        <button class="ep-btn ep-btn-primary" onclick="EP.notify('Profile updated!','success')">Save Changes</button>
+      </div>
+      <div class="section-card">
+        <h2>Your Public Profile Link</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input class="ep-input" value="emporionpros.com/agent/carlos-rivera" readonly style="flex:1">
+          <button class="ep-btn ep-btn-outline" onclick="EP.notify('Link copied!','success')">Copy</button>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
 </div>
+
+<div id="ai-mount"></div>
 <script>
-/* ========== CORE ACTION FUNCTIONS ========== */
-/* Isolated script block so these are always available even if other scripts error */
-
-/* ---- EMAIL COMPOSE MODAL ---- */
-var emailTemplates = {
-  tour_confirmation: {
-    label: '🏠 Tour Confirmation',
-    subject: 'Your Apartment Tour is Confirmed!',
-    body: function(name, data) {
-      var day = data && data.tourDay ? data.tourDay : '[Select date above]';
-      var time = data && data.tourTime ? data.tourTime : '[Select time above]';
-      return 'Hi ' + (name || 'there') + ',\n\nThank you for your interest! We\'re excited to confirm your apartment tour.\n\n📅 Tour Details: ' + day + ' at ' + time + '\n\nWhat to bring:\n✅ Valid photo ID\n✅ Proof of income (recent pay stubs or offer letter)\n✅ Any questions you have about the apartment\n\nIf you need to reschedule, simply reply to this email.\n\nBest regards,\nEmporionPros Team';
-    }
-  },
-  follow_up: {
-    label: '📋 Follow Up',
-    subject: 'Following Up — EmporionPros',
-    body: function(name) {
-      return 'Hi ' + (name || 'there') + ',\n\nI wanted to follow up on our recent conversation. Do you have any questions about the apartments we discussed?\n\nI\'m happy to help with anything you need — scheduling a tour, discussing pricing, or going over the application process.\n\nLooking forward to hearing from you!\n\nBest regards,\nEmporionPros Team';
-    }
-  },
-  application_reminder: {
-    label: '📝 Application Reminder',
-    subject: 'Complete Your Application — EmporionPros',
-    body: function(name) {
-      return 'Hi ' + (name || 'there') + ',\n\nJust a friendly reminder to complete your rental application. The sooner we receive it, the faster we can move forward!\n\nYou\'ll need:\n• Completed application form\n• Proof of income\n• Photo ID\n• Credit check authorization\n\nLet me know if you have any questions or need help with the process.\n\nBest regards,\nEmporionPros Team';
-    }
-  },
-  custom: {
-    label: '✏️ Custom Email',
-    subject: '',
-    body: function() { return ''; }
-  }
-};
-
-function emailLead(email, leadName) {
-  if (!email) { alert('No email address available'); return; }
-  
-  var name = leadName || '';
-  var firstName = name.split(' ')[0] || 'there';
-
-  var html = '<div id="emailComposeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
-    + '<div style="background:white;border-radius:12px;padding:0;width:94%;max-width:620px;max-height:90vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);display:flex;flex-direction:column">'
-    // Header
-    + '<div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
-    + '<h2 style="margin:0;font-size:17px;font-weight:700;color:#1a1a2e">📧 Compose Email</h2>'
-    + '<button onclick="document.getElementById(\'emailComposeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
-    + '</div>'
-    // Template selector
-    + '<div style="padding:12px 24px;background:#f9fafb;border-bottom:1px solid #e5e7eb;display:flex;gap:6px;flex-wrap:wrap">';
-  
-  Object.keys(emailTemplates).forEach(function(key) {
-    var t = emailTemplates[key];
-    html += '<button class="email-tpl-btn" data-tpl="' + key + '" onclick="selectEmailTemplate(\'' + key + '\',\'' + firstName.replace(/'/g, '') + '\')" '
-      + 'style="padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:white;color:#374151;cursor:pointer;transition:.2s">'
-      + t.label + '</button>';
-  });
-  
-  html += '</div>'
-    // Tour date/time picker (shown only for tour template)
-    + '<div id="tour-datetime-row" style="padding:8px 24px;background:#eff6ff;border-bottom:1px solid #e5e7eb;display:flex;gap:12px;align-items:center">'
-    + '<label style="font-size:12px;font-weight:600;color:#1e40af">📅 Tour Date:</label>'
-    + '<input type="date" id="tour-date" onchange="updateTourInBody()" style="padding:6px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:13px;font-family:inherit">'
-    + '<label style="font-size:12px;font-weight:600;color:#1e40af">🕐 Time:</label>'
-    + '<input type="time" id="tour-time" onchange="updateTourInBody()" style="padding:6px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:13px;font-family:inherit">'
-    + '</div>'
-    // Form
-    + '<div style="padding:20px 24px;overflow-y:auto;flex:1">'
-    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">To</label>'
-    + '<input type="text" id="email-to" value="' + email + '" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb;color:#6b7280" readonly></div>'
-    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Subject</label>'
-    + '<input type="text" id="email-subject" placeholder="Email subject..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
-    + '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Message</label>'
-    + '<textarea id="email-body" rows="10" placeholder="Type your message..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.5"></textarea></div>'
-    + '</div>'
-    // Footer
-    + '<div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
-    + '<span id="email-status" style="font-size:12px;color:#6b7280"></span>'
-    + '<div style="display:flex;gap:8px">'
-    + '<button onclick="document.getElementById(\'emailComposeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
-    + '<button id="email-send-btn" onclick="sendComposedEmail()" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">Send Email ✉️</button>'
-    + '</div></div></div></div>';
-
-  var existing = document.getElementById('emailComposeModal');
-  if (existing) existing.remove();
-  document.body.insertAdjacentHTML('beforeend', html);
-  
-  // Auto-select tour confirmation template
-  selectEmailTemplate('tour_confirmation', firstName);
-}
-
-function selectEmailTemplate(key, firstName) {
-  var t = emailTemplates[key];
-  var tourRow = document.getElementById('tour-datetime-row');
-  if (tourRow) { tourRow.style.display = key === 'tour_confirmation' ? 'flex' : 'none'; }
-  if (key === 'tour_confirmation') {
-    var dateEl = document.getElementById('tour-date');
-    var timeEl = document.getElementById('tour-time');
-    var day = dateEl && dateEl.value ? formatDateNice(dateEl.value) : '[Select date above]';
-    var time = timeEl && timeEl.value ? formatTimeNice(timeEl.value) : '[Select time above]';
-    document.getElementById('email-subject').value = t.subject;
-    document.getElementById('email-body').value = t.body(firstName, { tourDay: day, tourTime: time });
-  } else {
-    document.getElementById('email-subject').value = t.subject;
-    document.getElementById('email-body').value = t.body(firstName);
-  }
-  
-  // Highlight active template button
-  var btns = document.querySelectorAll('.email-tpl-btn');
-  btns.forEach(function(b) {
-    if (b.dataset.tpl === key) {
-      b.style.background = '#1a56db';
-      b.style.color = 'white';
-      b.style.borderColor = '#1a56db';
-    } else {
-      b.style.background = 'white';
-      b.style.color = '#374151';
-      b.style.borderColor = '#e5e7eb';
-    }
-  });
-  
-  // Store current template key and firstName for updateTourInBody
-  window._currentTplKey = key;
-  window._currentFirstName = firstName;
-  
-  if (key === 'custom') {
-    document.getElementById('email-subject').focus();
-  } else {
-    document.getElementById('email-body').focus();
-  }
-}
-
-function formatDateNice(dateStr) {
-  if (!dateStr) return '';
-  var d = new Date(dateStr + 'T12:00:00');
-  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-}
-
-function formatTimeNice(timeStr) {
-  if (!timeStr) return '';
-  var parts = timeStr.split(':');
-  var h = parseInt(parts[0]); var m = parts[1];
-  var ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  return h + ':' + m + ' ' + ampm;
-}
-
-function updateTourInBody() {
-  var dateEl = document.getElementById('tour-date');
-  var timeEl = document.getElementById('tour-time');
-  if (!dateEl || !timeEl) return;
-  var day = dateEl.value ? formatDateNice(dateEl.value) : '[Select date above]';
-  var time = timeEl.value ? formatTimeNice(timeEl.value) : '[Select time above]';
-  var firstName = window._currentFirstName || 'there';
-  var t = emailTemplates.tour_confirmation;
-  document.getElementById('email-body').value = t.body(firstName, { tourDay: day, tourTime: time });
-}
-
-async function sendComposedEmail() {
-  var to = document.getElementById('email-to').value.trim();
-  var subject = document.getElementById('email-subject').value.trim();
-  var body = document.getElementById('email-body').value.trim();
-  var btn = document.getElementById('email-send-btn');
-  var status = document.getElementById('email-status');
-  
-  if (!to) { alert('No email address'); return; }
-  if (!subject) { alert('Please enter a subject'); return; }
-  if (!body) { alert('Please enter a message'); return; }
-  
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  status.textContent = '';
-  status.style.color = '#6b7280';
-  
-  try {
-    var res = await fetch('/.netlify/functions/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: to, subject: subject, body: body })
-    });
-    
-    var data = await res.json();
-    
-    if (res.ok && data.success) {
-      status.textContent = '✅ Email sent successfully!';
-      status.style.color = '#0e9f6e';
-      btn.textContent = 'Sent! ✅';
-      // If tour confirmation, create appointment
-      if (window._currentTplKey === 'tour_confirmation') {
-        var tourDate = document.getElementById('tour-date');
-        var tourTime = document.getElementById('tour-time');
-        if (tourDate && tourDate.value && tourTime && tourTime.value) {
-          try {
-            await EPAppointments.create({
-              client_name: window._currentFirstName || 'Lead',
-              client_email: to,
-              appointment_date: tourDate.value,
-              appointment_time: formatTimeNice(tourTime.value),
-              type: 'tour',
-              status: 'confirmed'
-            });
-            status.textContent = '✅ Email sent & appointment booked!';
-          } catch(e) { console.log('Appointment save error:', e); }
-        }
-      }
-      setTimeout(function() {
-        var modal = document.getElementById('emailComposeModal');
-        if (modal) modal.remove();
-      }, 1500);
-    } else {
-      status.textContent = '❌ ' + (data.error || 'Failed to send');
-      status.style.color = '#e02424';
-      btn.disabled = false;
-      btn.textContent = 'Send Email ✉️';
-    }
-  } catch (err) {
-    status.textContent = '❌ ' + err.message;
-    status.style.color = '#e02424';
-    btn.disabled = false;
-    btn.textContent = 'Send Email ✉️';
-  }
-}
-
-function callLead(eventOrPhone, phoneArg) {
-  var phone, btn;
-  if (typeof eventOrPhone === 'string') {
-    phone = eventOrPhone;
-    var cleanPhone = phone.replace(/[^0-9]/g, '');
-    var allBtns = document.querySelectorAll('.btn-sm.btn-primary');
-    for (var i = 0; i < allBtns.length; i++) {
-      var onclickAttr = allBtns[i].getAttribute('onclick') || '';
-      if (onclickAttr.indexOf(phone) !== -1 || onclickAttr.indexOf(cleanPhone) !== -1) {
-        btn = allBtns[i];
-        break;
-      }
-    }
-  } else {
-    phone = phoneArg;
-    btn = eventOrPhone && eventOrPhone.target ? eventOrPhone.target : null;
-    if (btn && !btn.classList.contains('btn')) btn = btn.closest('.btn');
-  }
-  if (!phone) { alert('No phone number'); return; }
-  var digits = phone.replace(/[^0-9]/g, '');
-  if (digits.length === 10) digits = '1' + digits;
-  var formatted = '+' + digits;
-  if (digits.length < 10) { alert('Invalid phone number: ' + phone); return; }
-  if (!confirm('Call ' + phone + ' using Aria AI?\n\nAria will call this number and have a conversation with the lead.')) return;
-  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
-  fetch('/.netlify/functions/vapi-call-iron65', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ leadPhone: formatted })
-  }).then(function(r){ return r.json(); }).then(function(d){
-    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
-    if (d.error) { alert('Call failed: ' + d.error); }
-    else { alert('📞 Call initiated to ' + phone + '!\n\nAria is now calling the lead.'); }
-  }).catch(function(err){
-    if (btn) { btn.disabled = false; btn.textContent = '📞'; }
-    alert('Call error: ' + err.message);
-  });
-}
-</script>
-<script>
-function showTab(name, el) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-  const tab = document.getElementById('tab-' + name);
-  if (tab) tab.classList.add('active');
-  if (el) el.classList.add('active');
-  loadTabData(name);
-}
-function checkHash() {
-  const hash = window.location.hash.replace('#', '');
-  if (hash) { const link = document.querySelector(`.sidebar a[href="#${hash}"]`); if (link) showTab(hash, link); }
-}
-async function loadTabData(tab) {
-  switch(tab) {
-    case 'leads': await loadLeads(); break;
-    case 'listings': await loadListings(); break;
-    case 'appointments': await loadAppointments(); break;
-    case 'campaigns': await loadCampaigns(); break;
-  }
-}
-let allLeadsCache = [];
-async function loadLeads() {
-  const { data: leads } = await EPLeads.getLeads();
-  allLeadsCache = leads || [];
-  renderLeadsTable(allLeadsCache);
-}
-function filterLeads() {
-  const q = (document.getElementById('lead-search')?.value || '').toLowerCase();
-  if (!q) { renderLeadsTable(allLeadsCache); return; }
-  renderLeadsTable(allLeadsCache.filter(l => (l.name||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q) || (l.phone||'').toLowerCase().includes(q) || (l.source||'').toLowerCase().includes(q) || (l.message||'').toLowerCase().includes(q)));
-}
-function getLeadType(l) {
-  if (!l.message) return '';
-  // Only match the structured "Type: X" format, not AI call notes
-  const m = l.message.match(/^Type:\s*([^|\n]+)/m);
-  return m ? m[1].trim() : '';
-}
-function getAIStatus(l) {
-  const hasPhone = l.phone && l.phone.length > 5;
-  const msg = l.message || '';
-  // Check if Aria has already called this lead
-  if (msg.includes('AI Call (Aria)')) {
-    const tourMatch = msg.includes('Tour Booked: Yes');
-    if (tourMatch) {
-      return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
-    }
-    return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
-  }
-  if (hasPhone) {
-    return '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">🤖 AI Ready</span>';
-  }
-  return '<span style="background:#f3f4f6;color:#6b7280;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">No Phone</span>';
-}
-function getLeadTypeBadge(type) {
-  if (!type) return '';
-  const colors = {Renter:'#eff6ff;color:#1e40af',Buyer:'#f0fdf4;color:#166534',Seller:'#fef3c7;color:#92400e',Commercial:'#fae8ff;color:#7e22ce',Investor:'#fce7f3;color:#9d174d',Vendor:'#f1f5f9;color:#475569'};
-  const bg = colors[type] || '#f3f4f6;color:#374151';
-  return '<span style="background:'+bg+';padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">'+type+'</span>';
-}
-let mergeSelection = [];
-function toggleMerge(id, el) {
-  el.stopPropagation && el.stopPropagation();
-  if (mergeSelection.includes(id)) { mergeSelection = mergeSelection.filter(x=>x!==id); }
-  else { mergeSelection.push(id); }
-  document.querySelectorAll('.merge-cb').forEach(cb => { cb.checked = mergeSelection.includes(cb.dataset.id); });
-  document.getElementById('merge-bar').style.display = mergeSelection.length >= 2 ? 'flex' : 'none';
-  document.getElementById('merge-count').textContent = mergeSelection.length;
-}
-function renderLeadsTable(leads) {
-  const c = document.getElementById('all-leads');
-  if (!leads || !leads.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No leads found.</p></div>'; return; }
-  mergeSelection = [];
-  window._renderedLeads = leads;
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#6b7280">Showing '+leads.length+' lead'+(leads.length===1?'':'s')+'</span></div>';
-  html += '<div id="merge-bar" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 16px;border-radius:8px;margin-bottom:12px;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1e40af;font-weight:600"><span id="merge-count">0</span> leads selected</span><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" onclick="mergeSelection=[];renderLeadsTable(allLeadsCache)">Cancel</button><button class="btn btn-sm btn-primary" onclick="openMergeModal()">🔗 Merge Selected</button></div></div>';
-  html += '<table><thead><tr><th style="width:30px"></th><th>Name</th><th>Type</th><th>Email</th><th>Phone</th><th>Source</th><th>AI Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
-  leads.forEach(function(l, idx) {
-    var hasPhone = l.phone && l.phone.length > 5;
-    var leadType = getLeadType(l);
-    var aiStatus = getAIStatus(l);
-    var safePhone = (l.phone || '').replace(/'/g, '').replace(/"/g, '');
-    var safeEmail = (l.email || '').replace(/'/g, '').replace(/"/g, '');
-    var safeName = (l.name || '').replace(/'/g, '').replace(/"/g, '');
-    html += '<tr style="cursor:pointer" onclick="openLeadByIndex('+idx+')">';
-    html += '<td onclick="event.stopPropagation()"><input type="checkbox" class="merge-cb" data-id="'+l.id+'" onchange="toggleMerge(\''+l.id+'\',event)" style="cursor:pointer"></td>';
-    html += '<td><strong>'+(l.name||'—')+'</strong></td>';
-    html += '<td>'+getLeadTypeBadge(leadType)+'</td>';
-    html += '<td style="font-size:12px">'+(l.email||'—')+'</td>';
-    html += '<td style="font-size:12px">'+(l.phone||'—')+'</td>';
-    html += '<td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px">'+(l.source||'—')+'</span></td>';
-    html += '<td>'+aiStatus+'</td>';
-    html += '<td style="font-size:12px">'+new Date(l.created_at).toLocaleDateString()+'</td>';
-    html += '<td><div style="display:flex;gap:4px">';
-    if (hasPhone) {
-      html += '<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();callLeadByIndex('+idx+')" title="Call '+safePhone+'">📞</button>';
-    }
-    if (l.email) {
-      html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLeadByIndex('+idx+')" title="Email '+safeEmail+'">📧</button>';
-    }
-    if (hasPhone) {
-      html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();smsLeadByIndex('+idx+')" title="Text '+safePhone+'" style="color:#059669">💬</button>';
-    }
-    html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();bookTourByIndex('+idx+')" title="Book Tour" style="background:#eff6ff;border-color:#bfdbfe;color:#1a56db">📅</button>';
-    html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLeadByIndex('+idx+')">✏️</button>';
-    html += '</div></td>';
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  c.innerHTML = html;
-}
-function openLeadByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) return;
-  openLeadProfile(encodeURIComponent(JSON.stringify(l)));
-}
-function editLeadByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) return;
-  editLead(encodeURIComponent(JSON.stringify(l)));
-}
-function emailLeadByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) { alert('Lead not found'); return; }
-  emailLead(l.email, l.name);
-}
-function callLeadByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) { alert('Lead not found'); return; }
-  callLead(l.phone);
-}
-
-// ============================================
-// SMS TEXT MESSAGING
-// ============================================
-function smsLeadByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) { alert('Lead not found'); return; }
-  if (!l.phone) { alert('No phone number for this lead'); return; }
-  openSmsCompose(l.phone, l.name || '', l.id);
-}
-function smsLead(phone, name) {
-  if (!phone) { alert('No phone number for this lead'); return; }
-  openSmsCompose(phone, name || '', null);
-}
-function openSmsCompose(phone, name, leadId) {
-  var existing = document.getElementById('smsComposeModal');
-  if (existing) existing.remove();
-  var safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  var safePhone = (phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  var html = '<div id="smsComposeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
-    + '<div style="background:white;border-radius:14px;width:95%;max-width:520px;box-shadow:0 25px 50px rgba(0,0,0,.15);overflow:hidden;font-family:Inter,system-ui,sans-serif">'
-    + '<div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:#f8fafc">'
-    + '<div style="display:flex;align-items:center;gap:10px">'
-    + '<span style="font-size:20px">\uD83D\uDCAC</span>'
-    + '<div><div style="font-weight:700;color:#111;font-size:15px">Text Message</div>'
-    + '<div style="font-size:12px;color:#6b7280">Send SMS to ' + safeName + '</div></div></div>'
-    + '<button onclick="document.getElementById(\'smsComposeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button></div>'
-    + '<div style="padding:20px 22px">'
-    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">To</label>'
-    + '<input id="smsTo" type="text" value="' + safePhone + '" readonly style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;box-sizing:border-box"></div>'
-    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Quick Templates</label>'
-    + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
-    + '<button onclick="setSmsTemplate(\'tour\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8">\uD83C\uDFE0 Tour Invite</button>'
-    + '<button onclick="setSmsTemplate(\'followup\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #dcfce7;background:#f0fdf4;color:#16a34a">\uD83D\uDCCB Follow Up</button>'
-    + '<button onclick="setSmsTemplate(\'reminder\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #fef3c7;background:#fffbeb;color:#d97706">\u23F0 Reminder</button>'
-    + '<button onclick="setSmsTemplate(\'cosigner\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #f3e8ff;background:#faf5ff;color:#7c3aed">\uD83E\uDD1D Cosigner</button>'
-    + '</div></div>'
-    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Message <span id="smsCharCount" style="font-weight:400;color:#9ca3af">(0/160)</span></label>'
-    + '<textarea id="smsBody" rows="6" placeholder="Type your message..." oninput="updateSmsCharCount()" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;box-sizing:border-box"></textarea></div>'
-    + '</div>'
-    + '<div style="padding:14px 22px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f8fafc">'
-    + '<button onclick="document.getElementById(\'smsComposeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
-    + '<button id="smsSendBtn" onclick="sendSmsFromModal()" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#059669;color:white;font-family:inherit;display:flex;align-items:center;gap:6px"><span>\uD83D\uDCAC</span> Send SMS</button>'
-    + '</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  window._smsContext = { phone: phone, name: name, leadId: leadId };
-  setTimeout(function() { document.getElementById('smsBody').focus(); }, 100);
-}
-function setSmsTemplate(type) {
-  var name = (window._smsContext && window._smsContext.name) || 'there';
-  var firstName = name.split(' ')[0] || 'there';
-  var body = '';
-  switch(type) {
-    case 'tour':
-      body = 'Hi ' + firstName + '! This is Ana from Iron Sixty-Five Apartments in Newark. I\'d love to schedule a tour for you \u2014 we have studios starting at $2,388 and some great move-in specials right now.\n\nWhen works best for you? Book here: https://calendly.com/ana-rosaliagroup/65-iron-tour\n\n\uD83D\uDCCD 65 McWhorter St, Newark, NJ 07105';
-      break;
-    case 'followup':
-      body = 'Hi ' + firstName + '! Just following up on our conversation about Iron Sixty-Five. Did you have any questions about the apartments?\n\nI\'m here to help! Reply anytime \uD83D\uDE0A';
-      break;
-    case 'reminder':
-      body = 'Hi ' + firstName + '! Quick reminder about your upcoming tour at Iron Sixty-Five.\n\n\uD83D\uDCCD 65 McWhorter St, Newark, NJ 07105\n\nPlease bring:\n\u2705 Valid photo ID\n\u2705 Proof of income\n\nSee you soon! \uD83C\uDFE0';
-      break;
-    case 'cosigner':
-      body = 'Hi ' + firstName + '! Great news \u2014 we work with TheGuarantors for free cosigner pre-approval. No credit impact!\n\nGet approved here:\nhttps://app.theguarantors.com/referral/sign-up/ad295b820fb11b34ee2f5cc96f1acf659032ce4fd9280a9fa1f380582aeda1a2\n\nLet me know if you have questions!';
-      break;
-  }
-  document.getElementById('smsBody').value = body;
-  updateSmsCharCount();
-}
-function updateSmsCharCount() {
-  var body = document.getElementById('smsBody');
-  var count = document.getElementById('smsCharCount');
-  if (body && count) {
-    var len = body.value.length;
-    var segments = Math.ceil(len / 160) || 1;
-    count.textContent = '(' + len + ' chars, ' + segments + ' segment' + (segments > 1 ? 's' : '') + ')';
-    count.style.color = len > 160 ? '#f59e0b' : '#9ca3af';
-  }
-}
-async function sendSmsFromModal() {
-  var phone = document.getElementById('smsTo').value.trim();
-  var message = document.getElementById('smsBody').value.trim();
-  var btn = document.getElementById('smsSendBtn');
-  if (!phone) { alert('Phone number is required'); return; }
-  if (!message) { alert('Message is required'); return; }
-  btn.disabled = true;
-  btn.innerHTML = '<span>\u23F3</span> Sending...';
-  btn.style.opacity = '0.7';
-  try {
-    var resp = await fetch('/.netlify/functions/send-sms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone, message: message })
-    });
-    var result = await resp.json();
-    if (resp.ok && result.success) {
-      btn.innerHTML = '<span>\u2705</span> Sent!';
-      btn.style.background = '#16a34a';
-      if (window._smsContext && window._smsContext.leadId && typeof getSupabase === 'function') {
-        try {
-          var sb = getSupabase();
-          if (sb) {
-            var res = await sb.from('leads').select('message').eq('id', window._smsContext.leadId).single();
-            if (res.data) {
-              var timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
-              var smsNote = '\n\n\uD83D\uDCF1 SMS Sent \u2014 ' + timestamp + '\nTo: ' + phone + '\nMessage: ' + message.substring(0, 200) + (message.length > 200 ? '...' : '');
-              await sb.from('leads').update({ message: (res.data.message || '') + smsNote }).eq('id', window._smsContext.leadId);
-            }
-          }
-        } catch(e) { console.error('Note log error:', e); }
-      }
-      if (typeof EPUI !== 'undefined' && EPUI.toast) { EPUI.toast('SMS sent to ' + phone, 'success'); }
-      setTimeout(function() { var modal = document.getElementById('smsComposeModal'); if (modal) modal.remove(); }, 1200);
-    } else { throw new Error(result.error || 'SMS failed'); }
-  } catch (err) {
-    btn.disabled = false;
-    btn.innerHTML = '<span>\uD83D\uDCAC</span> Send SMS';
-    btn.style.opacity = '1';
-    alert('SMS failed: ' + err.message);
-  }
-}
-
-function openMergeModal() {
-  if (mergeSelection.length < 2) { alert('Select at least 2 leads to merge'); return; }
-  var leads = allLeadsCache.filter(function(l){return mergeSelection.includes(String(l.id));});
-  if (leads.length < 2) { alert('Could not find selected leads'); return; }
-  var types = [];
-  var allEmails = [];
-  var allPhones = [];
-  var allNames = [];
-  var allNotes = [];
-  leads.forEach(function(l){
-    var t = getLeadType(l); if(t && types.indexOf(t)===-1) types.push(t);
-    if(l.email && allEmails.indexOf(l.email)===-1) allEmails.push(l.email);
-    if(l.phone && allPhones.indexOf(l.phone)===-1) allPhones.push(l.phone);
-    if(l.name) allNames.push(l.name);
-    var p = l.message ? l.message.split('---')[0].trim() : '';
-    if(p) allNotes.push(l.name + ': ' + p);
-  });
-  var allSources = [];
-  leads.forEach(function(l){if(l.source && allSources.indexOf(l.source)===-1) allSources.push(l.source);});
-
-  var h = '<div id="mergeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">Merge '+leads.length+' Leads</h2><button onclick="document.getElementById(\'mergeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">X</button></div>';
-  // Name
-  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Keep Name</label><select id="merge-name" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">';
-  allNames.forEach(function(n){h+='<option value="'+n+'">'+n+'</option>';});
-  h += '</select></div>';
-  // Emails checkboxes
-  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Emails (keep all that apply)</label>';
-  allEmails.forEach(function(e,i){
-    var owner = leads.find(function(l){return l.email===e;});
-    h += '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px"><input type="checkbox" class="merge-em-cb" value="'+e+'" checked> '+e+' <span style="color:#9ca3af;font-size:11px">('+((owner&&owner.name)||'')+')</span></label>';
-  });
-  h += '</div>';
-  // Phones checkboxes
-  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Phones (keep all that apply)</label>';
-  allPhones.forEach(function(p,i){
-    var owner = leads.find(function(l){return l.phone===p;});
-    h += '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px"><input type="checkbox" class="merge-ph-cb" value="'+p+'" checked> '+p+' <span style="color:#9ca3af;font-size:11px">('+((owner&&owner.name)||'')+')</span></label>';
-  });
-  h += '</div>';
-  // Source
-  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Source</label><select id="merge-source" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px">';
-  allSources.forEach(function(s){h+='<option value="'+s+'">'+s+'</option>';});
-  h += '</select></div>';
-  // Types
-  h += '<div style="margin-bottom:12px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Lead Types (keeps all)</label><input type="text" id="merge-types" value="'+types.join(', ')+'" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box" placeholder="Renter, Commercial, Investor..."></div>';
-  // Notes
-  h += '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Combined Notes</label><textarea id="merge-notes" rows="3" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">'+allNotes.join('\n')+'</textarea></div>';
-  h += '<div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="document.getElementById(\'mergeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><button onclick="executeMerge()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">Merge Leads</button></div>';
-  h += '</div></div>';
-  document.body.insertAdjacentHTML('beforeend', h);
-}
-async function executeMerge() {
-  var name = document.getElementById('merge-name').value;
-  var emails = []; document.querySelectorAll('.merge-em-cb:checked').forEach(function(cb){emails.push(cb.value);});
-  var phones = []; document.querySelectorAll('.merge-ph-cb:checked').forEach(function(cb){phones.push(cb.value);});
-  var source = document.getElementById('merge-source').value;
-  var types = document.getElementById('merge-types').value;
-  var notes = document.getElementById('merge-notes').value;
-  var email = emails[0] || '';
-  var phone = phones[0] || '';
-  var extraContacts = [];
-  if (emails.length > 1) extraContacts.push('Alt emails: ' + emails.slice(1).join(', '));
-  if (phones.length > 1) extraContacts.push('Alt phones: ' + phones.slice(1).join(', '));
-  var fullNotes = [notes, extraContacts.length ? extraContacts.join(' | ') : ''].filter(Boolean).join('\n');
-  var message = fullNotes + (types ? '\n--- Type: ' + types : '');
-  var btn = document.querySelector('#mergeModal button:last-child');
-  if(btn){btn.disabled=true;btn.textContent='Merging...';}
-  try {
-    var res = await fetch('/.netlify/functions/upload-leads', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({leads:[{name:name,email:email,phone:phone,source:source,message:message,role:'user'}],pushToFUB:false})
-    });
-    var data = await res.json();
-    if (data.success) {
-      document.getElementById('mergeModal').remove();
-      mergeSelection = [];
-      alert('Leads merged! Primary: ' + name + ' (' + email + ')');
-      loadLeads();
-    } else { alert('Error: ' + (data.error||'Unknown')); }
-  } catch(err) { alert('Error: ' + err.message); }
-}
-
-function emailLead_legacy() { /* moved to isolated script block above */ }
-function openLeadProfile(j) {
-  const l = JSON.parse(decodeURIComponent(j));
-  
-  // Parse message field — supports both old format (--- Key: Val | Key: Val) and new bullet format (• Key: Val)
-  const parsed = l.message ? (function(m) {
-    var d = {};
-    
-    // If multiple call note blocks exist, use the LAST one (most recent)
-    var blocks = m.split(/\n\n(?=\u{1F916}|\u{1F4DE}|AI Call)/u);
-    var latestBlock = blocks.length > 1 ? blocks[blocks.length - 1] : m;
-    
-    // Try bullet point format (• Key: Value or - Key: Value)
-    var bulletMatches = latestBlock.match(/[•·\-]\s*([^:•·\n]+):\s*([^\n•·]+)/g);
-    if (bulletMatches && bulletMatches.length > 0) {
-      bulletMatches.forEach(function(line) {
-        var colonIdx = line.indexOf(':');
-        if (colonIdx > 0) {
-          var key = line.substring(0, colonIdx).replace(/^[•·\-\s]+/, '').trim();
-          var val = line.substring(colonIdx + 1).trim();
-          if (key && val && val !== 'Not provided' && val !== 'not provided') {
-            d[key] = val;
-          }
-        }
-      });
-    }
-    
-    // Also try old format (--- Key: Val | Key: Val) on latest block
-    var match = latestBlock.match(/---\s*(.+)/);
-    if (match) {
-      match[1].split(' | ').forEach(function(p) {
-        var parts = p.split(': ');
-        if (parts.length >= 2) d[parts[0].trim()] = parts.slice(1).join(': ').trim();
-      });
-    }
-    
-    // Extract side notes (📌 Side Notes: section)
-    var sideMatch = m.match(/📌\s*Side Notes?:\s*([\s\S]*?)(?=\n\n📝|\n\n🤖|$)/i);
-    if (sideMatch) {
-      d._sideNotes = sideMatch[1].trim();
-    }
-    
-    // Extract summary (📝 Summary: section)
-    var summaryMatch = m.match(/📝\s*(?:Summary|Call Summary):?\s*([\s\S]*?)(?=\n\n🤖|$)/i);
-    if (summaryMatch) {
-      d._summary = summaryMatch[1].trim();
-    }
-    
-    // Extract general notes (everything before the first --- or • or 🤖)
-    var notesText = m.split(/---|🤖|📌|📝/)[0].trim();
-    if (notesText && !notesText.match(/^[•·\-]/)) {
-      d._notes = notesText;
-    }
-    
-    return d;
-  })(l.message) : {};
-  
-  const detailRows = Object.entries(parsed).filter(([k,v]) => !k.startsWith('_') && v).map(([k,v]) => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-size:12px;color:#6b7280">'+k+'</span><span style="font-size:13px;font-weight:600">'+v+'</span></div>').join('');
-  var safePhone = (l.phone || '').replace(/'/g, '').replace(/"/g, '');
-  var safeEmail = (l.email || '').replace(/'/g, '').replace(/"/g, '');
-  var encodedLead = encodeURIComponent(JSON.stringify(l));
-  var html = '<div id="leadProfileModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
-    + '<div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">'
-    + '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">'
-    + '<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'
-    + '<div style="width:40px;height:40px;border-radius:50%;background:#1a56db;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">' + (l.name||'?')[0].toUpperCase() + '</div>'
-    + '<div><h2 style="font-size:20px;font-weight:700;margin:0">' + (l.name||'Unknown') + '</h2>'
-    + '<span style="font-size:12px;color:#6b7280">' + (parsed.Type||'Lead') + ' &middot; ' + (l.source||'Unknown source') + '</span></div>'
-    + '</div></div>'
-    + '<button onclick="document.getElementById(\'leadProfileModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
-    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Email</div>' + (l.email ? '<a href="mailto:' + safeEmail + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + safeEmail + '</a>' : '<span style="font-size:13px;color:#9ca3af">&mdash;</span>') + '</div>'
-    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Phone</div>' + (l.phone ? '<a href="tel:' + safePhone + '" style="font-size:13px;color:#1a56db;text-decoration:none">' + safePhone + '</a>' : '<span style="font-size:13px;color:#9ca3af">&mdash;</span>') + '</div>'
-    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Status</div><span class="badge badge-' + (l.status||'new') + '" style="font-size:12px">' + (l.status||'new') + '</span></div>'
-    + '<div style="background:#f9fafb;padding:12px;border-radius:8px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Added</div><span style="font-size:13px">' + (l.created_at ? new Date(l.created_at).toLocaleDateString() : '') + '</span></div>'
-    + '</div>'
-    + (detailRows ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#374151">Lead Details</div>' + detailRows + '</div>' : '')
-    + (parsed._notes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">Notes</div><div style="font-size:13px;color:#6b7280;background:#f9fafb;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._notes + '</div></div>' : '')
-    + (parsed._summary ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">📝 Call Summary</div><div style="font-size:13px;color:#6b7280;background:#f0fdf4;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._summary + '</div></div>' : '')
-    + (parsed._sideNotes ? '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#374151">📌 Side Notes</div><div style="font-size:13px;color:#6b7280;background:#fffbeb;padding:10px;border-radius:8px;white-space:pre-wrap">' + parsed._sideNotes + '</div></div>' : '')
-    + '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">'
-    + '<button onclick="document.getElementById(\'leadProfileModal\').remove();editLead(\'' + encodedLead + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">&#9998; Edit</button>'
-    + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
-    + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\'' + safePhone + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">&#128222; Call via Aria</button>' : '')
-    + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();smsLead(\'' + safePhone + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1fae5;background:#ecfdf5;color:#059669;font-family:inherit">&#128172; Text</button>' : '')
-    + (l.phone ? '<a href="tel:' + safePhone + '" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">&#128241; Direct Call</a>' : '')
-    + '</div>'
-    // Appointments section
-    + '<div style="margin-top:20px;border-top:1px solid #e5e7eb;padding-top:16px">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
-    + '<div style="font-size:14px;font-weight:700;color:#374151">📅 Appointments</div>'
-    + '<button onclick="bookApptFromProfile(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">+ Book Tour</button>'
-    + '</div>'
-    + '<div id="lead-appts-' + l.id + '" style="font-size:13px;color:#6b7280">Loading...</div>'
-    + '</div>'
-    + '</div></div>';
-  var ex = document.getElementById('leadProfileModal');
-  if (ex) ex.remove();
-  document.body.insertAdjacentHTML('beforeend', html);
-  // Load appointments for this lead
-  loadLeadAppointments(l.id, l.email, l.name);
-}
-
-async function loadLeadAppointments(leadId, email, name) {
-  var container = document.getElementById('lead-appts-' + leadId);
-  if (!container) return;
-  try {
-    var { data: appts } = await EPAppointments.getMyAppointments();
-    var leadAppts = (appts || []).filter(function(a) {
-      if (a.lead_id && String(a.lead_id) === String(leadId)) return true;
-      if (email && a.client_email && a.client_email.toLowerCase() === email.toLowerCase()) return true;
-      if (name && a.client_name && a.client_name.toLowerCase() === name.toLowerCase()) return true;
-      return false;
-    });
-    if (!leadAppts.length) {
-      container.innerHTML = '<div style="text-align:center;padding:12px;color:#9ca3af;font-size:12px">No appointments scheduled</div>';
-      return;
-    }
-    container.innerHTML = leadAppts.map(function(a) {
-      var statusColor = a.status === 'confirmed' ? '#0e9f6e' : a.status === 'cancelled' ? '#e02424' : '#d97706';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:6px">'
-        + '<div><span style="font-weight:600;font-size:13px">📅 ' + (a.appointment_date || '') + '</span>'
-        + '<span style="color:#6b7280;margin-left:8px">🕐 ' + (a.appointment_time || '') + '</span></div>'
-        + '<span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">' + (a.status || 'pending') + '</span>'
-        + '</div>';
-    }).join('');
-  } catch(e) {
-    container.innerHTML = '<div style="color:#e02424;font-size:12px">Could not load appointments</div>';
-  }
-}
-
-function bookApptFromProfile(email, name) {
-  document.getElementById('leadProfileModal').remove();
-  openBookTourModal(email, name);
-}
-function bookTourByIndex(idx) {
-  var l = window._renderedLeads && window._renderedLeads[idx];
-  if (!l) { alert('Lead not found'); return; }
-  openBookTourModal(l.email, l.name);
-}
-
-function openBookTourModal(email, name) {
-  var safeName = (name || '').replace(/'/g, '').replace(/"/g, '');
-  var safeEmail = (email || '').replace(/'/g, '').replace(/"/g, '');
-  var html = '<div id="bookTourModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
-    + '<div style="background:white;border-radius:12px;padding:0;width:94%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">'
-    // Header
-    + '<div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">'
-    + '<h2 style="margin:0;font-size:17px;font-weight:700;color:#1a1a2e">📅 Book Apartment Tour</h2>'
-    + '<button onclick="document.getElementById(\'bookTourModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button>'
-    + '</div>'
-    // Body
-    + '<div style="padding:20px 24px">'
-    + '<div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px">'
-    + '<div style="font-weight:700;font-size:14px">' + (name || 'Lead') + '</div>'
-    + '<div style="font-size:12px;color:#6b7280">' + (email || 'No email') + '</div></div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
-    + '<div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Tour Date</label>'
-    + '<input type="date" id="book-tour-date" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
-    + '<div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Tour Time</label>'
-    + '<input type="time" id="book-tour-time" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div></div>'
-    + '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">Notes (optional)</label>'
-    + '<input type="text" id="book-tour-notes" placeholder="e.g. 1BR unit, bring ID..." style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'
-    + '<div style="margin-bottom:16px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151">'
-    + '<input type="checkbox" id="book-tour-send-email" checked> Send confirmation email to lead</label></div>'
-    + '<div id="book-tour-status" style="font-size:12px;margin-bottom:8px"></div>'
-    + '</div>'
-    // Footer
-    + '<div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px">'
-    + '<button onclick="document.getElementById(\'bookTourModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
-    + '<button id="book-tour-btn" onclick="submitBookTour(\'' + safeEmail + '\',\'' + safeName + '\')" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">📅 Book Tour</button>'
-    + '</div></div></div>';
-  var ex = document.getElementById('bookTourModal');
-  if (ex) ex.remove();
-  document.body.insertAdjacentHTML('beforeend', html);
-}
-
-async function submitBookTour(email, name) {
-  var dateEl = document.getElementById('book-tour-date');
-  var timeEl = document.getElementById('book-tour-time');
-  var notesEl = document.getElementById('book-tour-notes');
-  var sendEmail = document.getElementById('book-tour-send-email');
-  var btn = document.getElementById('book-tour-btn');
-  var status = document.getElementById('book-tour-status');
-
-  if (!dateEl.value) { alert('Please select a date'); return; }
-  if (!timeEl.value) { alert('Please select a time'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Booking...';
-  status.textContent = '';
-
-  var niceDate = formatDateNice(dateEl.value);
-  var niceTime = formatTimeNice(timeEl.value);
-
-  try {
-    // Create appointment
-    await EPAppointments.create({
-      client_name: name || 'Lead',
-      client_email: email,
-      appointment_date: dateEl.value,
-      appointment_time: niceTime,
-      type: 'tour',
-      status: 'confirmed',
-      notes: notesEl.value || ''
-    });
-
-    // Optionally send email
-    if (sendEmail && sendEmail.checked && email) {
-      var firstName = (name || '').split(' ')[0] || 'there';
-      var body = emailTemplates.tour_confirmation.body(firstName, { tourDay: niceDate, tourTime: niceTime });
-      await fetch('/.netlify/functions/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          subject: 'Your Apartment Tour is Confirmed!',
-          body: body
-        })
-      });
-      status.innerHTML = '<span style="color:#0e9f6e">✅ Tour booked & email sent!</span>';
-    } else {
-      status.innerHTML = '<span style="color:#0e9f6e">✅ Tour booked!</span>';
-    }
-
-    btn.textContent = 'Booked! ✅';
-    setTimeout(function() {
-      var modal = document.getElementById('bookTourModal');
-      if (modal) modal.remove();
-    }, 1500);
-  } catch(e) {
-    status.innerHTML = '<span style="color:#e02424">❌ Error: ' + (e.message || 'Could not book') + '</span>';
-    btn.disabled = false;
-    btn.textContent = '📅 Book Tour';
-  }
-}
-async function loadListings() {
-  const { data: listings } = await EPListings.getMyListings();
-  const c = document.getElementById('all-listings');
-  if (!listings || !listings.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div><p>No listings yet.</p><a href="/list-property.html" class="btn btn-primary" style="margin-top:12px">Add Your First Listing</a></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Property</th><th>Price</th><th>Type</th><th>Status</th><th>Views</th><th>Date</th></tr></thead>
-    <tbody>${listings.map(l => `<tr><td><strong>${l.title}</strong><br><span style="font-size:12px;color:#6b7280">${l.address||''} ${l.city||''}</span></td><td>$${Number(l.price).toLocaleString()}${l.type==='rent'?'/mo':''}</td><td>${l.type}</td><td><span class="badge badge-${l.status}">${l.status}</span></td><td>${l.views_count||0}</td><td>${new Date(l.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
-}
-// Calendar state
-var calYear = new Date().getFullYear();
-var calMonth = new Date().getMonth();
-var calAppts = [];
-
-function changeMonth(dir) {
-  calMonth += dir;
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  renderCalendar();
-}
-
-function renderCalendar() {
-  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var title = document.getElementById('cal-month-title');
-  if (title) title.textContent = months[calMonth] + ' ' + calYear;
-  var grid = document.getElementById('cal-grid');
-  if (!grid) return;
-  var firstDay = new Date(calYear, calMonth, 1).getDay();
-  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  var today = new Date();
-  var html = '';
-  // Empty cells before first day
-  for (var i = 0; i < firstDay; i++) { html += '<div style="padding:6px;text-align:center"></div>'; }
-  for (var d = 1; d <= daysInMonth; d++) {
-    var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    var dayAppts = calAppts.filter(function(a) { return a.appointment_date === dateStr; });
-    var isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
-    var bg = isToday ? '#1a56db' : dayAppts.length ? '#d1fae5' : 'transparent';
-    var color = isToday ? 'white' : dayAppts.length ? '#065f46' : '#374151';
-    var cursor = dayAppts.length ? 'pointer' : 'default';
-    html += '<div onclick="filterApptsByDate(\'' + dateStr + '\')" style="padding:6px;text-align:center;border-radius:8px;background:' + bg + ';color:' + color + ';font-size:13px;font-weight:' + (dayAppts.length || isToday ? '700' : '400') + ';cursor:' + cursor + ';position:relative">' + d;
-    if (dayAppts.length) { html += '<div style="width:5px;height:5px;border-radius:50%;background:#0e9f6e;margin:2px auto 0"></div>'; }
-    html += '</div>';
-  }
-  grid.innerHTML = html;
-}
-
-function filterApptsByDate(dateStr) {
-  var filtered = calAppts.filter(function(a) { return a.appointment_date === dateStr; });
-  var titleEl = document.getElementById('appts-list-title');
-  if (titleEl) titleEl.textContent = 'Appointments on ' + formatDateNice(dateStr);
-  renderApptsList(filtered);
-}
-
-function renderApptsList(appts) {
-  var c = document.getElementById('all-appointments');
-  if (!appts || !appts.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No appointments for this date.</p></div>'; return; }
-  c.innerHTML = '<table><thead><tr><th>Client</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>'
-    + '<tbody>' + appts.map(function(a) {
-      var statusBadge = '<span class="badge badge-' + (a.status||'pending') + '">' + (a.status||'pending') + '</span>';
-      var actions = a.status === 'pending' 
-        ? '<button class="btn btn-sm btn-primary" onclick="updateAppt(' + a.id + ',\'confirmed\')">Confirm</button> <button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>'
-        : a.status === 'confirmed' ? '<button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>' : '—';
-      return '<tr><td><strong>' + (a.client_name||'—') + '</strong><br><span style="font-size:12px;color:#6b7280">' + (a.client_email||'') + '</span></td>'
-        + '<td>' + (a.appointment_date||'') + '</td><td>' + (a.appointment_time||'') + '</td>'
-        + '<td>' + (a.type||'tour') + '</td><td>' + statusBadge + '</td><td>' + actions + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-async function loadAppointments() {
-  var { data: appts } = await EPAppointments.getMyAppointments();
-  calAppts = appts || [];
-  renderCalendar();
-  var titleEl = document.getElementById('appts-list-title');
-  if (titleEl) titleEl.textContent = 'All Appointments (' + calAppts.length + ')';
-  renderApptsList(calAppts);
-}
-async function updateAppt(id, status) { await EPAppointments.updateStatus(id, status); loadAppointments(); }
-async function loadCampaigns() {
-  const { data: campaigns } = await EPCampaigns.getMyCampaigns();
-  const c = document.getElementById('all-campaigns');
-  if (!campaigns || !campaigns.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📣</div><p>No campaigns yet.</p><button class="btn btn-primary" onclick="showCreateCampaign()" style="margin-top:12px">Create Your First Campaign</button></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Campaign</th><th>Type</th><th>Property</th><th>Status</th><th>Date</th></tr></thead>
-    <tbody>${campaigns.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.type}</td><td>${c.listings?c.listings.title:'—'}</td><td><span class="badge badge-${c.status}">${c.status}</span></td><td>${new Date(c.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
-}
-function showCreateCampaign() { alert('Campaign builder coming soon!'); }
-async function loadOverview() {
-  const { data: leads } = await EPLeads.getLeads();
-  const { data: listings } = await EPListings.getMyListings();
-  const { data: appts } = await EPAppointments.getMyAppointments();
-  const { data: campaigns } = await EPCampaigns.getMyCampaigns();
-  document.getElementById('stat-leads').textContent = leads?.length || 0;
-  document.getElementById('stat-listings').textContent = listings?.length || 0;
-  document.getElementById('stat-appointments').textContent = appts?.length || 0;
-  document.getElementById('stat-campaigns').textContent = campaigns?.length || 0;
-  const rl = document.getElementById('recent-leads');
-  if (leads && leads.length) { rl.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th></tr></thead><tbody>${leads.slice(0,5).map(l=>`<tr><td>${l.name||'—'}</td><td>${l.email}</td><td>${l.source||'—'}</td><td><span class="badge badge-${l.status}">${l.status}</span></td></tr>`).join('')}</tbody></table>`; }
-  else { rl.innerHTML = '<div class="empty">No leads yet</div>'; }
-  const ra = document.getElementById('recent-appointments');
-  if (appts && appts.length) { ra.innerHTML = `<table><thead><tr><th>Client</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody>${appts.slice(0,5).map(a=>`<tr><td>${a.client_name}</td><td>${a.appointment_date}</td><td>${a.appointment_time}</td><td><span class="badge badge-${a.status}">${a.status}</span></td></tr>`).join('')}</tbody></table>`; }
-  else { ra.innerHTML = '<div class="empty">No appointments yet</div>'; }
-}
-document.addEventListener('DOMContentLoaded', async () => {
-  const user = await EPAuth.getUser();
-  if (!user) { window.location.href = '/login.html'; return; }
-  const profile = await EPAuth.getProfile();
-  const name = profile?.full_name || user.email.split('@')[0];
-  document.getElementById('user-name').textContent = name;
-  document.getElementById('user-role').textContent = profile?.role || 'user';
-  document.getElementById('welcome-name').textContent = name.split(' ')[0];
-  await loadOverview();
-  checkHash();
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('header-mount').innerHTML = EP.renderHeader('');
+  document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
+  refreshDashboard();
+  setInterval(refreshDashboard, 5000);
+  addDashMsg('assistant', 'Hi Carlos! I\'m Aria. I\'m monitoring your leads and ready to help. You have ' + (EP.leads.getForAgent(1).length) + ' leads so far.');
 });
-</script>
-<!-- ADD/EDIT LEAD handled by ep-lead-form.js -->
 
-<!-- EXCEL UPLOAD MODAL -->
-<div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-  <div style="background:white;border-radius:12px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="font-size:18px;font-weight:700">📤 Upload Leads</h2>
-      <button onclick="closeUploadModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
-    </div>
-    <div id="uploadDropZone" style="border:2px dashed #d1d5db;border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:16px"
-      ondragover="event.preventDefault();this.style.borderColor='#1a56db';this.style.background='#eff6ff'"
-      ondragleave="this.style.borderColor='#d1d5db';this.style.background='white'"
-      ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='white';handleUploadFile(event.dataTransfer.files[0])"
-      onclick="document.getElementById('uploadFileInput').click()">
-      <div style="font-size:36px;margin-bottom:8px">📁</div>
-      <div style="font-size:14px;font-weight:600;color:#374151">Drag & drop Excel or CSV file here</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:4px">or click to browse — .xlsx, .xls, .csv</div>
-    </div>
-    <input type="file" id="uploadFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleUploadFile(this.files[0])">
-    <div id="uploadPreview" style="display:none;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="uploadFileName"></div>
-      <div style="max-height:200px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px" id="uploadPreviewTable"></div>
-      <div style="font-size:12px;color:#6b7280;margin-top:8px" id="uploadSummary"></div>
-    </div>
-    <div id="uploadProgress" style="display:none;margin-bottom:16px">
-      <div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div id="uploadBar" style="height:100%;background:#1a56db;border-radius:3px;width:0%;transition:width .3s"></div></div>
-      <div style="font-size:12px;color:#6b7280;margin-top:6px" id="uploadStatus">Uploading...</div>
-    </div>
-    <div id="uploadResult" style="display:none;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px"></div>
-    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <a href="/.netlify/functions/fub-leads" target="_blank" style="font-size:12px;color:#1a56db;text-decoration:none">📥 Download template</a>
-      <div style="display:flex;gap:8px">
-        <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151"><input type="checkbox" id="uploadPushFUB" checked> Also push to FUB</label>
-        <button class="btn btn-primary" id="uploadBtn" onclick="submitUpload()" disabled>Upload Leads</button>
+function refreshDashboard() {
+  const allLeads = EP.leads.getAll();
+  const myLeads = allLeads.filter(l => l.agentId === 1 || !l.vendorId);
+  const newLeads = myLeads.filter(l => l.status === 'new');
+  const appts = EP.appointments.getAll();
+
+  document.getElementById('ov-leads').textContent = myLeads.length;
+  document.getElementById('ov-new').textContent = newLeads.length;
+  document.getElementById('ov-appts').textContent = appts.length;
+  document.getElementById('lead-badge').textContent = newLeads.length;
+
+  // Recent leads overview
+  const rl = document.getElementById('recent-leads-list');
+  if (myLeads.length) {
+    rl.innerHTML = myLeads.slice(0,5).map(l => `<div class="lead-row">
+      <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+      <div class="lead-info"><div class="lead-name">${l.name||'Unknown'}</div><div class="lead-meta">${l.email||''} · ${l.source||''} · ${new Date(l.date).toLocaleDateString()}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="status-badge ${l.status==='new'?'status-new':l.status==='contacted'?'status-contacted':'status-closed'}">${l.status}</span>
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 10px" onclick="EP.leads.updateStatus(${l.id},'contacted');refreshDashboard()">Mark Contacted</button>
+      </div>
+    </div>`).join('');
+  }
+
+  // Leads tab
+  const ll = document.getElementById('leads-list');
+  ll.innerHTML = myLeads.length ? myLeads.map(l => `<div class="lead-row">
+    <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+    <div class="lead-info"><div class="lead-name">${l.name||'Unknown'}</div><div class="lead-meta">${l.email||''} · ${l.phone||''} · ${l.source||''}</div><div style="font-size:12px;color:#374151;margin-top:2px">${l.message||''}</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+      <span class="status-badge ${l.status==='new'?'status-new':'status-contacted'}">${l.status}</span>
+      <div style="display:flex;gap:4px">
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 8px" onclick="EP.leads.updateStatus(${l.id},'contacted');refreshDashboard()">Contacted</button>
+        <button class="ep-btn ep-btn-outline" style="font-size:11px;padding:4px 8px" onclick="EP.ai.simulatePhoneCall()">📞</button>
       </div>
     </div>
-  </div>
-</div>
+  </div>`).join('') : '<p style="color:#6b7280;padding:20px">No leads yet.</p>';
 
-<script>
-// ============================================
-// LEAD FORM MODULE — Dynamic Add/Edit Lead
-// ============================================
-const LeadForm=(function(){const LEAD_TYPES=['Renter','Buyer','Seller','Commercial','Investor','Vendor'];
-const RENTER_BUDGETS=['Under $2,000','$2,000-$2,400','$2,400-$2,700','$2,700-$3,000','$3,000-$3,500','$3,500+'];
-const RENTER_SIZES=['Studio','1 Bedroom','1BR Flex / Convertible','2 Bedroom','2BR Duplex','3 Bedroom','3BR Duplex','4+ Bedroom'];
-const BUYER_PROPERTY_TYPES=['House','Condo','Townhouse','Multi-Family','Co-op','New Construction','Land','Other'];
-const BUYER_PRICE_POINTS=['Under $100K','$100K-$200K','$200K-$300K','$300K-$400K','$400K-$500K','$500K-$750K','$750K-$1M','$1M-$2M','$2M+'];
-const COMMERCIAL_TYPES=['Office','Retail','Industrial','Mixed-Use','Warehouse','Restaurant/Bar','Medical','Other'];
-const COMMERCIAL_BUDGETS=['Under $2,000/mo','$2,000-$3,500/mo','$3,500-$5,000/mo','$5,000-$7,500/mo','$7,500-$10,000/mo','$10,000+/mo','Under $500K Purchase','$500K-$1M','$1M-$2M','$2M+'];
-const COMMERCIAL_LEASE_TERMS=['Month-to-Month','1 Year','2 Years','3 Years','5 Years','10 Years','Flexible'];
-const COMMERCIAL_BIZ_TYPES=['Restaurant','Retail Store','Office/Professional','Medical/Dental','Salon/Barbershop','Gym/Fitness','Daycare','Auto Shop','Tech/Startup','Non-Profit','Other'];
-const INVESTOR_TYPES=['Multi-Family','Fix & Flip','Buy & Hold','Commercial','New Development','Mixed-Use','Land','Other'];
-const TIMEFRAMES=['ASAP','1 Month','2 Months','3 Months','4-6 Months','6-12 Months','12+ Months','Just Browsing'];
-const INCOMES=['Under $4,000','$4,000-$6,000','$6,000-$8,000','$8,000-$10,000','$10,000+'];
-const CREDITS=['750+','700-749','650-699','600-649','Below 600','No Credit'];
-const SOURCES=['Website','Zillow','Apartments.com','Realtor.com','Referral','Walk-in','Follow Up Boss','Social Media','Google','Other'];
-const VENDOR_SERVICES=['Plumbing','HVAC','Electrical','General Contractor','Cleaning','Landscaping','Pest Control','Locksmith','Painting','Roofing','Moving','Photography','Staging','Inspection','Appraisal','Title & Settlement','Mortgage','Insurance','Real Estate Attorney','Property Management','Other'];
-const PREAPPROVED=['Yes','No','In Process'];
-function opt(v,s){return '<option value="'+v+'" '+(s===v?'selected':'')+'>'+v+'</option>';}
-function sel(id,lbl,opts,s){return '<div><label class="lf-label">'+lbl+'</label><select id="'+id+'" class="lf-input" onchange="LeadForm.handleOther(this)">'+opts.map(function(o){return opt(o,s);}).join('')+'</select><input type="text" id="'+id+'-other" class="lf-input" placeholder="Please specify..." style="display:none;margin-top:6px"></div>';}
-function selE(id,lbl,opts,s){return '<div><label class="lf-label">'+lbl+'</label><select id="'+id+'" class="lf-input" onchange="LeadForm.handleOther(this)"><option value="">Select...</option>'+opts.map(function(o){return opt(o,s);}).join('')+'</select><input type="text" id="'+id+'-other" class="lf-input" placeholder="Please specify..." style="display:none;margin-top:6px"></div>';}
-function inp(id,lbl,t,ph,v){return '<div><label class="lf-label">'+lbl+'</label><input type="'+t+'" id="'+id+'" class="lf-input" placeholder="'+ph+'" value="'+(v||'')+'"></div>';}
-function ta(id,lbl,ph,v){return '<div style="grid-column:1/-1"><label class="lf-label">'+lbl+'</label><textarea id="'+id+'" class="lf-input" rows="2" placeholder="'+ph+'" style="resize:vertical">'+(v||'')+'</textarea></div>';}
-function dynFields(type,d){d=d||{};switch(type){
-case 'Renter':return '<div class="lf-grid2">'+selE('lf-budget','Budget *',RENTER_BUDGETS,d.budget)+selE('lf-aptSize','Apartment Size',RENTER_SIZES,d.aptSize)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Move-in Timeline',TIMEFRAMES,d.timeframe)+selE('lf-income','Monthly Income',INCOMES,d.income)+'</div><div class="lf-grid2">'+selE('lf-credit','Credit Score',CREDITS,d.credit)+inp('lf-zip','Preferred Zip / Location','text','07102, Downtown Newark...',d.zip)+'</div>';
-case 'Buyer':return '<div class="lf-grid2">'+selE('lf-propType','Property Type *',BUYER_PROPERTY_TYPES,d.propType)+selE('lf-priceRange','Price Range *',BUYER_PRICE_POINTS,d.priceRange)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+inp('lf-beds','Bedrooms','text','3+',d.beds)+'</div><div class="lf-grid2">'+selE('lf-income','Income',INCOMES,d.income)+selE('lf-credit','Credit Score',CREDITS,d.credit)+'</div><div class="lf-grid2">'+inp('lf-zip','Preferred Zip / Location','text','07102, South Ward...',d.zip)+selE('lf-preapproved','Pre-Approved?',PREAPPROVED,d.preapproved)+'</div>';
-case 'Seller':return '<div class="lf-grid2">'+selE('lf-propType','Property Type',BUYER_PROPERTY_TYPES,d.propType)+inp('lf-address','Property Address','text','123 Main St, Newark NJ',d.address)+'</div><div class="lf-grid2">'+selE('lf-priceRange','Asking Price Range',BUYER_PRICE_POINTS,d.priceRange)+selE('lf-timeframe','Selling Timeline',TIMEFRAMES,d.timeframe)+'</div><div class="lf-grid2">'+inp('lf-zip','Property Zip','text','07102',d.zip)+inp('lf-beds','Beds / Baths','text','3BR / 2BA',d.beds)+'</div>';
-case 'Commercial':return '<div class="lf-grid2">'+selE('lf-commType','Space Type *',COMMERCIAL_TYPES,d.commType)+selE('lf-bizType','Type of Business *',COMMERCIAL_BIZ_TYPES,d.bizType)+'</div><div class="lf-grid2">'+selE('lf-budget','Budget *',COMMERCIAL_BUDGETS,d.budget)+inp('lf-sqft','Square Footage','text','1,000-5,000 sq ft',d.sqft)+'</div><div class="lf-grid2">'+selE('lf-leaseTerm','Lease Term',COMMERCIAL_LEASE_TERMS,d.leaseTerm)+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+'</div><div class="lf-grid2">'+inp('lf-zip','Preferred Zip / Location','text','07102, Downtown...',d.zip)+inp('lf-criteria','Search Criteria','text','Parking, loading dock...',d.criteria)+'</div>';
-case 'Investor':return '<div class="lf-grid2">'+selE('lf-invType','Investment Type *',INVESTOR_TYPES,d.invType)+selE('lf-priceRange','Investment Budget',BUYER_PRICE_POINTS,d.priceRange)+'</div><div class="lf-grid2">'+selE('lf-timeframe','Timeframe',TIMEFRAMES,d.timeframe)+inp('lf-zip','Target Zip / Location','text','07102, Newark...',d.zip)+'</div><div class="lf-grid2">'+inp('lf-units','Min Units / Size','text','4+ units, 10,000 sq ft...',d.units)+inp('lf-criteria','Search Criteria','text','Cap rate 8%+, value-add...',d.criteria)+'</div>';
-case 'Vendor':return '<div class="lf-grid2">'+inp('lf-business','Business Name','text','ABC Plumbing',d.business)+selE('lf-service','Service Type *',VENDOR_SERVICES,d.service)+'</div><div class="lf-grid2">'+inp('lf-zip','Service Area / Zip','text','07102, Essex County...',d.zip)+inp('lf-license','License #','text','Optional',d.license)+'</div>';
-default:return '';}}
-function parseMsg(m){if(!m)return {};var d={};var match=m.match(/---\s*(.+)/);if(match){match[1].split(' | ').forEach(function(p){var parts=p.split(': ');if(parts.length>=2){var k=parts[0].trim().toLowerCase(),v=parts.slice(1).join(': ').trim();if(k==='type')d.leadType=v;else if(k==='budget')d.budget=v;else if(k==='size')d.aptSize=v;else if(k==='timeline')d.timeframe=v;else if(k==='income')d.income=v;else if(k==='credit')d.credit=v;else if(k==='location')d.zip=v;else if(k==='property type')d.propType=v;else if(k==='price')d.priceRange=v;else if(k==='beds')d.beds=v;else if(k==='commercial type'||k==='space type')d.commType=v;else if(k==='business type')d.bizType=v;else if(k==='lease term')d.leaseTerm=v;else if(k==='investment type')d.invType=v;else if(k==='criteria')d.criteria=v;else if(k==='sqft')d.sqft=v;else if(k==='pre-approved')d.preapproved=v;else if(k==='address')d.address=v;else if(k==='business')d.business=v;else if(k==='service')d.service=v;else if(k==='license')d.license=v;else if(k==='units')d.units=v;}});}d.notes=m.split('---')[0].trim();return d;}
-function getVal(id){var el=document.getElementById(id);if(!el)return '';var v=el.value;if(v==='Other'){var oth=document.getElementById(id+'-other');return oth&&oth.value?oth.value:v;}return v;}
-function buildMsg(type,notes){var f=[];if(type)f.push('Type: '+type);var tryA=function(id,lbl){var v=getVal(id);if(v&&v!=='Select...')f.push(lbl+': '+v);};tryA('lf-budget','Budget');tryA('lf-aptSize','Size');tryA('lf-timeframe','Timeline');tryA('lf-income','Income');tryA('lf-credit','Credit');tryA('lf-zip','Location');tryA('lf-propType','Property Type');tryA('lf-priceRange','Price');tryA('lf-beds','Beds');tryA('lf-preapproved','Pre-Approved');tryA('lf-address','Address');tryA('lf-commType','Space Type');tryA('lf-bizType','Business Type');tryA('lf-leaseTerm','Lease Term');tryA('lf-invType','Investment Type');tryA('lf-sqft','SqFt');tryA('lf-criteria','Criteria');tryA('lf-units','Units');tryA('lf-business','Business');tryA('lf-service','Service');tryA('lf-license','License');return [notes,f.length?'--- '+f.join(' | '):''].filter(Boolean).join('\n');}
-function renderModal(lead){var isEdit=!!lead;var title=isEdit?'Edit Lead':'Add New Lead';var btnText=isEdit?'Save Changes':'Add Lead';var parsed=isEdit?parseMsg(lead.message):{};var currentType=parsed.leadType||'Renter';
-var typeButtons='';LEAD_TYPES.forEach(function(t){typeButtons+='<button class="lf-type-btn '+(t===currentType?'active':'')+'" onclick="LeadForm.switchType(\''+t+'\')">'+t+'</button>';});
-var html='<div id="leadFormModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)"><div style="background:white;border-radius:12px;padding:28px;width:92%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)"><style>.lf-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}.lf-input{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box}.lf-input:focus{outline:none;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.1)}.lf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.lf-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}.lf-type-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:white;color:#374151;cursor:pointer;transition:.2s}.lf-type-btn:hover{border-color:#1a56db;color:#1a56db}.lf-type-btn.active{background:#1a56db;color:white;border-color:#1a56db}</style>';
-html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:18px;font-weight:700;margin:0">'+(isEdit?'&#9998; ':' &#10133; ')+title+'</h2><button onclick="LeadForm.close()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&#10005;</button></div>';
-html+='<div style="margin-bottom:14px"><label class="lf-label">Lead Type</label><div class="lf-types" id="lf-types">'+typeButtons+'</div></div>';
-html+='<div class="lf-grid2">'+inp('lf-fname','First Name *','text','John',isEdit?(lead.name||'').split(' ')[0]:'')+inp('lf-lname','Last Name *','text','Smith',isEdit?(lead.name||'').split(' ').slice(1).join(' '):'')+'</div>';
-html+='<div class="lf-grid2">'+inp('lf-email','Email *','email','john@email.com',isEdit?lead.email:'')+inp('lf-phone','Phone','tel','(555) 123-4567',isEdit?lead.phone:'')+'</div>';
-html+='<div class="lf-grid2">'+sel('lf-source','Source',SOURCES,isEdit?lead.source:'Website')+'</div>';
-html+='<div id="lf-dynamic">'+dynFields(currentType,parsed)+'</div>';
-html+=ta('lf-notes','Notes','Any notes about this lead...',parsed.notes||'');
-if(isEdit)html+='<input type="hidden" id="lf-edit-id" value="'+lead.id+'">';
-html+='<input type="hidden" id="lf-lead-type" value="'+currentType+'">';
-html+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;align-items:center"><button onclick="LeadForm.close()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button><label style="font-size:12px;display:flex;align-items:center;gap:4px;color:#374151;margin-right:8px"><input type="checkbox" id="lf-pushFUB" checked> Push to FUB</label><button id="lf-submit-btn" onclick="LeadForm.submit()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">'+btnText+'</button></div>';
-html+='</div></div>';return html;}
-return {
-open:function(lead){var ex=document.getElementById('leadFormModal');if(ex)ex.remove();document.body.insertAdjacentHTML('beforeend',renderModal(lead));},
-close:function(){var m=document.getElementById('leadFormModal');if(m)m.remove();},
-switchType:function(type){document.getElementById('lf-lead-type').value=type;document.querySelectorAll('.lf-type-btn').forEach(function(b){b.classList.toggle('active',b.textContent===type);});document.getElementById('lf-dynamic').innerHTML=dynFields(type,{});},
-handleOther:function(el){var othEl=document.getElementById(el.id+'-other');if(othEl){othEl.style.display=el.value==='Other'?'block':'none';if(el.value!=='Other')othEl.value='';}},
-submit:async function(){var fname=document.getElementById('lf-fname').value.trim();var lname=document.getElementById('lf-lname').value.trim();var email=document.getElementById('lf-email').value.trim();var phone=document.getElementById('lf-phone').value.trim();var source=getVal('lf-source');var leadType=document.getElementById('lf-lead-type').value;var notes=document.getElementById('lf-notes').value.trim();var pushToFUB=document.getElementById('lf-pushFUB').checked;if(!fname||!lname){alert('First name and last name are required');return;}if(!email){alert('Email is required');return;}var name=fname+' '+lname;var message=buildMsg(leadType,notes);var editId=document.getElementById('lf-edit-id');var isEdit=!!editId;var btn=document.getElementById('lf-submit-btn');btn.disabled=true;btn.textContent=isEdit?'Saving...':'Adding...';try{var res=await fetch('/.netlify/functions/upload-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:[{name:name,email:email,phone:phone,source:source,message:message,role:'user'}],pushToFUB:pushToFUB})});var data=await res.json();if(data.success){LeadForm.close();LeadForm._refresh();alert(isEdit?'Lead updated!':'Lead added!'+(data.fubPushed?' Pushed to FUB.':''));}else{alert('Error: '+(data.error||'Unknown'));}}catch(err){alert('Error: '+err.message);}btn.disabled=false;btn.textContent=isEdit?'Save Changes':'Add Lead';},
-_refresh:function(){if(typeof loadOverview==='function')loadOverview();if(typeof loadLeads==='function')loadLeads();if(typeof renderLeads==='function')renderLeads();if(typeof renderHotLeads==='function')renderHotLeads();if(typeof syncFUBLeads==='function')syncFUBLeads();}
-};})();
-function openAddLeadModal(){LeadForm.open();}
-function closeAddLeadModal(){LeadForm.close();}
-function editLead(j){LeadForm.open(JSON.parse(decodeURIComponent(j)));}
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-
-// === EXCEL UPLOAD ===
-let uploadedLeads = [];
-
-function openUploadModal() {
-  document.getElementById('uploadModal').style.display = 'flex';
-  resetUploadModal();
-}
-function closeUploadModal() {
-  document.getElementById('uploadModal').style.display = 'none';
-}
-function resetUploadModal() {
-  uploadedLeads = [];
-  document.getElementById('uploadPreview').style.display = 'none';
-  document.getElementById('uploadProgress').style.display = 'none';
-  document.getElementById('uploadResult').style.display = 'none';
-  document.getElementById('uploadBtn').disabled = true;
-  document.getElementById('uploadDropZone').style.display = 'block';
-  document.getElementById('uploadFileInput').value = '';
+  // Appointments
+  const ua = document.getElementById('upcoming-appts');
+  const al = document.getElementById('appt-list');
+  const apptHtml = appts.length ? appts.map(a => `<div class="appt-row">
+    <div><div style="font-weight:600">${a.name}</div><div style="font-size:12px;color:#6b7280">${a.type}</div></div>
+    <div style="text-align:right"><div style="font-weight:600">${a.date}</div><div style="font-size:12px;color:#6b7280">${a.time}</div></div>
+    <span class="status-badge status-new">${a.status}</span>
+  </div>`).join('') : '<p style="color:#6b7280">No appointments.</p>';
+  if (ua) ua.innerHTML = apptHtml;
+  if (al) al.innerHTML = apptHtml;
 }
 
-function handleUploadFile(file) {
-  if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (!['xlsx', 'xls', 'csv'].includes(ext)) {
-    alert('Please upload an Excel (.xlsx/.xls) or CSV file');
-    return;
-  }
-  document.getElementById('uploadFileName').textContent = '📄 ' + file.name;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      let data;
-      if (ext === 'csv') {
-        const text = e.target.result;
-        const rows = text.split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
-        const headers = rows[0];
-        data = rows.slice(1).filter(r => r.some(c => c)).map(r => {
-          const obj = {};
-          headers.forEach((h, i) => { obj[h] = r[i] || ''; });
-          return obj;
-        });
-      } else {
-        const wb = XLSX.read(e.target.result, { type: 'binary' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        data = XLSX.utils.sheet_to_json(ws);
-      }
-      uploadedLeads = data;
-      showUploadPreview(data, file.name);
-    } catch (err) {
-      alert('Error reading file: ' + err.message);
-    }
-  };
-  if (ext === 'csv') reader.readAsText(file);
-  else reader.readAsBinaryString(file);
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 
-function showUploadPreview(data, fileName) {
-  if (!data.length) { alert('No data found in file'); return; }
-  const keys = Object.keys(data[0]);
-  const preview = data.slice(0, 5);
-  let html = '<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr>';
-  keys.forEach(k => { html += '<th style="padding:6px 8px;background:#f9fafb;text-align:left;font-size:11px;color:#6b7280">' + k + '</th>'; });
-  html += '</tr></thead><tbody>';
-  preview.forEach(row => {
-    html += '<tr>';
-    keys.forEach(k => { html += '<td style="padding:5px 8px;border-top:1px solid #f3f4f6;font-size:12px">' + (row[k] || '') + '</td>'; });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('uploadPreviewTable').innerHTML = html;
-  document.getElementById('uploadSummary').textContent = data.length + ' leads found' + (data.length > 5 ? ' (showing first 5)' : '');
-  document.getElementById('uploadPreview').style.display = 'block';
-  document.getElementById('uploadDropZone').style.display = 'none';
-  document.getElementById('uploadBtn').disabled = false;
+function filterLeads(status) {
+  const all = EP.leads.getAll().filter(l => l.agentId === 1 || !l.vendorId);
+  const filtered = status === 'all' ? all : all.filter(l => l.status === status);
+  document.getElementById('leads-list').innerHTML = filtered.length ? filtered.map(l => `<div class="lead-row">
+    <div class="lead-av">${(l.name||'?').charAt(0).toUpperCase()}</div>
+    <div class="lead-info"><div class="lead-name">${l.name}</div><div class="lead-meta">${l.email} · ${l.source}</div></div>
+    <span class="status-badge status-${l.status}">${l.status}</span>
+  </div>`).join('') : `<p style="color:#6b7280;padding:20px">No ${status} leads.</p>`;
 }
 
-async function submitUpload() {
-  if (!uploadedLeads.length) return;
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
-  document.getElementById('uploadProgress').style.display = 'block';
-  document.getElementById('uploadBar').style.width = '30%';
-  document.getElementById('uploadStatus').textContent = 'Sending ' + uploadedLeads.length + ' leads...';
+function addDashMsg(role, msg) {
+  const c = document.getElementById('ai-dash-msgs');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = `ai-msg-d ${role}`;
+  d.innerHTML = msg.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
 
-  const pushToFUB = document.getElementById('uploadPushFUB').checked;
+async function sendDashAI() {
+  const inp = document.getElementById('ai-dash-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addDashMsg('user', msg);
+  const reply = await EP.ai.respond(msg);
+  addDashMsg('assistant', reply);
+}
 
-  try {
-    document.getElementById('uploadBar').style.width = '60%';
-    const res = await fetch('/.netlify/functions/upload-leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: uploadedLeads, pushToFUB })
-    });
-    const data = await res.json();
-    document.getElementById('uploadBar').style.width = '100%';
-
-    const resultEl = document.getElementById('uploadResult');
-    if (data.success) {
-      resultEl.style.background = '#d1fae5';
-      resultEl.style.color = '#065f46';
-      resultEl.innerHTML = '✅ <strong>Upload complete!</strong><br>Created: ' + data.created + ' | Updated: ' + data.updated + ' | Skipped: ' + data.skipped + (data.fubPushed ? ' | Pushed to FUB: ' + data.fubPushed : '') + (data.errors ? ' | Errors: ' + data.errors : '');
-    } else {
-      resultEl.style.background = '#fee2e2';
-      resultEl.style.color = '#991b1b';
-      resultEl.innerHTML = '❌ Upload failed: ' + (data.error || 'Unknown error');
-    }
-    resultEl.style.display = 'block';
-    document.getElementById('uploadStatus').textContent = 'Done!';
-
-    // Refresh leads table
-    if (typeof loadOverview === 'function') loadOverview();
-    if (typeof loadLeads === 'function') loadLeads();
-  } catch (err) {
-    document.getElementById('uploadResult').style.display = 'block';
-    document.getElementById('uploadResult').style.background = '#fee2e2';
-    document.getElementById('uploadResult').style.color = '#991b1b';
-    document.getElementById('uploadResult').innerHTML = '❌ Error: ' + err.message;
-  }
-  btn.textContent = 'Upload Leads';
-  btn.disabled = false;
+function dashAI(msg) {
+  document.getElementById('ai-dash-input').value = msg;
+  sendDashAI();
 }
 </script>
 </body>
