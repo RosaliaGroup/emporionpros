@@ -46,11 +46,6 @@ exports.handler = async function(event, context) {
         number: formattedPhone,
         name: leadName
       },
-      // Wait for human to answer before Aria speaks
-      phoneCallProvider: "twilio",
-      transport: {
-        assistantVideoEnabled: false
-      },
       assistant: {
         name: "Aria",
         model: {
