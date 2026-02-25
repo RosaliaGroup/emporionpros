@@ -1,6 +1,5 @@
 // ============================================
 // EMPORIONPROS — FUB → Supabase Batch Sync
-// ?offset=0&limit=50 (default)
 // ?all=true to sync ALL leads in one call
 // ============================================
 exports.handler = async function(event) {
@@ -19,11 +18,10 @@ exports.handler = async function(event) {
   const syncAll = params.all === 'true';
   const limit = Math.min(parseInt(params.limit) || 50, 100);
   let offset = parseInt(params.offset) || 0;
-  const maxPages = syncAll ? 30 : 1; // Up to 3000 leads if syncing all
+  const maxPages = syncAll ? 30 : 1;
 
   let totalFetched = 0;
   let totalSynced = 0;
-  let totalSkipped = 0;
   let errors = [];
   let page = 0;
 
@@ -55,7 +53,7 @@ exports.handler = async function(event) {
 
       totalFetched += people.length;
 
-      // Map to Supabase format — include leads WITH or WITHOUT email
+      // Map to Supabase format
       const now = new Date().toISOString();
       const leads = people.map(p => {
         const email = (p.emails && p.emails[0]) ? p.emails[0].value.toLowerCase().trim() : null;
@@ -72,16 +70,16 @@ exports.handler = async function(event) {
       });
 
       if (leads.length > 0) {
-        // Upsert to Supabase — on conflict with email, update the record
+        // UPSERT to Supabase — on conflict with email, merge/update
         const supaRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/leads`,
+          `${SUPABASE_URL}/rest/v1/leads?on_conflict=email`,
           {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
               'apikey': SUPABASE_SERVICE_KEY,
               'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates,return=minimal'
+              'Prefer': 'resolution=merge-duplicates'
             },
             body: JSON.stringify(leads)
           }
@@ -95,7 +93,6 @@ exports.handler = async function(event) {
         }
       }
 
-      // If we got fewer than limit, we've reached the end
       if (people.length < limit) break;
 
       offset += limit;
@@ -108,7 +105,6 @@ exports.handler = async function(event) {
         success: errors.length === 0,
         totalFetched,
         totalSynced,
-        totalSkipped,
         errors: errors.length > 0 ? errors : undefined,
         syncedAt: new Date().toISOString()
       })
