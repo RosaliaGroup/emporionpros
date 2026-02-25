@@ -589,7 +589,7 @@ function scoreLeads() {
     }
     
     return { ...lead, score, priority, hoursSince, ageText };
-  }).sort((a, b) => a.priority - b.priority || b.hoursSince - a.hoursSince);
+  }).sort((a, b) => new Date(b.created) - new Date(a.created));
 }
 
 function isBusinessHours() {
