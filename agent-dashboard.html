@@ -5,6 +5,53 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="ep-supabase.js"></script>
+<script>
+// EPAppointments helper — hooks into Supabase client from ep-supabase.js
+(function() {
+  function getSb() {
+    // Try various ways ep-supabase.js might expose the client
+    if (typeof EPSupabase !== 'undefined') {
+      if (EPSupabase.client) return EPSupabase.client;
+      if (EPSupabase.sb) return EPSupabase.sb;
+      if (typeof EPSupabase === 'function') return EPSupabase();
+    }
+    if (typeof epSupabase !== 'undefined') return epSupabase;
+    if (typeof sb !== 'undefined') return sb;
+    if (typeof _supabase !== 'undefined') return _supabase;
+    // Last resort — check if EPLeads has a reference
+    if (typeof EPLeads !== 'undefined' && EPLeads._sb) return EPLeads._sb;
+    return null;
+  }
+  
+  // Delayed init — wait for ep-supabase.js to fully load
+  var _cachedSb = null;
+  function sb() {
+    if (_cachedSb) return _cachedSb;
+    _cachedSb = getSb();
+    return _cachedSb;
+  }
+  
+  if (typeof window.EPAppointments === 'undefined') {
+    window.EPAppointments = {
+      async getMyAppointments() {
+        var c = sb();
+        if (!c) { console.error('EPAppointments: No Supabase client found'); return { data: [], error: 'no client' }; }
+        return c.from('appointments').select('*').order('appointment_date', { ascending: true });
+      },
+      async create(appt) {
+        var c = sb();
+        if (!c) return { data: null, error: 'no client' };
+        return c.from('appointments').insert([appt]);
+      },
+      async updateStatus(id, status) {
+        var c = sb();
+        if (!c) return { data: null, error: 'no client' };
+        return c.from('appointments').update({ status: status }).eq('id', id);
+      }
+    };
+  }
+})();
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh}
@@ -493,6 +540,9 @@ function renderLeadsTable(leads) {
     if (l.email) {
       html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();emailLeadByIndex('+idx+')" title="Email '+safeEmail+'">📧</button>';
     }
+    if (hasPhone) {
+      html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();smsLeadByIndex('+idx+')" title="Text '+safePhone+'" style="color:#059669">💬</button>';
+    }
     html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();bookTourByIndex('+idx+')" title="Book Tour" style="background:#eff6ff;border-color:#bfdbfe;color:#1a56db">📅</button>';
     html += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editLeadByIndex('+idx+')">✏️</button>';
     html += '</div></td>';
@@ -521,6 +571,128 @@ function callLeadByIndex(idx) {
   if (!l) { alert('Lead not found'); return; }
   callLead(l.phone);
 }
+
+// ============================================
+// SMS TEXT MESSAGING
+// ============================================
+function smsLeadByIndex(idx) {
+  var l = window._renderedLeads && window._renderedLeads[idx];
+  if (!l) { alert('Lead not found'); return; }
+  if (!l.phone) { alert('No phone number for this lead'); return; }
+  openSmsCompose(l.phone, l.name || '', l.id);
+}
+function smsLead(phone, name) {
+  if (!phone) { alert('No phone number for this lead'); return; }
+  openSmsCompose(phone, name || '', null);
+}
+function openSmsCompose(phone, name, leadId) {
+  var existing = document.getElementById('smsComposeModal');
+  if (existing) existing.remove();
+  var safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  var safePhone = (phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  var html = '<div id="smsComposeModal" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(3px)">'
+    + '<div style="background:white;border-radius:14px;width:95%;max-width:520px;box-shadow:0 25px 50px rgba(0,0,0,.15);overflow:hidden;font-family:Inter,system-ui,sans-serif">'
+    + '<div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:#f8fafc">'
+    + '<div style="display:flex;align-items:center;gap:10px">'
+    + '<span style="font-size:20px">\uD83D\uDCAC</span>'
+    + '<div><div style="font-weight:700;color:#111;font-size:15px">Text Message</div>'
+    + '<div style="font-size:12px;color:#6b7280">Send SMS to ' + safeName + '</div></div></div>'
+    + '<button onclick="document.getElementById(\'smsComposeModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">&times;</button></div>'
+    + '<div style="padding:20px 22px">'
+    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">To</label>'
+    + '<input id="smsTo" type="text" value="' + safePhone + '" readonly style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;box-sizing:border-box"></div>'
+    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Quick Templates</label>'
+    + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    + '<button onclick="setSmsTemplate(\'tour\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8">\uD83C\uDFE0 Tour Invite</button>'
+    + '<button onclick="setSmsTemplate(\'followup\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #dcfce7;background:#f0fdf4;color:#16a34a">\uD83D\uDCCB Follow Up</button>'
+    + '<button onclick="setSmsTemplate(\'reminder\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #fef3c7;background:#fffbeb;color:#d97706">\u23F0 Reminder</button>'
+    + '<button onclick="setSmsTemplate(\'cosigner\')" style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #f3e8ff;background:#faf5ff;color:#7c3aed">\uD83E\uDD1D Cosigner</button>'
+    + '</div></div>'
+    + '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Message <span id="smsCharCount" style="font-weight:400;color:#9ca3af">(0/160)</span></label>'
+    + '<textarea id="smsBody" rows="6" placeholder="Type your message..." oninput="updateSmsCharCount()" style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;box-sizing:border-box"></textarea></div>'
+    + '</div>'
+    + '<div style="padding:14px 22px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f8fafc">'
+    + '<button onclick="document.getElementById(\'smsComposeModal\').remove()" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">Cancel</button>'
+    + '<button id="smsSendBtn" onclick="sendSmsFromModal()" style="padding:9px 24px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#059669;color:white;font-family:inherit;display:flex;align-items:center;gap:6px"><span>\uD83D\uDCAC</span> Send SMS</button>'
+    + '</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  window._smsContext = { phone: phone, name: name, leadId: leadId };
+  setTimeout(function() { document.getElementById('smsBody').focus(); }, 100);
+}
+function setSmsTemplate(type) {
+  var name = (window._smsContext && window._smsContext.name) || 'there';
+  var firstName = name.split(' ')[0] || 'there';
+  var body = '';
+  switch(type) {
+    case 'tour':
+      body = 'Hi ' + firstName + '! This is Ana from Iron Sixty-Five Apartments in Newark. I\'d love to schedule a tour for you \u2014 we have studios starting at $2,388 and some great move-in specials right now.\n\nWhen works best for you? Book here: https://calendly.com/ana-rosaliagroup/65-iron-tour\n\n\uD83D\uDCCD 65 McWhorter St, Newark, NJ 07105';
+      break;
+    case 'followup':
+      body = 'Hi ' + firstName + '! Just following up on our conversation about Iron Sixty-Five. Did you have any questions about the apartments?\n\nI\'m here to help! Reply anytime \uD83D\uDE0A';
+      break;
+    case 'reminder':
+      body = 'Hi ' + firstName + '! Quick reminder about your upcoming tour at Iron Sixty-Five.\n\n\uD83D\uDCCD 65 McWhorter St, Newark, NJ 07105\n\nPlease bring:\n\u2705 Valid photo ID\n\u2705 Proof of income\n\nSee you soon! \uD83C\uDFE0';
+      break;
+    case 'cosigner':
+      body = 'Hi ' + firstName + '! Great news \u2014 we work with TheGuarantors for free cosigner pre-approval. No credit impact!\n\nGet approved here:\nhttps://app.theguarantors.com/referral/sign-up/ad295b820fb11b34ee2f5cc96f1acf659032ce4fd9280a9fa1f380582aeda1a2\n\nLet me know if you have questions!';
+      break;
+  }
+  document.getElementById('smsBody').value = body;
+  updateSmsCharCount();
+}
+function updateSmsCharCount() {
+  var body = document.getElementById('smsBody');
+  var count = document.getElementById('smsCharCount');
+  if (body && count) {
+    var len = body.value.length;
+    var segments = Math.ceil(len / 160) || 1;
+    count.textContent = '(' + len + ' chars, ' + segments + ' segment' + (segments > 1 ? 's' : '') + ')';
+    count.style.color = len > 160 ? '#f59e0b' : '#9ca3af';
+  }
+}
+async function sendSmsFromModal() {
+  var phone = document.getElementById('smsTo').value.trim();
+  var message = document.getElementById('smsBody').value.trim();
+  var btn = document.getElementById('smsSendBtn');
+  if (!phone) { alert('Phone number is required'); return; }
+  if (!message) { alert('Message is required'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span>\u23F3</span> Sending...';
+  btn.style.opacity = '0.7';
+  try {
+    var resp = await fetch('/.netlify/functions/send-sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, message: message })
+    });
+    var result = await resp.json();
+    if (resp.ok && result.success) {
+      btn.innerHTML = '<span>\u2705</span> Sent!';
+      btn.style.background = '#16a34a';
+      if (window._smsContext && window._smsContext.leadId && typeof getSupabase === 'function') {
+        try {
+          var sb = getSupabase();
+          if (sb) {
+            var res = await sb.from('leads').select('message').eq('id', window._smsContext.leadId).single();
+            if (res.data) {
+              var timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+              var smsNote = '\n\n\uD83D\uDCF1 SMS Sent \u2014 ' + timestamp + '\nTo: ' + phone + '\nMessage: ' + message.substring(0, 200) + (message.length > 200 ? '...' : '');
+              await sb.from('leads').update({ message: (res.data.message || '') + smsNote }).eq('id', window._smsContext.leadId);
+            }
+          }
+        } catch(e) { console.error('Note log error:', e); }
+      }
+      if (typeof EPUI !== 'undefined' && EPUI.toast) { EPUI.toast('SMS sent to ' + phone, 'success'); }
+      setTimeout(function() { var modal = document.getElementById('smsComposeModal'); if (modal) modal.remove(); }, 1200);
+    } else { throw new Error(result.error || 'SMS failed'); }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>\uD83D\uDCAC</span> Send SMS';
+    btn.style.opacity = '1';
+    alert('SMS failed: ' + err.message);
+  }
+}
+
 function openMergeModal() {
   if (mergeSelection.length < 2) { alert('Select at least 2 leads to merge'); return; }
   var leads = allLeadsCache.filter(function(l){return mergeSelection.includes(String(l.id));});
@@ -612,8 +784,12 @@ function openLeadProfile(j) {
   const parsed = l.message ? (function(m) {
     var d = {};
     
-    // Try new bullet point format first (• Key: Value)
-    var bulletMatches = m.match(/[•·\-]\s*([^:•·\n]+):\s*([^\n•·]+)/g);
+    // If multiple call note blocks exist, use the LAST one (most recent)
+    var blocks = m.split(/\n\n(?=\u{1F916}|\u{1F4DE}|AI Call)/u);
+    var latestBlock = blocks.length > 1 ? blocks[blocks.length - 1] : m;
+    
+    // Try bullet point format (• Key: Value or - Key: Value)
+    var bulletMatches = latestBlock.match(/[•·\-]\s*([^:•·\n]+):\s*([^\n•·]+)/g);
     if (bulletMatches && bulletMatches.length > 0) {
       bulletMatches.forEach(function(line) {
         var colonIdx = line.indexOf(':');
@@ -627,8 +803,8 @@ function openLeadProfile(j) {
       });
     }
     
-    // Also try old format (--- Key: Val | Key: Val)
-    var match = m.match(/---\s*(.+)/);
+    // Also try old format (--- Key: Val | Key: Val) on latest block
+    var match = latestBlock.match(/---\s*(.+)/);
     if (match) {
       match[1].split(' | ').forEach(function(p) {
         var parts = p.split(': ');
@@ -685,6 +861,7 @@ function openLeadProfile(j) {
     + '<button onclick="document.getElementById(\'leadProfileModal\').remove();editLead(\'' + encodedLead + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;font-family:inherit">&#9998; Edit</button>'
     + (l.email ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();emailLead(\'' + safeEmail + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1a56db;color:white;font-family:inherit">&#128231; Email</button>' : '')
     + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();callLead(\'' + safePhone + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0e9f6e;color:white;font-family:inherit">&#128222; Call via Aria</button>' : '')
+    + (l.phone ? '<button onclick="document.getElementById(\'leadProfileModal\').remove();smsLead(\'' + safePhone + '\',\'' + (l.name||'').replace(/'/g,'') + '\')" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1fae5;background:#ecfdf5;color:#059669;font-family:inherit">&#128172; Text</button>' : '')
     + (l.phone ? '<a href="tel:' + safePhone + '" style="padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#374151;color:white;font-family:inherit;text-decoration:none;display:inline-block">&#128241; Direct Call</a>' : '')
     + '</div>'
     // Appointments section
@@ -700,15 +877,20 @@ function openLeadProfile(j) {
   if (ex) ex.remove();
   document.body.insertAdjacentHTML('beforeend', html);
   // Load appointments for this lead
-  loadLeadAppointments(l.id, l.email);
+  loadLeadAppointments(l.id, l.email, l.name);
 }
 
-async function loadLeadAppointments(leadId, email) {
+async function loadLeadAppointments(leadId, email, name) {
   var container = document.getElementById('lead-appts-' + leadId);
   if (!container) return;
   try {
     var { data: appts } = await EPAppointments.getMyAppointments();
-    var leadAppts = (appts || []).filter(function(a) { return a.client_email === email; });
+    var leadAppts = (appts || []).filter(function(a) {
+      if (a.lead_id && String(a.lead_id) === String(leadId)) return true;
+      if (email && a.client_email && a.client_email.toLowerCase() === email.toLowerCase()) return true;
+      if (name && a.client_name && a.client_name.toLowerCase() === name.toLowerCase()) return true;
+      return false;
+    });
     if (!leadAppts.length) {
       container.innerHTML = '<div style="text-align:center;padding:12px;color:#9ca3af;font-size:12px">No appointments scheduled</div>';
       return;
