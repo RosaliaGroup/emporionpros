@@ -27,7 +27,6 @@ exports.handler = async function(event) {
 
   try {
     while (page < maxPages) {
-      // Fetch from FUB — newest first
       const fubRes = await fetch(
         `https://api.followupboss.com/v1/people?limit=${limit}&offset=${offset}&sort=created&sortDirection=DESC`,
         {
@@ -53,7 +52,6 @@ exports.handler = async function(event) {
 
       totalFetched += people.length;
 
-      // Map to Supabase format
       const now = new Date().toISOString();
       const leads = people.map(p => {
         const email = (p.emails && p.emails[0]) ? p.emails[0].value.toLowerCase().trim() : null;
@@ -70,18 +68,17 @@ exports.handler = async function(event) {
       });
 
       if (leads.length > 0) {
-        // UPSERT to Supabase — on conflict with email, merge/update
+        // Call the upsert_fub_leads database function via RPC
         const supaRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/leads`,
+          `${SUPABASE_URL}/rest/v1/rpc/upsert_fub_leads`,
           {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
               'apikey': SUPABASE_SERVICE_KEY,
-              'Content-Type': 'application/json',
-              'Prefer': 'resolution=ignore-duplicates'
+              'Content-Type': 'application/json'
             },
-            body: JSON.stringify(leads)
+            body: JSON.stringify({ leads_data: leads })
           }
         );
 
@@ -89,7 +86,8 @@ exports.handler = async function(event) {
           const errText = await supaRes.text();
           errors.push(`Supabase page ${page}: ${errText}`);
         } else {
-          totalSynced += leads.length;
+          const result = await supaRes.json();
+          totalSynced += (typeof result === 'number' ? result : leads.length);
         }
       }
 
