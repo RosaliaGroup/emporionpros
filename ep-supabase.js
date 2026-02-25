@@ -296,12 +296,12 @@ const EPAppointments = {
 
   // Get agent's appointments
   async getMyAppointments(filters = {}) {
-    // auth removed
-    // auth removed
+    const user = await EPAuth.getUser();
+    if (!user) return { data: [], error: null };
     let query = getSupabase()
       .from('appointments')
-      .select('*')
-      // agent_id filter removed
+      .select('*, listings(*)')
+      .eq('agent_id', user.id)
       .order('appointment_date', { ascending: true });
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.upcoming) query = query.gte('appointment_date', new Date().toISOString().split('T')[0]);
