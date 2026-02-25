@@ -72,14 +72,14 @@ exports.handler = async function(event) {
       if (leads.length > 0) {
         // UPSERT to Supabase — on conflict with email, merge/update
         const supaRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/leads?on_conflict=email`,
+          `${SUPABASE_URL}/rest/v1/leads`,
           {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
               'apikey': SUPABASE_SERVICE_KEY,
               'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates'
+              'Prefer': 'resolution=ignore-duplicates'
             },
             body: JSON.stringify(leads)
           }
