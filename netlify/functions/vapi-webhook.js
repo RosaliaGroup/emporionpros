@@ -196,6 +196,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
       const emailPayload = {
         email: cleanEmail,
         name: customer.name || 'there',
+        subject: 'Your Tour at Iron 65 Apartments — ' + (structuredData.tourDay || 'Confirmed'),
         tourDay: structuredData.tourDay || 'your scheduled date',
         tourTime: structuredData.tourTime || 'your scheduled time',
         needsCosigner: structuredData.needsCosigner || false,
@@ -256,7 +257,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
 
         const updatePayload = {
           message: updatedMessage,
-          status: structuredData.tourBooked ? 'tour_booked' : 'contacted'
+          status: 'contacted'
         };
 
         // Update email if we got one and lead doesn't have one
@@ -289,7 +290,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
           email: cleanEmail || '',
           phone: rawPhone,
           source: 'AI Call (Aria)',
-          status: structuredData.tourBooked ? 'tour_booked' : 'new',
+          status: 'new',
           message: callNotes
         };
 
@@ -332,7 +333,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
         client_phone: customer.number || null,
         appointment_date: appointmentDate,
         appointment_time: appointmentTime,
-        type: 'tour',
+        type: 'showing',
         status: 'confirmed',
         notes: 'Booked via AI call (Aria). ' + (structuredData.bedroomsNeeded ? structuredData.bedroomsNeeded + ' BR, ' : '') + (structuredData.budget ? 'Budget: ' + structuredData.budget : '')
       };
