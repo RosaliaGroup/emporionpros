@@ -40,22 +40,19 @@ exports.handler = async function(event, context) {
     };
 
     const message = webhook.message || webhook;
-    
-    // Log everything we receive for debugging
+
     console.log('Top-level keys:', Object.keys(webhook).join(', '));
     console.log('Message keys:', Object.keys(message).join(', '));
     if (message.type) console.log('message.type:', message.type);
     if (message.status) console.log('message.status:', message.status);
     if (webhook.type) console.log('webhook.type:', webhook.type);
     if (webhook.status) console.log('webhook.status:', webhook.status);
-    
-    // Detect event type — VAPI can send in multiple formats
-    const isEndOfCallReport = message.type === 'end-of-call-report' || webhook.type === 'end-of-call-report';
-    const isStatusEnded = (message.type === 'status-update' && message.status === 'ended') ||
-                          (webhook.type === 'status-update' && (webhook.status === 'ended' || (message && message.status === 'ended')));
-    // Also check for "call.completed" or "call_ended" variants
-    const isCallCompleted = message.type === 'call.completed' || webhook.type === 'call.completed' || 
-                            message.type === 'call-ended' || webhook.type === 'call-ended';
+
+    var isEndOfCallReport = message.type === 'end-of-call-report' || webhook.type === 'end-of-call-report';
+    var isStatusEnded = (message.type === 'status-update' && message.status === 'ended') ||
+                        (webhook.type === 'status-update' && (webhook.status === 'ended' || (message && message.status === 'ended')));
+    var isCallCompleted = message.type === 'call.completed' || webhook.type === 'call.completed' ||
+                          message.type === 'call-ended' || webhook.type === 'call-ended';
 
     console.log('Is end-of-call-report?', isEndOfCallReport);
     console.log('Is status-update ended?', isStatusEnded);
@@ -69,33 +66,31 @@ exports.handler = async function(event, context) {
         console.error('Process error:', err);
       }
     } else if (isStatusEnded || isCallCompleted) {
-      console.log('Processing status-update/completed — fetching call details from VAPI...');
+      console.log('Processing status-update/completed - fetching call details from VAPI...');
       try {
-        const VAPI_API_KEY = process.env.VAPI_API_KEY;
-        const call = message.call || webhook.call || {};
-        const callId = call.id || message.callId || webhook.callId || message.call_id || webhook.call_id;
-        
+        var VAPI_API_KEY = process.env.VAPI_API_KEY;
+        var call = message.call || webhook.call || {};
+        var callId = call.id || message.callId || webhook.callId || message.call_id || webhook.call_id;
+
         console.log('Call ID found:', callId);
         console.log('VAPI_API_KEY set:', !!VAPI_API_KEY);
-        
+
         if (callId && VAPI_API_KEY) {
-          // Wait for VAPI analysis to complete
           console.log('Waiting 5 seconds for VAPI analysis...');
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          
-          const callDetailsResponse = await fetch('https://api.vapi.ai/call/' + callId, {
+          await new Promise(function(resolve) { setTimeout(resolve, 5000); });
+
+          var callDetailsResponse = await fetch('https://api.vapi.ai/call/' + callId, {
             headers: { 'Authorization': 'Bearer ' + VAPI_API_KEY }
           });
-          
+
           console.log('VAPI call details response:', callDetailsResponse.status);
-          
+
           if (callDetailsResponse.ok) {
-            const callDetails = await callDetailsResponse.json();
+            var callDetails = await callDetailsResponse.json();
             console.log('Got call details. Has analysis?', !!callDetails.analysis);
             console.log('Analysis keys:', callDetails.analysis ? Object.keys(callDetails.analysis).join(', ') : 'none');
-            
-            // Reconstruct webhook in end-of-call-report format
-            const reconstructed = {
+
+            var reconstructed = {
               message: {
                 type: 'end-of-call-report',
                 analysis: callDetails.analysis || {},
@@ -103,10 +98,10 @@ exports.handler = async function(event, context) {
                 customer: callDetails.customer || call.customer || {}
               }
             };
-            
+
             await processCallReport(reconstructed, FUB_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY);
           } else {
-            const errText = await callDetailsResponse.text();
+            var errText = await callDetailsResponse.text();
             console.error('Failed to fetch VAPI call details:', callDetailsResponse.status, errText);
           }
         } else {
@@ -116,7 +111,7 @@ exports.handler = async function(event, context) {
         console.error('Status-update process error:', err);
       }
     } else {
-      console.log('Skipping — not a call-end event. Type:', message.type || webhook.type);
+      console.log('Skipping - not a call-end event. Type:', message.type || webhook.type);
     }
 
     return response;
@@ -135,11 +130,10 @@ exports.handler = async function(event, context) {
 // FORMAT CALL NOTES AS BULLET POINTS
 // ========================================
 function formatCallNotes(structuredData, customer, cleanEmail, summary) {
-  const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
-  
-  // Build bullet points — only include fields that have data
-  const bullets = [];
-  
+  var timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+
+  var bullets = [];
+
   if (cleanEmail) bullets.push('Email: ' + cleanEmail);
   if (structuredData.budget) bullets.push('Budget: ' + structuredData.budget);
   if (structuredData.moveDate) bullets.push('Move Date: ' + structuredData.moveDate);
@@ -147,51 +141,43 @@ function formatCallNotes(structuredData, customer, cleanEmail, summary) {
   if (structuredData.unitTypeDiscussed) bullets.push('Unit Type: ' + structuredData.unitTypeDiscussed);
   if (structuredData.income) bullets.push('Income: ' + structuredData.income);
   if (structuredData.credit) bullets.push('Credit: ' + structuredData.credit);
-  
-  // Tour info
+
   if (structuredData.tourBooked) {
-    bullets.push('Tour Booked: Yes — ' + (structuredData.tourDay || '') + ' ' + (structuredData.tourTime || ''));
+    var tourInfo = 'Tour Booked: Yes';
+    if (structuredData.tourType) tourInfo += ' (' + structuredData.tourType + ')';
+    if (structuredData.tourDay) tourInfo += ' - ' + structuredData.tourDay;
+    if (structuredData.tourTime) tourInfo += ' at ' + structuredData.tourTime;
+    bullets.push(tourInfo);
   } else {
     bullets.push('Tour Booked: No');
   }
-  
+
   if (structuredData.needsCosigner) bullets.push('Needs Cosigner: Yes');
-  
+
   if (structuredData.interested === true) {
     bullets.push('Interested: Yes');
   } else if (structuredData.interested === false) {
     bullets.push('Interested: No');
   }
-  
-  if (structuredData.tourBooked) {
-    var tourInfo = 'Tour Booked: Yes';
-    if (structuredData.tourType) tourInfo += ' (' + structuredData.tourType + ')';
-    if (structuredData.tourDay) tourInfo += ' — ' + structuredData.tourDay;
-    if (structuredData.tourTime) tourInfo += ' at ' + structuredData.tourTime;
-    bullets.push(tourInfo);
-  }
-  
+
   if (structuredData.concerns) bullets.push('Concerns: ' + structuredData.concerns);
 
-  // Build the formatted message
-  let notes = '🤖 AI Call (Aria) — ' + timestamp + '\n';
+  var notes = '[AI Call - Aria] ' + timestamp + '\n';
   notes += '---\n';
-  notes += bullets.map(b => '• ' + b).join('\n');
-  
-  // Side notes section — additional info that doesn't fit the main fields
-  const sideNotes = [];
+  notes += bullets.map(function(b) { return '- ' + b; }).join('\n');
+
+  var sideNotes = [];
   if (structuredData.additionalNotes) sideNotes.push(structuredData.additionalNotes);
   if (customer.number) sideNotes.push('Phone: ' + customer.number);
-  
+
   if (sideNotes.length > 0) {
-    notes += '\n\n📌 Side Notes:\n' + sideNotes.map(n => '  — ' + n).join('\n');
+    notes += '\n\nSide Notes:\n' + sideNotes.map(function(n) { return '  - ' + n; }).join('\n');
   }
-  
-  // Summary
+
   if (summary) {
-    notes += '\n\n📝 Summary: ' + summary;
+    notes += '\n\nSummary: ' + summary;
   }
-  
+
   return notes;
 }
 
@@ -201,13 +187,13 @@ function formatCallNotes(structuredData, customer, cleanEmail, summary) {
 async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY) {
   console.log('=== PROCESS CALL REPORT START ===');
 
-  const message = webhook.message || webhook;
-  const analysis = message.analysis || {};
-  const structuredData = analysis.structuredData || {};
-  const summary = analysis.summary || '';
+  var message = webhook.message || webhook;
+  var analysis = message.analysis || {};
+  var structuredData = analysis.structuredData || {};
+  var summary = analysis.summary || '';
 
-  const call = message.call || webhook.call || {};
-  const customer = call.customer || message.customer || {};
+  var call = message.call || webhook.call || {};
+  var customer = call.customer || message.customer || {};
 
   if (!customer.number && message.phoneNumber) customer.number = message.phoneNumber;
   if (!customer.number && call.phoneNumber) customer.number = call.phoneNumber;
@@ -215,20 +201,19 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   console.log('Customer:', JSON.stringify(customer));
   console.log('Structured data:', JSON.stringify(structuredData));
 
-  const cleanEmail = cleanupTranscribedEmail(structuredData.email);
-  console.log('Raw email:', structuredData.email, '→ Cleaned:', cleanEmail);
+  var cleanEmail = cleanupTranscribedEmail(structuredData.email);
+  console.log('Raw email:', structuredData.email, '-> Cleaned:', cleanEmail);
 
-  // Format notes as bullet points
-  const callNotes = formatCallNotes(structuredData, customer, cleanEmail, summary);
+  var callNotes = formatCallNotes(structuredData, customer, cleanEmail, summary);
   console.log('Formatted notes:\n', callNotes);
 
   // ========================================
-  // SEND SMS — ALWAYS send if we have a phone (even if no email)
+  // SEND SMS
   // ========================================
   if (customer.number) {
     console.log('=== SENDING SMS ===');
     try {
-      const smsPayload = {
+      var smsPayload = {
         phone: customer.number,
         email: cleanEmail || '',
         name: customer.name || 'there',
@@ -242,7 +227,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
         summary: summary || ''
       };
 
-      const smsResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-sms', {
+      var smsResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-sms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(smsPayload)
@@ -250,58 +235,54 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
 
       console.log('SMS Response:', smsResponse.status);
       if (smsResponse.ok) {
-        console.log('✅ SMS SENT');
+        console.log('[OK] SMS SENT');
       } else {
-        console.error('❌ SMS FAILED:', await smsResponse.text());
+        console.error('[ERR] SMS FAILED:', await smsResponse.text());
       }
     } catch (smsError) {
-      console.error('❌ SMS ERROR:', smsError);
+      console.error('[ERR] SMS ERROR:', smsError);
     }
   }
 
   // ========================================
-  // SEND EMAIL — only if tour booked AND valid email
-  // (SMS is the primary confirmation, email is bonus)
+  // SEND EMAIL
   // ========================================
   if (structuredData.tourBooked && cleanEmail) {
     console.log('=== SENDING TOUR EMAIL ===');
     try {
-      const displayName = customer.name || 'there';
-      const tourDay = structuredData.tourDay || 'your scheduled date';
-      const tourTime = structuredData.tourTime || 'your scheduled time';
-      const tourDateTime = tourTime ? `${tourDay} at ${tourTime}` : tourDay;
-      const isVirtual = (structuredData.tourType || '').toLowerCase().includes('virtual');
-      const subjectPrefix = isVirtual ? 'Virtual Tour' : 'In Person Tour';
+      var displayName = customer.name || 'there';
+      var tourDay = structuredData.tourDay || 'your scheduled date';
+      var tourTime = structuredData.tourTime || 'your scheduled time';
+      var tourDateTime = tourTime ? tourDay + ' at ' + tourTime : tourDay;
+      var isVirtual = (structuredData.tourType || '').toLowerCase().includes('virtual');
+      var subjectPrefix = isVirtual ? 'Virtual Tour' : 'In Person Tour';
 
-      let emailBody = `Hi ${displayName},
-
-Thank you for speaking with Aria! We're excited to confirm your ${isVirtual ? 'virtual' : 'in-person'} apartment tour.
-
-TOUR DETAILS:
-📅 ${tourDateTime}`;
+      var emailBody = 'Hi ' + displayName + ',\n\n' +
+        'Thank you for speaking with Aria! We are excited to confirm your ' +
+        (isVirtual ? 'virtual' : 'in-person') + ' apartment tour.\n\n' +
+        'TOUR DETAILS:\n' +
+        tourDateTime;
 
       if (isVirtual) {
-        emailBody += `\n🖥️ Virtual Tour — we'll send you a video call link before your appointment.`;
+        emailBody += '\nVirtual Tour - we will send you a video call link before your appointment.';
       } else {
-        emailBody += `\n📍 65 McWhorter Street, Newark, NJ 07105\nPlease arrive 5 minutes early.`;
+        emailBody += '\n65 McWhorter Street, Newark, NJ 07105\nPlease arrive 5 minutes early.';
       }
 
       if (structuredData.needsCosigner) {
-        emailBody += `\n\nCOSIGNER INFO: We'll have our cosigner assistance service available to discuss your options during the tour.`;
+        emailBody += '\n\nCOSIGNER INFO: We will have our cosigner assistance service available to discuss your options during the tour.';
       }
 
-      emailBody += `\n\nIf you need to reschedule or have any questions, simply reply to this email or give us a call.
+      emailBody += '\n\nIf you need to reschedule or have any questions, simply reply to this email or give us a call.\n\n' +
+        'EmporionPros - Rosalia Group\nhttps://emporionpros.com';
 
-EmporionPros — Rosalia Group
-https://emporionpros.com`;
-
-      const emailPayload = {
+      var emailPayload = {
         email: cleanEmail,
-        subject: subjectPrefix + ' Iron 65 — ' + tourDateTime,
+        subject: subjectPrefix + ' Iron 65 - ' + tourDateTime,
         body: emailBody
       };
 
-      const emailResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-email', {
+      var emailResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailPayload)
@@ -309,30 +290,30 @@ https://emporionpros.com`;
 
       console.log('Email Response:', emailResponse.status);
       if (emailResponse.ok) {
-        console.log('✅ EMAIL SENT');
+        console.log('[OK] EMAIL SENT');
       } else {
-        console.error('❌ EMAIL FAILED:', await emailResponse.text());
+        console.error('[ERR] EMAIL FAILED:', await emailResponse.text());
       }
     } catch (emailError) {
-      console.error('❌ EMAIL ERROR:', emailError);
+      console.error('[ERR] EMAIL ERROR:', emailError);
     }
   }
 
   // ========================================
-  // PUSH TO SUPABASE (leads table) — do this BEFORE appointment so we have lead_id
+  // PUSH TO SUPABASE
   // ========================================
-  let leadId = null;
+  var leadId = null;
   if (SUPABASE_SERVICE_KEY && customer.number) {
     console.log('=== PUSHING TO SUPABASE ===');
 
     try {
-      const rawPhone = customer.number;
-      const phoneDigits = rawPhone.replace(/[^0-9]/g, '');
-      const phone10 = phoneDigits.length === 11 && phoneDigits[0] === '1' ? phoneDigits.slice(1) : phoneDigits;
+      var rawPhone = customer.number;
+      var phoneDigits = rawPhone.replace(/[^0-9]/g, '');
+      var phone10 = phoneDigits.length === 11 && phoneDigits[0] === '1' ? phoneDigits.slice(1) : phoneDigits;
 
-      const searchUrl = SUPABASE_URL + '/rest/v1/leads?or=(phone.ilike.*' + phone10 + '*,phone.ilike.*' + phoneDigits + '*)&limit=1';
+      var searchUrl = SUPABASE_URL + '/rest/v1/leads?or=(phone.ilike.*' + phone10 + '*,phone.ilike.*' + phoneDigits + '*)&limit=1';
 
-      const searchResponse = await fetch(searchUrl, {
+      var searchResponse = await fetch(searchUrl, {
         headers: {
           'apikey': SUPABASE_SERVICE_KEY,
           'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
@@ -340,30 +321,29 @@ https://emporionpros.com`;
         }
       });
 
-      const existingLeads = await searchResponse.json();
+      var existingLeads = await searchResponse.json();
       console.log('Found existing leads:', existingLeads.length);
 
       if (existingLeads && existingLeads.length > 0) {
-        const lead = existingLeads[0];
+        var lead = existingLeads[0];
         leadId = lead.id;
-        const existingMessage = lead.message || '';
-        const updatedMessage = existingMessage
+        var existingMessage = lead.message || '';
+        var updatedMessage = existingMessage
           ? existingMessage + '\n\n' + callNotes
           : callNotes;
 
-        const updateUrl = SUPABASE_URL + '/rest/v1/leads?id=eq.' + lead.id;
+        var updateUrl = SUPABASE_URL + '/rest/v1/leads?id=eq.' + lead.id;
 
-        const updatePayload = {
+        var updatePayload = {
           message: updatedMessage,
           status: 'contacted'
         };
 
-        // Update email if we got one and lead doesn't have one
         if (cleanEmail && !lead.email) {
           updatePayload.email = cleanEmail;
         }
 
-        const updateResponse = await fetch(updateUrl, {
+        var updateResponse = await fetch(updateUrl, {
           method: 'PATCH',
           headers: {
             'apikey': SUPABASE_SERVICE_KEY,
@@ -376,14 +356,14 @@ https://emporionpros.com`;
 
         console.log('Supabase UPDATE:', updateResponse.status);
         if (updateResponse.ok) {
-          console.log('✅ SUPABASE UPDATED — Lead:', lead.name, '(ID:', lead.id, ')');
+          console.log('[OK] SUPABASE UPDATED - Lead:', lead.name, '(ID:', lead.id, ')');
         } else {
-          console.error('❌ SUPABASE UPDATE ERROR:', await updateResponse.text());
+          console.error('[ERR] SUPABASE UPDATE ERROR:', await updateResponse.text());
         }
       } else {
         console.log('No existing lead, creating new...');
 
-        const newLead = {
+        var newLead = {
           name: customer.name || cleanEmail || 'Unknown (AI Call)',
           email: cleanEmail || '',
           phone: rawPhone,
@@ -392,7 +372,7 @@ https://emporionpros.com`;
           message: callNotes
         };
 
-        const insertResponse = await fetch(SUPABASE_URL + '/rest/v1/leads', {
+        var insertResponse = await fetch(SUPABASE_URL + '/rest/v1/leads', {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_SERVICE_KEY,
@@ -404,15 +384,15 @@ https://emporionpros.com`;
         });
 
         if (insertResponse.ok) {
-          const inserted = await insertResponse.json();
+          var inserted = await insertResponse.json();
           if (inserted && inserted.length > 0) leadId = inserted[0].id;
-          console.log('✅ SUPABASE INSERT — New lead created, ID:', leadId);
+          console.log('[OK] SUPABASE INSERT - New lead created, ID:', leadId);
         } else {
-          console.error('❌ SUPABASE INSERT ERROR:', await insertResponse.text());
+          console.error('[ERR] SUPABASE INSERT ERROR:', await insertResponse.text());
         }
       }
     } catch (supaErr) {
-      console.error('❌ SUPABASE ERROR:', supaErr);
+      console.error('[ERR] SUPABASE ERROR:', supaErr);
     }
   }
 
@@ -422,10 +402,10 @@ https://emporionpros.com`;
   if (structuredData.tourBooked && SUPABASE_SERVICE_KEY) {
     console.log('=== CREATING APPOINTMENT ===');
     try {
-      const appointmentDate = parseTourDay(structuredData.tourDay);
-      const appointmentTime = parseTourTime(structuredData.tourTime);
-      
-      const appointment = {
+      var appointmentDate = parseTourDay(structuredData.tourDay);
+      var appointmentTime = parseTourTime(structuredData.tourTime);
+
+      var appointment = {
         lead_id: leadId || null,
         client_name: customer.name || cleanEmail || 'AI Call Lead',
         client_email: cleanEmail || null,
@@ -439,7 +419,7 @@ https://emporionpros.com`;
 
       console.log('Appointment payload:', JSON.stringify(appointment));
 
-      const apptResponse = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
+      var apptResponse = await fetch(SUPABASE_URL + '/rest/v1/appointments', {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_SERVICE_KEY,
@@ -451,13 +431,13 @@ https://emporionpros.com`;
       });
 
       if (apptResponse.ok) {
-        console.log('✅ APPOINTMENT CREATED:', appointmentDate, appointmentTime);
+        console.log('[OK] APPOINTMENT CREATED:', appointmentDate, appointmentTime);
       } else {
-        const errText = await apptResponse.text();
-        console.error('❌ APPOINTMENT ERROR:', apptResponse.status, errText);
+        var errText = await apptResponse.text();
+        console.error('[ERR] APPOINTMENT ERROR:', apptResponse.status, errText);
       }
     } catch (apptErr) {
-      console.error('❌ APPOINTMENT ERROR:', apptErr);
+      console.error('[ERR] APPOINTMENT ERROR:', apptErr);
     }
   }
 
@@ -468,7 +448,7 @@ https://emporionpros.com`;
     console.log('=== PUSHING TO FUB ===');
 
     try {
-      const person = {
+      var person = {
         phones: customer.number ? [{ value: customer.number }] : [],
         name: customer.name || 'Unknown'
       };
@@ -477,14 +457,14 @@ https://emporionpros.com`;
         person.emails = [{ value: cleanEmail }];
       }
 
-      const fubPayload = {
+      var fubPayload = {
         source: 'Iron 65 AI Call',
         type: 'Note',
         message: 'AI Call Completed:\n' + callNotes,
-        person
+        person: person
       };
 
-      const fubResponse = await fetch('https://api.followupboss.com/v1/events', {
+      var fubResponse = await fetch('https://api.followupboss.com/v1/events', {
         method: 'POST',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
@@ -495,18 +475,17 @@ https://emporionpros.com`;
         body: JSON.stringify(fubPayload)
       });
 
-      const fubResult = await fubResponse.text();
+      var fubResult = await fubResponse.text();
       console.log('FUB Response:', fubResponse.status);
 
       if (fubResponse.ok) {
-        console.log('✅ FUB PUSH SUCCESSFUL');
+        console.log('[OK] FUB PUSH SUCCESSFUL');
       } else {
-        // Retry without email if it caused the error
         if (fubResult.includes('email') && cleanEmail) {
           console.log('FUB rejected email, retrying phone only...');
           delete fubPayload.person.emails;
 
-          const retryResponse = await fetch('https://api.followupboss.com/v1/events', {
+          var retryResponse = await fetch('https://api.followupboss.com/v1/events', {
             method: 'POST',
             headers: {
               'Authorization': 'Basic ' + Buffer.from(FUB_API_KEY + ':').toString('base64'),
@@ -518,16 +497,16 @@ https://emporionpros.com`;
           });
 
           if (retryResponse.ok) {
-            console.log('✅ FUB PUSH (phone only)');
+            console.log('[OK] FUB PUSH (phone only)');
           } else {
-            console.error('❌ FUB RETRY ERROR:', await retryResponse.text());
+            console.error('[ERR] FUB RETRY ERROR:', await retryResponse.text());
           }
         } else {
-          console.error('❌ FUB ERROR:', fubResult);
+          console.error('[ERR] FUB ERROR:', fubResult);
         }
       }
     } catch (fubErr) {
-      console.error('❌ FUB ERROR:', fubErr);
+      console.error('[ERR] FUB ERROR:', fubErr);
     }
   }
 
@@ -539,42 +518,38 @@ https://emporionpros.com`;
 // ========================================
 function parseTourDay(tourDay) {
   if (!tourDay) return new Date().toISOString().split('T')[0];
-  
-  const lower = tourDay.toLowerCase().trim();
-  const today = new Date();
-  
-  // Day names
-  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  
+
+  var lower = tourDay.toLowerCase().trim();
+  var today = new Date();
+
+  var dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
   if (lower === 'today') {
     return today.toISOString().split('T')[0];
   }
-  
+
   if (lower === 'tomorrow') {
     today.setDate(today.getDate() + 1);
     return today.toISOString().split('T')[0];
   }
-  
-  // "this friday", "friday", "next friday"
-  for (let i = 0; i < dayNames.length; i++) {
+
+  for (var i = 0; i < dayNames.length; i++) {
     if (lower.includes(dayNames[i])) {
-      const targetDay = i;
-      const currentDay = today.getDay();
-      let daysAhead = targetDay - currentDay;
+      var targetDay = i;
+      var currentDay = today.getDay();
+      var daysAhead = targetDay - currentDay;
       if (daysAhead <= 0) daysAhead += 7;
       if (lower.includes('next')) daysAhead += 7;
       today.setDate(today.getDate() + daysAhead);
       return today.toISOString().split('T')[0];
     }
   }
-  
-  // Try parsing as a date string
-  const parsed = new Date(tourDay);
+
+  var parsed = new Date(tourDay);
   if (!isNaN(parsed.getTime())) {
     return parsed.toISOString().split('T')[0];
   }
-  
-  // Fallback — return the raw string (dashboard will display it)
+
   return tourDay;
 }
 
@@ -583,28 +558,25 @@ function parseTourDay(tourDay) {
 // ========================================
 function parseTourTime(tourTime) {
   if (!tourTime) return '12:00:00';
-  
-  const lower = tourTime.toLowerCase().trim();
-  
-  // Already in HH:MM format
+
+  var lower = tourTime.toLowerCase().trim();
+
   if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(lower)) {
     return lower.length <= 5 ? lower + ':00' : lower;
   }
-  
-  // Match patterns like "3 PM", "3PM", "3:00 PM", "10 AM", "10:30am"
-  const match = lower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
+
+  var match = lower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
   if (match) {
-    let hour = parseInt(match[1]);
-    const minutes = match[2] || '00';
-    const ampm = match[3] || '';
-    
+    var hour = parseInt(match[1]);
+    var minutes = match[2] || '00';
+    var ampm = match[3] || '';
+
     if (ampm.startsWith('p') && hour < 12) hour += 12;
     if (ampm.startsWith('a') && hour === 12) hour = 0;
-    
+
     return String(hour).padStart(2, '0') + ':' + minutes + ':00';
   }
-  
-  // Fallback
+
   return '12:00:00';
 }
 
@@ -614,7 +586,7 @@ function parseTourTime(tourTime) {
 function cleanupTranscribedEmail(raw) {
   if (!raw) return null;
 
-  let email = raw.trim().toLowerCase();
+  var email = raw.trim().toLowerCase();
 
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return email;
