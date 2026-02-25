@@ -1102,7 +1102,7 @@ async function loadCampaigns() {
     <tbody>${campaigns.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.type}</td><td>${c.listings?c.listings.title:'—'}</td><td><span class="badge badge-${c.status}">${c.status}</span></td><td>${new Date(c.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
 }
 function showCreateCampaign() { alert('Campaign builder coming soon!'); }
-async async function loadOverview() {
+async function loadOverview() {
   const { data: leads } = await EPLeads.getLeads();
   const { data: listings } = await EPListings.getMyListings();
   const { data: appts } = await EPAppointments.getMyAppointments();
