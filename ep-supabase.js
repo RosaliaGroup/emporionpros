@@ -370,8 +370,7 @@ const EPCampaigns = {
     // // if (!user) return { data: [], error: null };
     let query = getSupabase()
       .from('campaigns')
-      // // .select('*, listings(*)')
-      // // .eq('agent_id', user.id)
+      .select('*')
       .order('created_at', { ascending: false });
     if (filters.status) query = query.eq('status', filters.status);
     const { data, error } = await query;
