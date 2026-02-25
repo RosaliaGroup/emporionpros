@@ -1075,7 +1075,7 @@ function renderApptsList(appts) {
         ? '<button class="btn btn-sm btn-primary" onclick="updateAppt(' + a.id + ',\'confirmed\')">Confirm</button> <button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>'
         : a.status === 'confirmed' ? '<button class="btn btn-sm btn-danger" onclick="updateAppt(' + a.id + ',\'cancelled\')">Cancel</button>' : '—';
       return '<tr><td><strong>' + (a.client_name||'—') + '</strong><br><span style="font-size:12px;color:#6b7280">' + (a.client_email||'') + '</span></td>'
-        + '<td>' + (a.appointment_date||'') + '</td><td>' + (a.appointment_time||'') + '</td>'
+        + '<td>' + (a.appointment_date ? new Date(a.appointment_date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '') + '</td><td>' + (a.appointment_time ? new Date('2000-01-01T'+a.appointment_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '') + '</td>'
         + '<td>' + (a.type||'tour') + '</td><td>' + statusBadge + '</td><td>' + actions + '</td></tr>';
     }).join('') + '</tbody></table>';
 }
