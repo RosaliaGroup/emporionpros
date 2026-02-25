@@ -483,11 +483,11 @@ function getAIStatus(l) {
   const msg = l.message || '';
   // Check if Aria has already called this lead
   if (msg.indexOf('AI Call') !== -1) {
-    var tourLine = msg.match(/Tour Booked:\s*Yes\s*(?:\([^)]*\))?\s*(?:-\s*(.+?))?/m); var tourMatch = !!tourLine;
+    var tourLine = msg.match(/Tour Booked:\s*Yes\s*(?:\([^)]*\))?\s*(?:[-\u2013\u2014]\s*(.+?))?$/m); var tourMatch = !!tourLine;
     if (tourMatch) {
-      return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">✅ Tour Booked</span>';
-      if (tourLine && tourLine[1]) { return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600>Tour: ' + tourLine[1].trim() + '</span>'; }
-    }
+    if (tourMatch) {
+      if (tourLine && tourLine[1]) { return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">Tour: ' + tourLine[1].trim() + '</span>'; }
+      return '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">Tour Booked</span>';
     return '<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600">📞 Called</span>';
   }
   if (hasPhone) {
@@ -1085,12 +1085,13 @@ function renderApptsList(appts) {
 }
 
 async function loadAppointments() {
-  var { data: appts } = await EPAppointments.getMyAppointments();
+  try { var { data: appts } = await EPAppointments.getMyAppointments();
   calAppts = appts || [];
   renderCalendar();
   var titleEl = document.getElementById('appts-list-title');
   if (titleEl) titleEl.textContent = 'All Appointments (' + calAppts.length + ')';
   renderApptsList(calAppts);
+  } catch(e) { console.error('loadAppointments error:', e); }
 }
 async function updateAppt(id, status) { await EPAppointments.updateStatus(id, status); loadAppointments(); }
 async function loadCampaigns() {
