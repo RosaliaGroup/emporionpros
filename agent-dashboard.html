@@ -786,10 +786,10 @@ function openLeadProfile(j) {
     var d = {};
     
     // If multiple call note blocks exist, use the LAST one (most recent)
-    var callBlocks = m.split(/(?=\[AI Call)/);
+    var callBlocks = m.split(/(?=(?:\u{1F916}\s*)?AI Call)/u);
     var latestBlock = m;
     for (var cbi = callBlocks.length - 1; cbi >= 0; cbi--) {
-      if (callBlocks[cbi].indexOf('[AI Call') === 0) { latestBlock = callBlocks[cbi]; break; }
+      if (callBlocks[cbi].indexOf('AI Call') !== -1) { latestBlock = callBlocks[cbi]; break; }
     }
     
     // Try bullet point format (• Key: Value or - Key: Value)
@@ -817,19 +817,19 @@ function openLeadProfile(j) {
     }
     
     // Extract side notes (📌 Side Notes: section)
-    var sideMatch = latestBlock.match(/^Side Notes?:\s*([\s\S]*?)(?=\nSummary:|\n\[AI Call|$)/im);
+    var sideMatch = latestBlock.match(/^(?:\u{1F4CC}\s*)?Side Notes?:\s*([\s\S]*?)(?=\n(?:\u{1F4DD}\s*)?(?:Call )?Summary|\nAI Call|\n\u{1F916}|$)/imu);
     if (sideMatch) {
       d._sideNotes = sideMatch[1].trim();
     }
     
     // Extract summary (📝 Summary: section)
-    var summaryMatch = latestBlock.match(/^Summary:\s*([\s\S]*?)(?=\n\[AI Call|$)/im);
+    var summaryMatch = latestBlock.match(/^(?:\u{1F4DD}\s*)?(?:Call )?Summary:?\s*([\s\S]*?)(?=\nAI Call|\n\u{1F916}|$)/imu);
     if (summaryMatch) {
       d._summary = summaryMatch[1].trim();
     }
     
     // Extract general notes (everything before the first --- or • or 🤖)
-    var notesText = m.split(/---|\[AI Call|Side Notes:|Summary:/)[0].trim();
+    var notesText = m.split(/---|AI Call|Side Notes:|Summary:/)[0].trim();
     if (notesText && !notesText.match(/^[•·\-]/)) {
       d._notes = notesText;
     }
