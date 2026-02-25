@@ -217,7 +217,7 @@ const EPListings = {
 
   // Create listing (agent only)
   async create(listingData) {
-    const user = await EPAuth.getUser();
+    // // const user = await EPAuth.getUser();
     if (!user) return { error: { message: 'Not logged in' } };
     const { data, error } = await getSupabase()
       .from('listings')
@@ -248,12 +248,12 @@ const EPListings = {
 
   // Get agent's listings
   async getMyListings() {
-    const user = await EPAuth.getUser();
-    if (!user) return { data: [], error: null };
+    // // const user = await EPAuth.getUser();
+    // // if (!user) return { data: [], error: null };
     const { data, error } = await getSupabase()
       .from('listings')
       .select('*')
-      .eq('agent_id', user.id)
+      // // .eq('agent_id', user.id)
       .order('created_at', { ascending: false });
     return { data: data || [], error };
   },
@@ -296,12 +296,11 @@ const EPAppointments = {
 
   // Get agent's appointments
   async getMyAppointments(filters = {}) {
-    const user = await EPAuth.getUser();
-    if (!user) return { data: [], error: null };
+    // // const user = await EPAuth.getUser();
+    // // if (!user) return { data: [], error: null };
     let query = getSupabase()
       .from('appointments')
-      .select('*, listings(*)')
-      .eq('agent_id', user.id)
+      .select('*')
       .order('appointment_date', { ascending: true });
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.upcoming) query = query.gte('appointment_date', new Date().toISOString().split('T')[0]);
@@ -346,7 +345,7 @@ const EPAppointments = {
 const EPCampaigns = {
   // Create campaign
   async create(campaignData) {
-    const user = await EPAuth.getUser();
+    // // const user = await EPAuth.getUser();
     if (!user) return { error: { message: 'Not logged in' } };
     const { data, error } = await getSupabase()
       .from('campaigns')
@@ -367,12 +366,12 @@ const EPCampaigns = {
 
   // Get agent's campaigns
   async getMyCampaigns(filters = {}) {
-    const user = await EPAuth.getUser();
-    if (!user) return { data: [], error: null };
+    // // const user = await EPAuth.getUser();
+    // // if (!user) return { data: [], error: null };
     let query = getSupabase()
       .from('campaigns')
-      .select('*, listings(*)')
-      .eq('agent_id', user.id)
+      // // .select('*, listings(*)')
+      // // .eq('agent_id', user.id)
       .order('created_at', { ascending: false });
     if (filters.status) query = query.eq('status', filters.status);
     const { data, error } = await query;
@@ -440,8 +439,8 @@ const EPVendors = {
 // ============================================
 const EPNotifications = {
   async getAll() {
-    const user = await EPAuth.getUser();
-    if (!user) return { data: [], error: null };
+    // // const user = await EPAuth.getUser();
+    // // if (!user) return { data: [], error: null };
     const { data, error } = await getSupabase()
       .from('notifications')
       .select('*')
@@ -457,7 +456,7 @@ const EPNotifications = {
   },
 
   async getUnreadCount() {
-    const user = await EPAuth.getUser();
+    // // const user = await EPAuth.getUser();
     if (!user) return 0;
     const { count } = await getSupabase()
       .from('notifications')
@@ -474,7 +473,7 @@ const EPNotifications = {
 const EPUI = {
   // Update header based on auth state
   async updateHeader() {
-    const user = await EPAuth.getUser();
+    // // const user = await EPAuth.getUser();
     const authBtns = document.getElementById('auth-buttons');
     if (!authBtns) return;
 
