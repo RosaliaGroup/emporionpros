@@ -193,14 +193,34 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
   if (structuredData.tourBooked && cleanEmail) {
     console.log('=== SENDING TOUR EMAIL ===');
     try {
+      const displayName = customer.name || 'there';
+      const tourDay = structuredData.tourDay || 'your scheduled date';
+      const tourTime = structuredData.tourTime || 'your scheduled time';
+      const tourDateTime = tourTime ? `${tourDay} at ${tourTime}` : tourDay;
+
+      const emailBody = `Hi ${displayName},
+
+Thank you for speaking with Aria! We're excited to confirm your apartment tour.
+
+TOUR DETAILS:
+📅 ${tourDateTime}
+📍 65 McWhorter Street, Newark, NJ 07105
+Please arrive 5 minutes early.
+
+${structuredData.needsCosigner ? 'COSIGNER INFO: We\'ll have our cosigner assistance service available to discuss your options during the tour.\n\n' : ''}WHAT TO BRING:
+✅ Valid photo ID
+✅ Proof of income (recent pay stubs or offer letter)
+✅ Any questions you have about the apartment
+
+If you need to reschedule or have any questions, simply reply to this email or give us a call.
+
+EmporionPros — Rosalia Group
+https://emporionpros.com`;
+
       const emailPayload = {
         email: cleanEmail,
-        name: customer.name || 'there',
-        subject: 'Your Tour at Iron 65 Apartments — ' + (structuredData.tourDay || 'Confirmed'),
-        tourDay: structuredData.tourDay || 'your scheduled date',
-        tourTime: structuredData.tourTime || 'your scheduled time',
-        needsCosigner: structuredData.needsCosigner || false,
-        phone: customer.number || ''
+        subject: '🏠 Your Apartment Tour is Confirmed — ' + tourDateTime,
+        body: emailBody
       };
 
       const emailResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-email', {
