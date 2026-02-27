@@ -1,4 +1,4 @@
-exports.handler = async function(event, context) {
+﻿exports.handler = async function(event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json'
@@ -47,6 +47,15 @@ exports.handler = async function(event, context) {
     if (message.status) console.log('message.status:', message.status);
     if (webhook.type) console.log('webhook.type:', webhook.type);
     if (webhook.status) console.log('webhook.status:', webhook.status);
+
+    // === FILTER: Only process EmporionPros calls ===
+    var callObj = message.call || webhook.call || {};
+    var webhookAssistantId = callObj.assistantId || message.assistantId || webhook.assistantId || '';
+    if (webhookAssistantId && webhookAssistantId !== '8f59f33a-4e86-4be3-889c-5dc2134176f6') {
+      console.log('BLOCKED non-EmporionPros call. Assistant:', webhookAssistantId);
+      return { statusCode: 200, headers, body: JSON.stringify({ skipped: true, reason: 'Wrong assistant' }) };
+    }
+    // === END FILTER ===
 
     var isEndOfCallReport = message.type === 'end-of-call-report' || webhook.type === 'end-of-call-report';
     var isStatusEnded = (message.type === 'status-update' && message.status === 'ended') ||
