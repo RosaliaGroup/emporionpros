@@ -521,7 +521,7 @@ var listingData = {};
 var photoFiles = [];
 var photoDataURLs = [];
 var selectedAmenities = [];
-var selectedPlatforms = ['zillow','avail','facebook','apartments','realtor','zumper','hotpads','rentberry'];
+var selectedPlatforms = ['zillow','avail','facebook','apartments'];
 var currentStep = 1;
 var savedListingId = null;
 
@@ -560,14 +560,10 @@ var AMENITIES = [
 // ============================================================
 var PLATFORMS = [
   {id:'zillow',name:'Zillow',icon:'🟦',color:'#006AFF',type:'Rentals & For Sale',url:'https://zillow.com/rental-manager/'},
-  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals',url:'https://app.avail.co/listings/new'},
+  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlord'},
   {id:'facebook',name:'Facebook Marketplace',icon:'📘',color:'#1877F2',type:'Rentals & For Sale',url:'https://www.facebook.com/marketplace/create/rental'},
   {id:'apartments',name:'Apartments.com',icon:'🏢',color:'#E5001E',type:'Rentals',url:'https://www.apartments.com/add-your-listing/'},
-  {id:'realtor',name:'Realtor.com',icon:'®️',color:'#D92228',type:'For Sale & Rental',url:'https://www.realtor.com/'},
-  {id:'zumper',name:'Zumper',icon:'🟣',color:'#7B2FBE',type:'Rentals',url:'https://www.zumper.com/list-your-rental'},
-  {id:'hotpads',name:'HotPads',icon:'🔶',color:'#FF6E1E',type:'Rentals',url:'https://hotpads.com/landlords'},
-  {id:'rentberry',name:'Rentberry',icon:'🫐',color:'#4361EE',type:'Rentals',url:'https://rentberry.com/'},
-];
+  ];
 
 // ============================================================
 // INIT
