@@ -176,13 +176,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;colo
     <!-- Listing Type -->
     <div class="card">
       <div class="card-title"><span>🏷️</span> Listing Type</div>
-      <div class="type-grid" id="type-grid">
+      <div class="type-grid" id="type-grid" style="grid-template-columns:repeat(4,1fr)">
         <button class="type-btn selected" data-type="rent" onclick="selectType('rent',this)">
           <span class="type-icon">🏢</span>
           <div class="type-label">For Rent</div>
           <div class="type-sub">Apartments, units</div>
         </button>
-        <button class="type-btn" data-type="sale" onclick="selectType('sale',this)">
+        <button class="type-btn" data-type="shortterm" onclick="selectType('shortterm',this)"><span class="type-icon">STR</span><div class="type-label">Short-Term</div><div class="type-sub">Airbnb, VRBO, nightly</div></button><button class="type-btn" data-type="sale" onclick="selectType('sale',this)">
           <span class="type-icon">🏡</span>
           <div class="type-label">For Sale</div>
           <div class="type-sub">Houses, condos, etc.</div>
@@ -255,6 +255,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;colo
         <div class="field" id="specials-field">
           <label>Move-in Specials</label>
           <input type="text" id="listing-specials" placeholder="1 month free, no broker fee...">
+        </div>
+        <div class="field" id="cleaning-fee-field" style="display:none">
+          <label>Cleaning Fee ($)</label>
+          <input type="number" id="listing-cleaning-fee" placeholder="75" min="0">
+        </div>
+        <div class="field" id="min-stay-field" style="display:none">
+          <label>Min Stay (nights)</label>
+          <input type="number" id="listing-min-stay" placeholder="2" min="1" value="2">
+        </div>
+        <div class="field" id="max-stay-field" style="display:none">
+          <label>Max Stay (nights)</label>
+          <input type="number" id="listing-max-stay" placeholder="30" min="1">
+        </div>
+        <div class="field full" id="checkin-field" style="display:none">
+          <label>Check-in Instructions</label>
+          <input type="text" id="listing-checkin" placeholder="Self check-in, keypad code sent 24h before arrival...">
         </div>
       </div>
     </div>
@@ -560,7 +576,7 @@ var AMENITIES = [
 // ============================================================
 var PLATFORMS = [
   {id:'zillow',name:'Zillow',icon:'🟦',color:'#006AFF',type:'Rentals & For Sale',url:'https://zillow.com/rental-manager/'},
-  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlord'},
+  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlords'},
   {id:'facebook',name:'Facebook Marketplace',icon:'📘',color:'#1877F2',type:'Rentals & For Sale',url:'https://www.facebook.com/marketplace/create/rental'},
   {id:'apartments',name:'Apartments.com',icon:'🏢',color:'#E5001E',type:'Rentals',url:'https://www.apartments.com/add-your-listing/'},
   ];
@@ -624,6 +640,23 @@ function selectType(type, btn) {
   document.getElementById('deposit-field').style.display = isRent ? '' : 'none';
   document.getElementById('specials-field').style.display = isRent ? '' : 'none';
   document.getElementById('hoa-field').style.display = isSale ? '' : 'none';
+  var isShort = type === 'shortterm';
+  ['cleaning-fee-field','min-stay-field','max-stay-field','checkin-field'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.style.display=isShort?'':'none';
+  });
+  PLATFORMS = isShort ? [
+    {id:'airbnb',name:'Airbnb',icon:'[A]',color:'#FF5A5F',type:'Short-term',url:'https://www.airbnb.com/hosting'},
+    {id:'vrbo',name:'VRBO',icon:'[V]',color:'#1047A9',type:'Short-term',url:'https://www.vrbo.com/list-your-property'},
+    {id:'facebook',name:'Facebook Marketplace',icon:'[F]',color:'#1877F2',type:'Short-term',url:'https://www.facebook.com/marketplace/create/rental'},
+    {id:'zillow',name:'Zillow',icon:'[Z]',color:'#006AFF',type:'Short-term',url:'https://zillow.com/rental-manager/'}
+  ] : [
+    {id:'zillow',name:'Zillow Rental Manager',icon:'[Z]',color:'#006AFF',type:'Rentals',url:'https://zillow.com/rental-manager/'},
+    {id:'avail',name:'Avail',icon:'[AV]',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlords'},
+    {id:'facebook',name:'Facebook Marketplace',icon:'[F]',color:'#1877F2',type:'Rentals',url:'https://www.facebook.com/marketplace/create/rental'},
+    {id:'apartments',name:'Apartments.com',icon:'[AP]',color:'#E5001E',type:'Rentals',url:'https://www.apartments.com/add-your-listing/'}
+  ];
+  selectedPlatforms = PLATFORMS.map(function(p){return p.id;});
+  renderPlatforms();
   updatePriceHint();
 }
 
