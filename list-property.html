@@ -344,21 +344,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;colo
         </div>
         <div class="field full" id="proptype-field">
           <label>Property Type</label>
+          <!-- Values are the seven strings listings.property_type accepts, exactly.
+               Seven former options (Co-op, Duplex, New Construction, Office, Retail,
+               Industrial, Mixed-Use, Other) had no allowed equivalent and are gone
+               rather than silently mapped onto a near-miss. -->
           <select id="listing-proptype">
-            <option value="Apartment">Apartment</option>
-            <option value="Condo">Condo</option>
-            <option value="House">House / Single Family</option>
-            <option value="Townhouse">Townhouse</option>
-            <option value="Multi-Family">Multi-Family</option>
-            <option value="Co-op">Co-op</option>
-            <option value="Duplex">Duplex</option>
-            <option value="New Construction">New Construction</option>
-            <option value="Land">Land / Lot</option>
-            <option value="Office">Office Space</option>
-            <option value="Retail">Retail Space</option>
-            <option value="Industrial">Industrial / Warehouse</option>
-            <option value="Mixed-Use">Mixed-Use</option>
-            <option value="Other">Other</option>
+            <option value="apartment">Apartment</option>
+            <option value="condo">Condo</option>
+            <option value="house">House / Single Family</option>
+            <option value="townhouse">Townhouse</option>
+            <option value="multi-family">Multi-Family</option>
+            <option value="commercial">Commercial</option>
+            <option value="land">Land / Lot</option>
           </select>
         </div>
       </div>
@@ -1048,6 +1045,21 @@ async function saveListing() {
   }
 }
 
+// Display labels for the canonical property_type values. The column stores the
+// lowercase form; the text an operator pastes into a listing portal should not.
+var PROPERTY_TYPE_LABELS = {
+  apartment: 'Apartment',
+  condo: 'Condo',
+  house: 'House / Single Family',
+  townhouse: 'Townhouse',
+  'multi-family': 'Multi-Family',
+  commercial: 'Commercial',
+  land: 'Land / Lot',
+};
+function propertyTypeLabel(v) {
+  return PROPERTY_TYPE_LABELS[v] || v || '';
+}
+
 // ============================================================
 // GENERATE PLATFORM CONTENT
 // ============================================================
@@ -1140,7 +1152,7 @@ function generatePlatformContent(data, platformId) {
     return 'REALTOR.COM — Listing Content\n'
       + '─────────────────────────────────────\n'
       + 'Listing Title: ' + data.title + '\n'
-      + 'Property Type: ' + data.property_type + '\n'
+      + 'Property Type: ' + propertyTypeLabel(data.property_type) + '\n'
       + 'Address: ' + addr + '\n'
       + 'Price: ' + priceStr + '\n'
       + 'Bedrooms: ' + beds + '  Bathrooms: ' + baths + '\n'
