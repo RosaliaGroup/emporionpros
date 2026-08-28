@@ -38,9 +38,10 @@ alter table public.listings
 -- statements, every line after the first is a bare ADD COLUMN and Postgres
 -- rejects it at "ADD", leaving the tail of the list silently unapplied.
 
--- agent_id must tolerate an absent session: list-property.html has no login gate
--- (it makes no auth call at all), so a listing created from that page has no
--- user to attribute. NOT NULL here would reject every such insert.
+-- Defensive no-op on the current schema (agent_id is already nullable there).
+-- Kept so this migration is safe against a copy of the table where someone
+-- tightened it: entry points other than list-property.html may create a listing
+-- with no session to attribute it to, and NOT NULL would reject those.
 alter table public.listings alter column agent_id drop not null;
 
 -- ---------------------------------------------------------------------------
@@ -70,19 +71,16 @@ create policy "authenticated users upload listing photos"
   on storage.objects for insert to authenticated
   with check (bucket_id = 'listing-photos');
 
--- ⚠️ DECISION REQUIRED -- READ BEFORE DEPLOYING THE CODE HALF ⚠️
--- list-property.html has NO login gate today. With the policy above, photo
--- upload from that page FAILS for a logged-out operator, and the code reports
--- that failure honestly instead of pretending it worked.
+-- DECISION RESOLVED 2026-08-27: option (a). list-property.html now gates on
+-- EPAuth.getUser() (commit ea337be) and redirects to login.html without a
+-- session, so authenticated-only INSERT above is the policy that page needs.
+-- Nothing below has to be enabled.
 --
--- Two ways to resolve, and they are not equivalent:
---   (a) PREFERRED -- require a session on list-property.html (EPAuth.signIn
---       already exists; login.html is already built). Nothing below is needed.
---   (b) Allow anonymous uploads by uncommenting the policy below. Understand
---       what it grants: ANY visitor, and anyone who reads the anon key out of
---       the PUBLIC repo, can write objects into your storage until you revoke
---       it. That is an open file-upload endpoint on the internet. Do not enable
---       it as a shortcut past a login prompt.
+-- The anon alternative is left here ONLY to record what was rejected and why:
+-- it grants ANY visitor -- and anyone who reads the anon key out of the PUBLIC
+-- repo -- write access to your storage until revoked. That is an open
+-- file-upload endpoint on the internet. Do not enable it as a shortcut past a
+-- login prompt.
 --
 -- create policy "anyone uploads listing photos"
 --   on storage.objects for insert to anon
