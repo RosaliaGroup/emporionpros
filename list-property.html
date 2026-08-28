@@ -135,6 +135,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;colo
 </head>
 <body>
 
+<!-- Session gate. Covers the page until EPAuth confirms a Supabase session.
+     Photo upload writes to the listing-photos bucket, whose RLS policy admits
+     only `authenticated`, so an unauthenticated visitor cannot complete this
+     form -- better to say so up front than to fail at the upload step. -->
+<div id="auth-gate" style="position:fixed;inset:0;z-index:9999;background:#f7f8fa;
+     display:flex;align-items:center;justify-content:center;text-align:center;padding:24px">
+  <div>
+    <div style="font-size:15px;font-weight:700;color:#111" id="auth-gate-title">Checking your session…</div>
+    <div style="font-size:13px;color:#666;margin-top:6px" id="auth-gate-msg">One moment.</div>
+    <a id="auth-gate-link" href="login.html" style="display:none;margin-top:14px;
+       padding:10px 18px;background:#111;color:#fff;text-decoration:none;
+       border-radius:8px;font-size:14px;font-weight:700">Log in</a>
+  </div>
+</div>
+
 <div class="topbar">
   <div class="topbar-logo">Emporion<span>Pros</span></div>
   <div class="topbar-nav">
@@ -584,7 +599,39 @@ var PLATFORMS = [
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
+// Same check login.html and signup.html use -- EPAuth.getUser(), which reads the
+// real Supabase session. NOT EP.auth.user() from app.js: that one only reads
+// localStorage, so it can be set by anyone and yields no JWT, which means
+// storage RLS would still reject the upload. Gating on it would look like a
+// login gate while changing nothing.
+async function requireSession() {
+  var title = document.getElementById('auth-gate-title');
+  var msg = document.getElementById('auth-gate-msg');
+  var link = document.getElementById('auth-gate-link');
+  if (typeof EPAuth === 'undefined' || !EPAuth.getUser) {
+    title.textContent = 'Could not verify your session';
+    msg.textContent = 'ep-supabase.js did not load. Reload the page; if it keeps happening the listing service is down.';
+    return null;
+  }
+  var user = null;
+  try { user = await EPAuth.getUser(); } catch (e) { user = null; }
+  if (!user) {
+    title.textContent = 'Please log in to list a property';
+    msg.textContent = 'Listings and their photos are saved against your account. Taking you to the login page…';
+    link.style.display = 'inline-block';
+    // login.html redirects by role and does not honour a return path, so after
+    // logging in come back to this page yourself.
+    setTimeout(function () { window.location.href = 'login.html'; }, 2500);
+    return null;
+  }
+  document.getElementById('auth-gate').remove();
+  return user;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  var sessionUser = await requireSession();
+  if (!sessionUser) return;   // gate stays up; nothing below initialises
+
   renderAmenities();
   renderPlatforms();
   updateCharCount(document.getElementById('listing-title'), 'title-count', 120);
@@ -910,6 +957,16 @@ async function saveListing() {
     // while operators were told their listings had saved.
     if (typeof EPListings === 'undefined' || !EPListings.create) {
       return failed('Listing service failed to load (ep-supabase.js). Nothing was saved — reload and try again.');
+    }
+
+    // A session can lapse between page load and submit; the gate above only
+    // proves there was one at load.
+    if (typeof EPAuth !== 'undefined' && EPAuth.getUser) {
+      var stillIn = null;
+      try { stillIn = await EPAuth.getUser(); } catch (e) { stillIn = null; }
+      if (!stillIn) {
+        return failed('Your session expired, so nothing was saved. Log in again and resubmit — your entries are still on this page.');
+      }
     }
 
     // Photos first: a listing row that references uploaded images must not be
