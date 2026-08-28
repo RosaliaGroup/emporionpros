@@ -217,14 +217,49 @@ const EPListings = {
 
   // Create listing (agent only)
   async create(listingData) {
-    // // const user = await EPAuth.getUser();
-    if (!user) return { error: { message: 'Not logged in' } };
+    if (!getSupabase()) return { data: null, error: { message: 'Supabase not loaded' } };
+    // Previously this referenced `user` while the line defining it was commented
+    // out, so it threw ReferenceError on its first statement. The lookup is back,
+    // and an absent session is no longer fatal: list-property.html has no login
+    // gate and agent_id is nullable, so an unattributed listing is stored rather
+    // than refused.
+    const user = await EPAuth.getUser();
+    const row = user ? { ...listingData, agent_id: user.id } : { ...listingData };
     const { data, error } = await getSupabase()
       .from('listings')
-      .insert({ ...listingData, agent_id: user.id })
+      .insert(row)
       .select()
       .single();
     return { data, error };
+  },
+
+  // Upload photos to the listing-photos bucket; return their PUBLIC urls.
+  //
+  // Photos were previously held only as FileReader base64 data URLs, and one was
+  // written to a column that does not exist. A data URL is unusable to every
+  // syndication target -- Facebook catalog and Google both fetch images over
+  // plain HTTP, anonymously -- so the bytes must reach storage and the row must
+  // carry the resulting https url.
+  //
+  // Returns { urls, errors }. Partial success is reported rather than swallowed:
+  // three of five photos uploading is a real outcome the caller has to show.
+  async uploadPhotos(files, opts = {}) {
+    const urls = [], errors = [];
+    if (!getSupabase()) return { urls, errors: ['Supabase not loaded'] };
+    const bucket = opts.bucket || 'listing-photos';
+    const stamp = Date.now().toString(36);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const path = stamp + '-' + i + '.' + ext;
+      const { error } = await getSupabase().storage.from(bucket)
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (error) { errors.push(file.name + ': ' + error.message); continue; }
+      const { data } = getSupabase().storage.from(bucket).getPublicUrl(path);
+      if (data && data.publicUrl) urls.push(data.publicUrl);
+      else errors.push(file.name + ': uploaded but no public URL returned');
+    }
+    return { urls, errors };
   },
 
   // Update listing

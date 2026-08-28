@@ -898,55 +898,96 @@ async function saveListing() {
 
   var data = collectData();
 
+  function failed(msg) {
+    showStatus('error', '❌ ' + msg);
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save & Publish'; }
+  }
+
   try {
-    // Try EPListings if available
-    var result;
-    if (typeof EPListings !== 'undefined' && EPListings.createListing) {
-      result = await EPListings.createListing({
-        title: data.title,
-        type: data.type,
-        address: data.address + (data.unit ? ', ' + data.unit : ''),
-        city: data.city,
-        state: data.state,
-        zip: data.zip,
-        price: data.price,
-        beds: data.beds,
-        baths: data.baths,
-        sqft: data.sqft,
-        description: data.description,
-        amenities: JSON.stringify(data.amenities),
-        status: 'active',
-        property_type: data.property_type,
-        pets: data.pets,
-        parking: data.parking,
-        laundry: data.laundry,
-        utilities: data.utilities,
-        specials: data.specials,
-        contact_name: data.contact_name,
-        contact_phone: data.contact_phone,
-        contact_email: data.contact_email,
-        calendar_link: data.calendar_link,
-        notes: data.notes,
-        photos: data.photos.length ? data.photos[0] : null, // cover photo
-        available_date: data.available_date,
-      });
-      if (result.data) {
-        savedListingId = result.data[0]?.id || result.data?.id;
-      }
-    } else {
-      // Supabase direct fallback
-      var SUPABASE_URL = window._EP_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-      var SUPABASE_KEY = window._EP_SUPABASE_KEY || 'YOUR_SUPABASE_ANON_KEY';
-      console.warn('EPListings not available — falling back to direct Supabase insert');
-      // Still simulate success for publisher output
+    // The method is create(), not createListing(). Gating on the wrong name made
+    // this branch unreachable, and the else branch below it reported success
+    // without writing anything -- which is why the listings table sat empty
+    // while operators were told their listings had saved.
+    if (typeof EPListings === 'undefined' || !EPListings.create) {
+      return failed('Listing service failed to load (ep-supabase.js). Nothing was saved — reload and try again.');
     }
+
+    // Photos first: a listing row that references uploaded images must not be
+    // written before the images exist. Uploading yields public https urls; the
+    // base64 previews are for the browser only and are never persisted.
+    var imageUrls = [];
+    if (photoFiles.length) {
+      showStatus('loading', '⏳ Uploading ' + photoFiles.length + ' photo' + (photoFiles.length !== 1 ? 's' : '') + '…');
+      var up = await EPListings.uploadPhotos(photoFiles);
+      imageUrls = up.urls;
+      if (up.errors.length && !imageUrls.length) {
+        return failed('No photos could be uploaded, so nothing was saved. ' + up.errors[0]
+          + (/row-level security|Unauthorized|403/i.test(up.errors[0])
+              ? ' — you may need to sign in first.' : ''));
+      }
+      if (up.errors.length) {
+        console.warn('Some photos failed to upload:', up.errors);
+      }
+    }
+
+    showStatus('loading', '⏳ Saving your listing to EmporionPros…');
+    var result = await EPListings.create({
+      title: data.title,
+      type: data.type,
+      address: data.address,
+      unit: data.unit,
+      city: data.city,
+      state: data.state,
+      zip: data.zip,
+      price: data.price,
+      deposit: data.deposit,
+      hoa: data.hoa,
+      beds: data.beds,
+      baths: data.baths,
+      sqft: data.sqft,
+      floor: data.floor,
+      year_built: data.year_built,
+      description: data.description,
+      status: 'active',
+      property_type: data.property_type,
+      available_date: data.available_date || null,
+      pets: data.pets,
+      parking: data.parking,
+      laundry: data.laundry,
+      utilities: data.utilities,
+      contact_name: data.contact_name,
+      contact_phone: data.contact_phone,
+      contact_email: data.contact_email,
+      calendar_link: data.calendar_link,
+      website: data.website,
+      notes: data.notes,
+      // Mapped onto the columns that already exist rather than duplicated:
+      // amenities -> features, specials -> special, photos -> images.
+      features: data.amenities,
+      special: data.specials,
+      images: imageUrls,
+    });
+
+    // A PostgREST error is an object, not a thrown exception -- the old code
+    // never looked at it, so a rejected insert still rendered as success.
+    if (result.error) {
+      return failed('Could not save the listing: ' + result.error.message
+        + (/column|schema cache|PGRST204|42703/i.test(result.error.message || '')
+            ? ' — the listings migration (supabase/migrations/20260827_listings_fields_and_photo_bucket.sql) has not been applied to this project yet.'
+            : ''));
+    }
+    if (!result.data) {
+      return failed('The listing did not save and the database returned no reason. Nothing was written.');
+    }
+
+    savedListingId = result.data.id;
     listingData = data;
+    listingData.images = imageUrls;
     showStatus('success', '✅ Listing saved to EmporionPros! Now generating platform content...');
     renderPublisherOutput(data);
     if (btn) { btn.textContent = '✅ Saved!'; btn.style.background = '#0e7a4c'; }
   } catch(e) {
-    showStatus('error', '❌ Error saving: ' + (e.message || 'Unknown error'));
-    if (btn) { btn.disabled = false; btn.textContent = '💾 Save & Publish'; }
+    failed('Error saving: ' + (e.message || 'Unknown error'));
   }
 }
 
