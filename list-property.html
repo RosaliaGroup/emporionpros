@@ -588,7 +588,9 @@ var AMENITIES = [
 // ============================================================
 var PLATFORMS = [
   {id:'zillow',name:'Zillow',icon:'🟦',color:'#006AFF',type:'Rentals & For Sale',url:'https://zillow.com/rental-manager/'},
-  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlords'},
+  {id:'avail',name:'Avail',icon:'🟩',color:'#00C37B',type:'Rentals — also syndicates to Realtor.com, Zumper & 15+ sites',url:'https://www.avail.co/landlords'},
+  {id:'realtor',name:'Realtor.com',icon:'🏠',color:'#D92228',type:'Rentals & For Sale',url:'https://www.realtor.com/landlords/list-rental-property'},
+  {id:'facebook_page',name:'Facebook Page (auto-post)',icon:'🚀',color:'#1877F2',type:'One-click, via Graph API',url:''},
   {id:'facebook',name:'Facebook Marketplace',icon:'📘',color:'#1877F2',type:'Rentals & For Sale',url:'https://www.facebook.com/marketplace/create/rental'},
   {id:'apartments',name:'Apartments.com',icon:'🏢',color:'#E5001E',type:'Rentals',url:'https://www.apartments.com/add-your-listing/'},
   ];
@@ -695,7 +697,9 @@ function selectType(type, btn) {
     {id:'zillow',name:'Zillow',icon:'[Z]',color:'#006AFF',type:'Short-term',url:'https://zillow.com/rental-manager/'}
   ] : [
     {id:'zillow',name:'Zillow Rental Manager',icon:'[Z]',color:'#006AFF',type:'Rentals',url:'https://zillow.com/rental-manager/'},
-    {id:'avail',name:'Avail',icon:'[AV]',color:'#00C37B',type:'Rentals',url:'https://www.avail.co/landlords'},
+    {id:'avail',name:'Avail',icon:'[AV]',color:'#00C37B',type:'Rentals — also syndicates to Realtor.com, Zumper & 15+ sites',url:'https://www.avail.co/landlords'},
+    {id:'realtor',name:'Realtor.com',icon:'[R]',color:'#D92228',type:'Rentals & For Sale',url:'https://www.realtor.com/landlords/list-rental-property'},
+    {id:'facebook_page',name:'Facebook Page (auto-post)',icon:'[FP]',color:'#1877F2',type:'One-click, via Graph API',url:''},
     {id:'facebook',name:'Facebook Marketplace',icon:'[F]',color:'#1877F2',type:'Rentals',url:'https://www.facebook.com/marketplace/create/rental'},
     {id:'apartments',name:'Apartments.com',icon:'[AP]',color:'#E5001E',type:'Rentals',url:'https://www.apartments.com/add-your-listing/'}
   ];
@@ -1164,6 +1168,24 @@ function generatePlatformContent(data, platformId) {
       + (data.contact_email ? 'Email: ' + data.contact_email : '');
   }
 
+  if (platformId === 'facebook_page') {
+    var size = [beds!=='' ? beds+' bed' : null, baths!=='' ? baths+' bath' : null, data.sqft ? data.sqft+' sq ft' : null].filter(Boolean).join(' \u00b7 ');
+    return (data.title || '') + ' \u2014 ' + priceStr + '\n'
+      + addr + '\n' + (size ? size + '\n' : '') + '\n'
+      + desc + '\n\n'
+      + (data.laundry ? 'Laundry: ' + data.laundry + '\n' : '')
+      + (data.parking ? 'Parking: ' + data.parking + '\n' : '')
+      + (data.utilities ? 'Utilities: ' + data.utilities + '\n' : '')
+      + (data.pets && data.pets !== 'No Pets' ? 'Pets: ' + data.pets + '\n' : '')
+      + (data.available_date ? 'Available ' + data.available_date + '\n' : '')
+      + (data.specials ? 'Special: ' + data.specials + '\n' : '')
+      + '\n' + (type === 'rent' ? 'All lawful sources of income welcome, including housing vouchers.\n' : '')
+      + (data.contact_phone ? 'Message us or call/text ' + data.contact_phone + '\n' : 'Message us to schedule a tour\n')
+      + (data.calendar_link ? 'Book a tour: ' + data.calendar_link + '\n' : '')
+      + '\nListed by ' + (data.contact_name || 'EmporionPros agent')
+      + '\n\n(Posted automatically to your connected Facebook Page \u2014 click \u201cPost Now\u201d below. This does not touch Marketplace, which stays copy/paste.)';
+  }
+
   if (platformId === 'zumper' || platformId === 'hotpads') {
     var pName = platformId === 'zumper' ? 'ZUMPER' : 'HOTPADS';
     return pName + ' — Listing Data\n'
@@ -1200,17 +1222,43 @@ function generatePlatformContent(data, platformId) {
 // ============================================================
 // RENDER PUBLISHER OUTPUT
 // ============================================================
-function renderPublisherOutput(data) {
+async function renderPublisherOutput(data) {
   var activePlatforms = PLATFORMS.filter(function(p) { return selectedPlatforms.includes(p.id); });
+
+  // Check once whether this agent has a connected Facebook Page, so the
+  // facebook_page card can show a real "Post Now" button or a clear
+  // "connect first" message instead of guessing.
+  var fbConnected = false;
+  if (activePlatforms.some(function(p){ return p.id === 'facebook_page'; }) && typeof EPIntegrations !== 'undefined') {
+    try { fbConnected = (await EPIntegrations.getStatus('facebook_page')).connected; } catch (e) { fbConnected = false; }
+  }
+
   var html = activePlatforms.map(function(p) {
     var content = generatePlatformContent(data, p.id);
     var safeId = 'export-' + p.id;
+
+    if (p.id === 'facebook_page') {
+      var actionHtml = fbConnected
+        ? '<button class="copy-btn" id="fb-page-post-btn" onclick="postToFacebookPageNow(this)" style="background:#1877F2;color:#fff;border-color:#1877F2">\ud83d\ude80 Post Now</button>'
+        : '<span style="font-size:12px;color:#a15c00">Not connected \u2014 add a Facebook Page in Agent Settings to enable one-click posting</span>';
+      return '<div class="export-card">'
+        + '<div class="export-card-header">'
+        + '<div class="export-card-title">' + p.icon + ' ' + p.name + '</div>'
+        + '<div style="display:flex;gap:8px;align-items:center">'
+        + '<button class="copy-btn" onclick="copyContent(\''+safeId+'\',this)">\ud83d\udccb Copy</button>'
+        + actionHtml
+        + '</div></div>'
+        + '<div class="export-card-body" id="'+safeId+'">'+escapeHtml(content)+'</div>'
+        + '<div id="fb-page-post-status" style="font-size:12px;margin-top:8px"></div>'
+        + '</div>';
+    }
+
     return '<div class="export-card">'
       + '<div class="export-card-header">'
       + '<div class="export-card-title">' + p.icon + ' ' + p.name + '</div>'
       + '<div style="display:flex;gap:8px;align-items:center">'
-      + '<button class="copy-btn" onclick="copyContent(\''+safeId+'\',this)">📋 Copy</button>'
-      + '<a class="open-btn" href="'+p.url+'" target="_blank">Open Portal ↗</a>'
+      + '<button class="copy-btn" onclick="copyContent(\''+safeId+'\',this)">\ud83d\udccb Copy</button>'
+      + '<a class="open-btn" href="'+p.url+'" target="_blank">Open Portal \u2197</a>'
       + '</div></div>'
       + '<div class="export-card-body" id="'+safeId+'">'+escapeHtml(content)+'</div>'
       + '</div>';
@@ -1218,6 +1266,26 @@ function renderPublisherOutput(data) {
   document.getElementById('platform-exports').innerHTML = html;
   document.getElementById('publisher-output').style.display = 'block';
   document.getElementById('publisher-output').scrollIntoView({behavior:'smooth'});
+}
+
+// Fires the real Graph API post for the just-saved listing. savedListingId
+// is set in saveListing() right after the Supabase insert succeeds.
+async function postToFacebookPageNow(btn) {
+  if (!savedListingId) return;
+  var statusEl = document.getElementById('fb-page-post-status');
+  btn.disabled = true;
+  btn.textContent = '\u23f3 Posting...';
+  var result = await EPIntegrations.postToFacebookPage(savedListingId);
+  if (result.success) {
+    btn.textContent = '\u2705 Posted!';
+    btn.style.background = '#0e7a4c';
+    btn.style.borderColor = '#0e7a4c';
+    if (statusEl) statusEl.innerHTML = 'Live on your Page: <a href="'+result.url+'" target="_blank">'+result.url+'</a>';
+  } else {
+    btn.disabled = false;
+    btn.textContent = '\ud83d\ude80 Post Now';
+    if (statusEl) { statusEl.style.color = '#b3261e'; statusEl.textContent = '\u274c ' + result.error; }
+  }
 }
 
 function copyContent(id, btn) {

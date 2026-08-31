@@ -304,6 +304,50 @@ const EPListings = {
 };
 
 // ============================================
+// INTEGRATIONS MODULE — platform connections (e.g. Facebook Page)
+// ============================================
+// Reads only the agent_integration_status view, which exposes whether a
+// platform is connected and never the access token itself. The token lives
+// in agent_integrations, which has RLS enabled with no client-facing
+// policies -- only a Netlify function using the service_role key can read
+// or write it.
+const EPIntegrations = {
+  // Is the current signed-in agent connected to a given platform?
+  async getStatus(platform) {
+    if (!getSupabase()) return { connected: false, error: null };
+    const user = await EPAuth.getUser();
+    if (!user) return { connected: false, error: null };
+    const { data, error } = await getSupabase()
+      .from('agent_integration_status')
+      .select('*')
+      .eq('agent_id', user.id)
+      .eq('platform', platform)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (error) return { connected: false, error };
+    return { connected: !!data, error: null };
+  },
+
+  // Fire the server-side Graph API post for a saved listing. Requires the
+  // agent to already have a connected Page (see getStatus above); the
+  // function itself re-checks and returns a clear error if not.
+  async postToFacebookPage(listingId) {
+    try {
+      const res = await fetch('/api/fb-page-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listing_id: listingId }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { success: false, error: data.error || 'Failed to post' };
+      return { success: true, url: data.url };
+    } catch (e) {
+      return { success: false, error: e.message || 'Network error' };
+    }
+  },
+};
+
+// ============================================
 // APPOINTMENTS MODULE
 // ============================================
 const EPAppointments = {
