@@ -67,7 +67,7 @@
           ' within one business day to set up your trial.';
         form.replaceWith(note);
       } else {
-        note.textContent = 'Something went wrong. Please email info@emporionpros.com or call (862) 288-7972.';
+        note.textContent = 'Something went wrong. Please email info@emporionpros.com.';
         form.insertAdjacentElement('afterend', note);
         if (btn) { btn.disabled = false; btn.textContent = original; }
       }

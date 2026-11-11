@@ -122,7 +122,7 @@ SPEAKING STYLE:
         firstMessage: "Hi! This is Aria calling from Iron Sixty-Five Apartments in Newark. I saw that you were interested in our building — do you have a quick minute?",
         voicemailDetection: {
           enabled: true,
-          provider: "twilio",
+          provider: "vapi",
           voicemailDetectionTypes: ["machine_end_beep", "machine_end_silence", "machine_end_other"],
           machineDetectionTimeout: 8,
           machineDetectionSpeechThreshold: 3500,
