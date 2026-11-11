@@ -1,7 +1,30 @@
+// Send one SMS through Telnyx. Env: TELNYX_API_KEY, TELNYX_FROM_NUMBER (E.164, e.g. +18625551234),
+// optional TELNYX_MESSAGING_PROFILE_ID, SMS_DRY_RUN=true to log without sending.
+async function sendTelnyxSms(to, text) {
+  const apiKey = process.env.TELNYX_API_KEY;
+  const from = process.env.TELNYX_FROM_NUMBER;
+  if (!apiKey || !from) return { ok: false, status: 500, error: 'Telnyx not configured (TELNYX_API_KEY / TELNYX_FROM_NUMBER)' };
+  let digits = String(to).replace(/\D/g, '');
+  if (digits.length === 10) digits = '1' + digits;
+  const toE164 = '+' + digits;
+  if (String(process.env.SMS_DRY_RUN).toLowerCase() === 'true') {
+    console.log('[SMS_DRY_RUN] would send to', toE164, '| length', text.length);
+    return { ok: true, status: 200, id: 'dry-run', to: toE164 };
+  }
+  const body = { from, to: toE164, text };
+  if (process.env.TELNYX_MESSAGING_PROFILE_ID) body.messaging_profile_id = process.env.TELNYX_MESSAGING_PROFILE_ID;
+  const res = await fetch('https://api.telnyx.com/v2/messages', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const raw = await res.text();
+  let json = {}; try { json = JSON.parse(raw); } catch (e) {}
+  if (!res.ok) return { ok: false, status: res.status, error: raw };
+  return { ok: true, status: 200, id: (json.data && json.data.id) || null, to: toE164 };
+}
+
 exports.handler = async function(event, context) {
-  const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-  const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-  const TWILIO_PHONE = process.env.TWILIO_PHONE;
   
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -79,33 +102,13 @@ When you're ready to see the apartments, book a tour here:
 Reply anytime with questions! 🏢`;
     }
     
-    // Send SMS via Twilio
-    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
-    
-    const response = await fetch(twilioUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Basic ' + Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64'),
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        To: phone,
-        From: TWILIO_PHONE,
-        Body: message
-      })
-    });
-    
-    const responseData = await response.text();
-    
-    if (!response.ok) {
-      console.error('Twilio error:', responseData);
-      return {
-        statusCode: response.status,
-        headers,
-        body: JSON.stringify({ error: 'Twilio error: ' + responseData })
-      };
+    // Send SMS via Telnyx
+    const result = await sendTelnyxSms(phone, message);
+    if (!result.ok) {
+      console.error('Telnyx error:', result.error);
+      return { statusCode: result.status || 500, headers, body: JSON.stringify({ error: 'SMS error: ' + result.error }) };
     }
-    
+
     console.log('SMS sent successfully to:', phone, '| Tour booked:', !!tourBooked);
     
     return {
