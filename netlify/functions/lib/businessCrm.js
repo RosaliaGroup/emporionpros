@@ -24,7 +24,8 @@ function stage(p) {
   if (p.vendor_id) return 'profile_created';
   if (p.vendor_profile_interest) return 'interested';
   // "Contacted" means a person was reached; a voicemail or phone menu is not.
-  if (['called', 'completed', 'hung_up'].includes(p.status)) return 'contacted';
+  if (['called', 'completed', 'hung_up', 'message_left', 'email_asked'].includes(p.status)) return 'contacted';
+  if (p.status === 'not_interested') return 'not_interested';
   if (p.status === 'manual' && (p.call_attempts || 0) > 0) return 'contacted';
   return 'new';
 }
@@ -36,6 +37,11 @@ function nextStep(p) {
     : 'No one picked up after 2 tries. Call by hand.';
   if (p.status === 'hung_up') return 'Hung up early. Aria tries once more at a different time of day.';
   if (p.status === 'manual' && tries > 0) return 'Hung up on Aria twice. Call by hand.';
+  if (p.status === 'message_left') return tries < 2 ? 'Left a message with their front desk. Aria calls back in 2 days if they have not replied.'
+    : 'Left messages twice with no reply. Call by hand.';
+  if (p.status === 'email_asked') return `They asked for the details by email${p.email ? ' (' + p.email + ')' : ''}. Send the directory info.`;
+  // Every conversation needs an owner unless it already ended in a listing.
+  if (['called', 'completed'].includes(p.status) && !p.vendor_id) return 'Talked to someone, no decision yet. Review the call and follow up.';
   return null;
 }
 

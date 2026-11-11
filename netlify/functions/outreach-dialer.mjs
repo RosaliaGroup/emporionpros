@@ -70,6 +70,12 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
       }).slice(0, n - rows.length);
       rows = rows.concat(pick);
     }
+    // One call back after a receptionist took a message and no one replied.
+    if (rows.length < n) {
+      const before = new Date(now().getTime() - RETRY_AFTER_DAYS * 864e5).toISOString();
+      const more = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.message_left&ai_call_allowed=is.true&call_attempts=lt.2&last_called_at=lt.${encodeURIComponent(before)}&order=last_called_at.asc&limit=${n - rows.length}`)).json();
+      rows = rows.concat(Array.isArray(more) ? more : []);
+    }
     if (!rows.length) return { skipped: 'queue empty', done };
 
     const phoneIds = (env.OUTREACH_PHONE_IDS || DEFAULT_PHONE_IDS.join(',')).split(',').map((s) => s.trim()).filter(Boolean);
