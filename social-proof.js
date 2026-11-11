@@ -188,8 +188,8 @@ box.appendChild(el);
 requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('in')})});
 setTimeout(function(){el.classList.replace('in','out');setTimeout(function(){el.remove();showing=false},400)},5500);
 }
-setTimeout(show,2500);
-setInterval(function(){if(!showing)show()},Math.floor(Math.random()*6000)+8000);
+// Simulated activity pop-ups disabled 2026-11-10: they showed invented names and events.
+// Re-enable only with real, consented activity data.
 
 // ── COST ANALYSIS ──
 if(isDev){return;} // No cost analysis on developer page
