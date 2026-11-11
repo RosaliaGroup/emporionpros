@@ -7,8 +7,9 @@ const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 const OUTREACH_ASSISTANT_ID = 'f9707c25-f508-4836-ba56-adb7ff1dcd04';
 
-const NO_CONTACT = /voicemail|no-answer|did-not-answer|busy|failed|error|rejected|unanswered/i;
-const DNC = /\b(do not|don't|dont|stop) call|take (me|us) off|remove (me|us|our number)|not interested\b/i;
+// Outcome rules (voicemail / phone menu / early hang-up / conversation) live
+// in lib/callOutcome so the reclassify job in outreach-maintenance uses the same ones.
+const { classifyCall } = require('./lib/callOutcome');
 
 const json = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 
@@ -32,13 +33,25 @@ exports.handler = async function (event) {
   if (!phone) return json(200, { ok: true, note: 'no phone' });
 
   const transcript = String((call.artifact && call.artifact.transcript) || call.transcript || (msg.artifact && msg.artifact.transcript) || '');
-  const summary = String((call.analysis && call.analysis.summary) || '');
+  let summary = String((call.analysis && call.analysis.summary) || '');
+  if (!summary) {
+    // The summary can land a moment after the report; look once more.
+    await new Promise((ok) => setTimeout(ok, 4000));
+    try {
+      const again = await (await fetch('https://api.vapi.ai/call/' + callId, { headers: { Authorization: 'Bearer ' + process.env.VAPI_API_KEY } })).json();
+      summary = String((again.analysis && again.analysis.summary) || '');
+    } catch (e) { /* no summary */ }
+  }
   const ended = String(call.endedReason || msg.endedReason || '');
-  const callerSaid = transcript.split('\n').filter((l) => /^(User|Customer)\s*:/i.test(l)).join('\n');
 
-  let status = 'called';
-  if (DNC.test(callerSaid)) status = 'do_not_call';
-  else if (NO_CONTACT.test(ended) || !callerSaid.trim()) status = 'no_answer';
+  // The dialer has already counted this call in call_attempts.
+  let attempts = 1;
+  try {
+    const cur = await (await fetch(SB_URL + '/rest/v1/outreach_prospects?select=call_attempts&phone=eq.' + encodeURIComponent(phone) + '&limit=1',
+      { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } })).json();
+    if (Array.isArray(cur) && cur[0]) attempts = cur[0].call_attempts || 1;
+  } catch (e) { /* default 1 */ }
+  const { status } = classifyCall({ transcript, endedReason: ended, callAttempts: attempts });
 
   const update = {
     status,

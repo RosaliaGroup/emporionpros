@@ -58,6 +58,18 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
       const more = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.no_answer&ai_call_allowed=is.true&call_attempts=lt.${MAX_ATTEMPTS}&last_called_at=lt.${encodeURIComponent(before)}&order=last_called_at.asc&limit=${n - rows.length}`)).json();
       rows = rows.concat(more);
     }
+    // One retry for an early hang-up, a day or more later and at a different
+    // time of day (at least 2 hours off the first call's hour). A second
+    // hang-up turns into 'manual' in the webhook, for a person to call.
+    if (rows.length < n) {
+      const dayAgo = new Date(now().getTime() - 20 * 3600e3).toISOString();
+      const cands = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts,last_called_at&status=eq.hung_up&ai_call_allowed=is.true&call_attempts=lt.2&last_called_at=lt.${encodeURIComponent(dayAgo)}&order=last_called_at.asc&limit=50`)).json();
+      const pick = (Array.isArray(cands) ? cands : []).filter((c) => {
+        const h = Number(nyParts(new Date(c.last_called_at)).hour) % 24;
+        return Math.abs(h - hour) >= 2;
+      }).slice(0, n - rows.length);
+      rows = rows.concat(pick);
+    }
     if (!rows.length) return { skipped: 'queue empty', done };
 
     const phoneIds = (env.OUTREACH_PHONE_IDS || DEFAULT_PHONE_IDS.join(',')).split(',').map((s) => s.trim()).filter(Boolean);

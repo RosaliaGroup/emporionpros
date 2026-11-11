@@ -23,8 +23,20 @@ function stage(p) {
   if (p.status === 'do_not_call') return 'do_not_contact';
   if (p.vendor_id) return 'profile_created';
   if (p.vendor_profile_interest) return 'interested';
-  if (['called', 'completed', 'no_answer'].includes(p.status)) return 'contacted';
+  // "Contacted" means a person was reached; a voicemail or phone menu is not.
+  if (['called', 'completed', 'hung_up'].includes(p.status)) return 'contacted';
+  if (p.status === 'manual' && (p.call_attempts || 0) > 0) return 'contacted';
   return 'new';
+}
+
+// What happens next, in plain words, for the CRM's "Next step" column.
+function nextStep(p) {
+  const tries = p.call_attempts || 0;
+  if (p.status === 'no_answer') return tries < 2 ? 'No one picked up (voicemail or phone menu). Aria tries again in 2 days.'
+    : 'No one picked up after 2 tries. Call by hand.';
+  if (p.status === 'hung_up') return 'Hung up early. Aria tries once more at a different time of day.';
+  if (p.status === 'manual' && tries > 0) return 'Hung up on Aria twice. Call by hand.';
+  return null;
 }
 
 // Keep the AI summary and the end reason; the raw transcript stays here.
@@ -50,6 +62,7 @@ function toContact(p) {
     city: p.city,
     county: p.county,
     stage: stage(p),
+    next_step: nextStep(p),
     call_summary: summaryOf(p.call_summary),
     call_attempts: p.call_attempts || 0,
     last_called_at: p.last_called_at,
@@ -90,4 +103,4 @@ async function push(prospects) {
   return sent;
 }
 
-module.exports = { readProspects, push, toContact, businessType, stage, summaryOf };
+module.exports = { readProspects, push, toContact, businessType, stage, nextStep, summaryOf };
