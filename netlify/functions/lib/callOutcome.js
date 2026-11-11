@@ -9,10 +9,18 @@
 //   hung_up      a person answered and hung up within their first line or two
 //                -> one retry at a different time of day, then a person calls
 //   manual       hung up on the retry too -> a person follows up by hand
+//   message_left a receptionist or answering service took a message
+//                -> Aria calls back once, 2 days later
+//   email_asked  they asked for the details by email -> a person emails them
 //   do_not_call  asked not to be called
-//   called       a real conversation happened
+//   called       any other conversation -> a person reviews it
+// Calls made after 2026-11-11 also carry VAPI's structured outcome, which
+// outreach-webhook prefers over these transcript rules (see fromStructured).
 
 const NO_CONTACT_ENDED = /voicemail|no-answer|did-not-answer|busy|failed|error|rejected|unanswered/i;
+// A receptionist / answering service / AI receptionist taking a message.
+const MESSAGE = /take (down )?(your|a) (information|info|message|name)|forward (it|this|your)|pass (it|this|that) (along|on)|leave (a|your) name and number|mention it to (them|him|her)|give you a call ?back|have (someone|them|him|her) call you|get back to you/i;
+const EMAIL = /by email|email only|via email|send (us |your |the |over )?(an? )?(email|info|information|details)|email (us|it|me)/i;
 const DNC = /\b(do not|don't|dont|stop) call|take (me|us) off|remove (me|us|our number)|not interested\b/i;
 // What recordings say. Matched per caller line.
 const MACHINE = new RegExp([
@@ -25,6 +33,8 @@ const MACHINE = new RegExp([
   'dial (nine one one|911)', 'if you know your party', 'extension', 'main menu', 'record your message',
   'get back to you as soon as', 'return your call', 'we will call you back', 'cation journey starts here',
   'do not currently service your area', 'invalid (entry|selection)', 'being recorded', 'call is being transferred',
+  'enter (the |your )?(first|last) (name|one or more)', 'dial by name', 'please dial', 'dialed the wrong number',
+  'connect you to a local provider', 'followed by the pound',
 ].join('|'), 'i');
 
 function callerLines(transcript) {
@@ -65,6 +75,11 @@ function classifyCall({ transcript, endedReason, callAttempts = 1 } = {}) {
     const machine = lines.some((l) => MACHINE.test(l));
     return { status: 'no_answer', reason: machine ? 'voicemail or phone menu' : 'no person reached' };
   }
+  // Checked before the hang-up rule: a receptionist who takes a message and
+  // then hangs up has still taken the message.
+  const realSaid = real.join('\n');
+  if (MESSAGE.test(realSaid)) return { status: 'message_left', reason: 'took a message' };
+  if (EMAIL.test(realSaid)) return { status: 'email_asked', reason: 'asked for email' };
   if (hungUp && real.length <= 2) {
     return callAttempts >= 2
       ? { status: 'manual', reason: 'hung up on Aria twice' }
@@ -73,4 +88,18 @@ function classifyCall({ transcript, endedReason, callAttempts = 1 } = {}) {
   return { status: 'called', reason: 'conversation' };
 }
 
-module.exports = { classifyCall, callerLines, humanLines, substantive, MACHINE, DNC };
+// Structured outcome from VAPI's analysis (analysisPlan.structuredDataPlan),
+// mapped onto the same statuses. Returns null when there is none.
+function fromStructured(sd, callAttempts = 1) {
+  const o = sd && String(sd.outcome || '');
+  if (!o) return null;
+  const map = {
+    profile_info_given: 'called', interested: 'called', call_back_later: 'message_left',
+    message_left: 'message_left', email_requested: 'email_asked', not_interested: 'not_interested',
+    do_not_call: 'do_not_call', no_person_reached: 'no_answer', wrong_number: 'no_answer',
+  };
+  if (o === 'hung_up_early') return { status: callAttempts >= 2 ? 'manual' : 'hung_up', reason: 'hung up early' };
+  return map[o] ? { status: map[o], reason: o } : null;
+}
+
+module.exports = { classifyCall, fromStructured, callerLines, humanLines, substantive, MACHINE, MESSAGE, EMAIL, DNC };

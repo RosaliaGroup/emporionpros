@@ -56,6 +56,20 @@ exports.handler = async (event) => {
       return json(200, { analysisPlan: a.analysisPlan || null, summaryPlan: (a.analysisPlan || {}).summaryPlan || null, serverMessages: a.serverMessages || (a.server && a.server.messages) || null, lastCall: call });
     }
 
+    if (body.action === 'call') {
+      // What happened on one prospect's last call: tool use (key presses), turns.
+      const row = await sb(`outreach_prospects?select=vapi_call_id&id=eq.${Number(body.id) || 0}&limit=1`);
+      if (!row || !row[0] || !row[0].vapi_call_id) return json(404, { error: 'no call' });
+      const c = await (await fetch('https://api.vapi.ai/call/' + row[0].vapi_call_id, { headers: VAPI() })).json();
+      const msgs = (c.messages || []).map((m) => ({ role: m.role, t: m.secondsFromStart,
+        text: m.message ? String(m.message).slice(0, 160) : undefined,
+        tools: m.toolCalls ? m.toolCalls.map((t) => (t.function && t.function.name) + ' ' + ((t.function && t.function.arguments) || '')) : undefined,
+        result: m.role === 'tool_call_result' ? String(m.result || '').slice(0, 160) : undefined }));
+      const a = await (await fetch('https://api.vapi.ai/assistant/' + ASSISTANT_ID, { headers: VAPI() })).json();
+      return json(200, { endedReason: c.endedReason, model: a.model && { provider: a.model.provider, model: a.model.model, tools: a.model.tools, toolIds: a.model.toolIds },
+        transcriber: a.transcriber, firstMessageMode: a.firstMessageMode, messages: msgs });
+    }
+
     if (body.action === 'enable-summary') {
       const a = await (await fetch('https://api.vapi.ai/assistant/' + ASSISTANT_ID, { headers: VAPI() })).json();
       const plan = Object.assign({}, a.analysisPlan || {});
