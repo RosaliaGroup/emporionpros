@@ -191,6 +191,9 @@ setTimeout(function(){el.classList.replace('in','out');setTimeout(function(){el.
 // Simulated activity pop-ups disabled 2026-11-10: they showed invented names and events.
 // Re-enable only with real, consented activity data.
 
+// Cost-comparison widget disabled 2026-11-11: its savings, per-lead and "100% verified leads" claims
+// were not backed by data, and its prices no longer matched the current $49/$99/$249 list.
+return;
 // ── COST ANALYSIS ──
 if(isDev){return;} // No cost analysis on developer page
 

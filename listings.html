@@ -154,7 +154,7 @@ function applyFilters() {
     if (currentType === 'sale' && p.type !== 'sale') return false;
     if (currentType === 'rent' && p.type !== 'rent') return false;
     if (currentType === 'commercial' && p.propType !== 'Commercial') return false;
-    if (searchVal && !p.city.toLowerCase().includes(searchVal) && !p.address.toLowerCase().includes(searchVal) && !p.zip.includes(searchVal)) return false;
+    if (searchVal && !(p.city + ', ' + p.state + ' ' + p.address + ' ' + p.zip + ' ' + p.title + ' ' + (p.source || '')).toLowerCase().includes(searchVal)) return false;
     if (p.price < minP || p.price > maxP) return false;
     if (checkedTypes.length && !checkedTypes.includes(p.propType)) return false;
     if (currentBeds && p.beds < currentBeds) return false;

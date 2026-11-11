@@ -102,7 +102,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('header-mount').innerHTML = EP.renderHeader('listings');
   document.getElementById('ai-mount').innerHTML = EP.renderAIWidget();
-  const id = parseInt(new URLSearchParams(window.location.search).get('id')) || 1;
+  const id = parseInt(new URLSearchParams(window.location.search).get('id')) || 100;
   const p = EP.properties.find(x => x.id === id);
   if (!p) { document.getElementById('detail-root').innerHTML = '<p style="padding:40px">Property not found. <a href="listings.html">&larr; Back</a></p>'; return; }
   document.title = p.title + ' — Emporion Pros';

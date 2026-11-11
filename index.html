@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ironPointe = iron.filter(p => p.source === 'Iron Pointe');
   if (iron65.length) ironPicks.push(iron65[0], iron65[Math.min(2, iron65.length-1)]);
   if (ironPointe.length) ironPicks.push(ironPointe[0]);
-  const featured = [...ironPicks, ...regular.slice(0, 6 - ironPicks.length)];
+  const featured = [...ironPicks, ...regular, ...iron.filter(p => !ironPicks.includes(p))].slice(0, 6);
 
   document.getElementById('featured-grid').innerHTML = featured.map(p => buildPropCard(p)).join('');
 });

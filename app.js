@@ -28,6 +28,16 @@ const EP = {
     capture: (lead) => {
       const full = { ...lead, id: Date.now(), date: new Date().toISOString(), status: 'new' };
       EP.store.push('ep_leads', full);
+      // Also save to the Emporion Pros leads table (public insert only; reads need admin).
+      try {
+        const extra = [lead.intent && ('Intent: ' + lead.intent), lead.message].filter(Boolean).join(' — ');
+        fetch('https://nfwxruzhgzkhklvzmfsw.supabase.co/rest/v1/leads', {
+          method: 'POST', keepalive: true,
+          headers: { apikey: 'sb_publishable_jN2I8tqw1-RmXEdB6wsPCg_dP6ImgNG', Authorization: 'Bearer sb_publishable_jN2I8tqw1-RmXEdB6wsPCg_dP6ImgNG', 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ name: String(lead.name || '').slice(0, 120), email: String(lead.email || '').slice(0, 160) || null, phone: String(lead.phone || '').slice(0, 30) || null,
+            source: String(lead.source || 'website').slice(0, 60), page: document.title.slice(0, 150) + ' (' + location.pathname + ')', role: 'customer', status: 'new', message: extra.slice(0, 2000) })
+        }).catch(() => {});
+      } catch (err) {}
       EP.notify(`📥 New lead: ${lead.name}`, 'success');
       return full;
     },
@@ -81,18 +91,6 @@ const EP = {
 
   // ── Property Data (Public Records Simulation) ────────────
   properties: [
-    { id:1, title:"Colonial Revival Home", price:485000, type:"sale", propType:"Single Family", beds:4, baths:2.5, sqft:2400, address:"North Ward", city:"Newark", state:"NJ", zip:"07107", lat:40.7437, lng:-74.1945, img:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=900","https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900","https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900"], desc:"Solid colonial revival home fully renovated. Open concept kitchen, hardwood floors throughout, updated bathrooms. Large fenced yard. Walk to parks and schools.", features:["Driveway","Hardwood Floors","Updated Kitchen","Central AC","Fenced Yard","New Roof 2023"], agentId:1, source:"Public Record", daysListed:5, yearBuilt:1965 },
-    { id:2, title:"Modern Downtown Condo", price:3200, type:"rent", propType:"Condo", beds:2, baths:2, sqft:1100, address:"Downtown", city:"Newark", state:"NJ", zip:"07102", lat:40.7357, lng:-74.1724, img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900"], desc:"Updated condo with city views, modern finishes, in-unit laundry. Building features gym and 24hr concierge. Pet friendly. Close to Penn Station.", features:["Gym","Doorman","In-Unit Laundry","Parking","City Views","Pet Friendly"], agentId:2, source:"Public Record", daysListed:3, yearBuilt:2005 },
-    { id:3, title:"Classic Brick Row House", price:389000, type:"sale", propType:"Single Family", beds:3, baths:2, sqft:1800, address:"Forest Hill", city:"Newark", state:"NJ", zip:"07104", lat:40.7489, lng:-74.1621, img:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=900","https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=900"], desc:"Classic Newark brick row house on a quiet tree-lined block. Original hardwood floors, updated eat-in kitchen, full basement. Parking in rear. Move-in ready.", features:["Rear Parking","Hardwood Floors","Full Basement","Front Stoop","Updated Kitchen","Fenced Yard"], agentId:1, source:"Public Record", daysListed:12, yearBuilt:1938 },
-    { id:4, title:"Investor Special — Duplex", price:395000, type:"sale", propType:"Multi-Family", beds:6, baths:4, sqft:3000, address:"West Side", city:"Newark", state:"NJ", zip:"07103", lat:40.7241, lng:-74.2041, img:"https://images.unsplash.com/photo-1555636222-cae831e670b3?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1555636222-cae831e670b3?w=900"], desc:"Cash-flowing duplex, both units occupied. Unit A: 3bed/2bath $1,600/mo. Unit B: 3bed/2bath $1,550/mo. New electrical, plumbing updated 2022.", features:["Tenants in Place","New Electrical","Updated Plumbing","Separate Utilities","Parking","Laundry"], agentId:3, source:"Public Record", daysListed:8, yearBuilt:1952 },
-    { id:5, title:"Updated Townhouse — Near Transit", price:2800, type:"rent", propType:"Townhouse", beds:3, baths:2.5, sqft:1800, address:"Ironbound", city:"Newark", state:"NJ", zip:"07105", lat:40.7320, lng:-74.1580, img:"https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=900"], desc:"Renovated townhouse with private backyard and attached garage. New kitchen, updated baths, fresh paint throughout. Walking distance to Penn Station — 20 min to NYC.", features:["Private Backyard","Attached Garage","Updated Kitchen","New Baths","Near Transit","Central AC"], agentId:2, source:"Public Record", daysListed:2, yearBuilt:1988 },
-    { id:6, title:"Charming Victorian — Starter Home", price:299000, type:"sale", propType:"Single Family", beds:3, baths:1.5, sqft:1650, address:"Weequahic", city:"Newark", state:"NJ", zip:"07108", lat:40.7189, lng:-74.2138, img:"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=900"], desc:"Solid Victorian on a good block. Original woodwork, covered front porch, updated kitchen and bath. Deep lot with room to add a garage. Great starter home.", features:["Front Porch","Original Woodwork","Updated Kitchen","Deep Lot","Hardwood Floors","Full Attic"], agentId:3, source:"Public Record", daysListed:19, yearBuilt:1904 },
-    { id:7, title:"Studio — Prime Location", price:1650, type:"rent", propType:"Studio", beds:1, baths:1, sqft:550, address:"Downtown", city:"Newark", state:"NJ", zip:"07102", lat:40.7362, lng:-74.1699, img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900"], desc:"Bright studio with exposed brick and updated finishes. Steps from Prudential Center, restaurants, and nightlife. Utilities included. No broker fee.", features:["Utilities Included","No Broker Fee","Exposed Brick","Near Transit","Laundry in Building","High Ceilings"], agentId:2, source:"Public Record", daysListed:1, yearBuilt:1920 },
-    { id:8, title:"Commercial Retail Space", price:4500, type:"rent", propType:"Commercial", beds:0, baths:2, sqft:2200, address:"Broad St Corridor", city:"Newark", state:"NJ", zip:"07104", lat:40.7452, lng:-74.1712, img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1497366216548-37526070297c?w=900"], desc:"Prime ground-floor retail space on busy Broad St. 20ft ceilings, exposed brick, new HVAC. High foot traffic, great signage opportunity. NNN lease.", features:["Corner Location","20ft Ceilings","New HVAC","High Foot Traffic","NNN Lease","Loading Dock"], agentId:1, source:"Public Record", daysListed:14, yearBuilt:1985 },
-    { id:9, title:"Renovated Cape Cod", price:359000, type:"sale", propType:"Single Family", beds:3, baths:2, sqft:1450, address:"Weequahic", city:"Newark", state:"NJ", zip:"07112", lat:40.7044, lng:-74.1963, img:"https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?w=900"], desc:"Fully updated cape cod on a quiet residential street. New roof, new HVAC, updated electric and plumbing. White shaker kitchen, vinyl floors, new bathrooms.", features:["New Roof","New HVAC","Updated Electric","White Kitchen","New Bathrooms","Driveway"], agentId:3, source:"Public Record", daysListed:6, yearBuilt:1958 },
-    { id:10, title:"4-Unit Apartment Building", price:875000, type:"sale", propType:"Multi-Family", beds:10, baths:8, sqft:5200, address:"South Ward", city:"Newark", state:"NJ", zip:"07114", lat:40.7280, lng:-74.1891, img:"https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1460317442991-0ec209397118?w=900"], desc:"Fully occupied 4-unit brick building. 3 long-term tenants, one unit recently renovated. Cap rate 7.2%. Separate gas and electric. Strong rental history.", features:["Fully Occupied","Cap Rate 7.2%","Separate Utilities","Parking Lot","Laundry Room","Brick Construction"], agentId:1, source:"Public Record", daysListed:21, yearBuilt:1968 },
-    { id:11, title:"Brick Rowhouse — Lincoln Park", price:449000, type:"sale", propType:"Single Family", beds:4, baths:2, sqft:2200, address:"Lincoln Park", city:"Newark", state:"NJ", zip:"07102", lat:40.7398, lng:-74.1740, img:"https://images.unsplash.com/photo-1599427303058-f04cbcf4756f?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1599427303058-f04cbcf4756f?w=900"], desc:"Well-maintained brick rowhouse steps from Lincoln Park. Original hardwood floors, updated kitchen, three bedrooms on second floor plus finished third floor. Private garden.", features:["Private Garden","Hardwood Floors","Updated Kitchen","Finished 3rd Floor","Front Porch","Near Park"], agentId:2, source:"Public Record", daysListed:4, yearBuilt:1910 },
-    { id:12, title:"Furnished 2BR — Short-Term OK", price:2200, type:"rent", propType:"Condo", beds:2, baths:2, sqft:1050, address:"University Heights", city:"Newark", state:"NJ", zip:"07102", lat:40.7341, lng:-74.1746, img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=400&fit=crop", imgs:["https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900"], desc:"Fully furnished condo ideal for travel nurses, executives, and short-term stays. All utilities included, high-speed internet, smart TV. Flexible lease terms.", features:["Fully Furnished","All Utilities","Smart TV","Flexible Lease","High-Speed WiFi","Gym Access"], agentId:3, source:"Public Record", daysListed:7, yearBuilt:2010 },
 
     // ═══════════════════════════════════════════════════════════
     // IRON 65 — 65 McWhorter St, Newark NJ 07105
@@ -120,23 +118,11 @@ const EP = {
 
   // ── Agents ────────────────────────────────────────────────
   agents: [
-    { id:1, name:"Carlos Rivera", title:"Senior Listing Agent", phone:"(973) 555-0101", email:"carlos@emporionpros.com", areas:["Newark","Elizabeth","Harrison"], specialties:["Residential","Investment","Commercial"], license:"NJ-RE-001234", rating:4.9, reviews:87, deals:142, photo:"CR", bio:"12+ years helping buyers and sellers in Essex County. Specializes in investment properties and first-time buyers. Fluent in English and Spanish.", languages:["English","Spanish"] },
-    { id:2, name:"Priya Nair", title:"Luxury Property Specialist", phone:"(973) 555-0202", email:"priya@emporionpros.com", areas:["Newark","Montclair","Bloomfield"], specialties:["Luxury","Condos","Rentals"], license:"NJ-RE-002345", rating:4.8, reviews:64, deals:98, photo:"PN", bio:"Boutique luxury specialist with a background in interior design. Brings a unique eye to property presentation and negotiation.", languages:["English","Hindi"] },
-    { id:3, name:"Marcus Webb", title:"Investment & Commercial Agent", phone:"(973) 555-0303", email:"marcus@emporionpros.com", areas:["Newark","Irvington","East Orange"], specialties:["Multi-Family","Commercial","Fix & Flip"], license:"NJ-RE-003456", rating:4.7, reviews:52, deals:76, photo:"MW", bio:"Dedicated to helping investors build wealth through real estate. Expert in off-market deals, 1031 exchanges, and property analysis.", languages:["English"] }
+    { id:1, name:"Emporion Pros Team", title:"Leasing & Sales Inquiries", phone:"(862) 369-0005", email:"info@emporionpros.com", areas:["Newark","Essex County"], specialties:["Rentals","Sales","Property Owners"], photo:"EP", bio:"Questions about a listing, a showing, or listing your property? Call or email the Emporion Pros team. Calls are answered by Aria, our AI assistant, who can take your details and connect you with the team.", languages:["English"] }
   ],
 
   // ── Vendors ───────────────────────────────────────────────
-  vendors: [
-    { id:1, name:"ProPlumb NJ", category:"Plumbing", phone:"(973) 555-1001", email:"info@proplumbnj.com", rating:4.8, reviews:124, licensed:true, insured:true, areas:["Newark","Essex County"], description:"Full-service plumbing for residential and commercial. Emergency service 24/7. Free estimates.", services:["Emergency Repairs","Water Heaters","Drain Cleaning","Pipe Replacement","Bathroom Remodels"], price:"$$", tier:"premium" },
-    { id:2, name:"CoolAir HVAC", category:"HVAC", phone:"(973) 555-1002", email:"service@coolair.com", rating:4.9, reviews:203, licensed:true, insured:true, areas:["Newark","Union County","Essex County"], description:"Complete HVAC solutions. Installs, repairs, and maintenance for all major brands. Financing available.", services:["AC Installation","Heating Systems","Duct Cleaning","Smart Thermostat","Annual Maintenance"], price:"$$$", tier:"premium" },
-    { id:3, name:"Bright Spark Electric", category:"Electrical", phone:"(973) 555-1003", email:"hello@brightspark.com", rating:4.7, reviews:89, licensed:true, insured:true, areas:["Newark","Jersey City"], description:"Licensed master electricians. Panels, EV chargers, smart home installs, commercial wiring.", services:["Panel Upgrades","EV Chargers","Outlet Installation","Smart Home","Commercial Wiring"], price:"$$", tier:"standard" },
-    { id:4, name:"Garden State Mortgage", category:"Mortgage", phone:"(973) 555-2001", email:"apply@gsm.com", rating:4.9, reviews:312, licensed:true, insured:true, areas:["Nationwide"], description:"Competitive rates on conventional, FHA, VA, and jumbo loans. Pre-approval in 24 hours. First-time buyer programs.", services:["Conventional Loans","FHA Loans","VA Loans","Jumbo Loans","Refinancing","Pre-Approval"], price:"Varies", tier:"premium" },
-    { id:5, name:"Shield Insurance Group", category:"Insurance", phone:"(973) 555-2002", email:"quotes@shieldins.com", rating:4.6, reviews:178, licensed:true, insured:false, areas:["New Jersey","New York"], description:"Home, landlord, and commercial property insurance. Bundle discounts available. Online quotes in minutes.", services:["Homeowners","Landlord","Flood","Commercial Property","Liability","Bundle Discounts"], price:"Varies", tier:"standard" },
-    { id:6, name:"Apex Title & Settlement", category:"Title", phone:"(973) 555-2003", email:"closings@apextitle.com", rating:4.8, reviews:95, licensed:true, insured:true, areas:["New Jersey"], description:"Full-service title and settlement company. Fast closings, title insurance, and 1031 exchange coordination.", services:["Title Search","Title Insurance","Closing Services","1031 Exchange","Escrow","Remote Closings"], price:"Varies", tier:"premium" },
-    { id:7, name:"NJ Home Inspectors", category:"Inspection", phone:"(973) 555-1004", email:"book@njinspect.com", rating:4.7, reviews:156, licensed:true, insured:true, areas:["Essex County","Union County","Bergen County"], description:"Certified home inspectors. Full reports within 24 hours. Mold, radon, and sewer scope add-ons.", services:["Full Home Inspection","Mold Testing","Radon Testing","Sewer Scope","Thermal Imaging","Pre-Listing Inspection"], price:"$$", tier:"standard" },
-    { id:8, name:"Reyes Law Group", category:"Real Estate Attorney", phone:"(973) 555-3001", email:"intake@reyeslaw.com", rating:4.9, reviews:67, licensed:true, insured:true, areas:["New Jersey"], description:"Real estate attorneys handling purchases, sales, leases, and disputes. Fixed-fee closings. Free 30-min consult.", services:["Residential Closings","Commercial Transactions","Lease Review","Evictions","Disputes","LLC Formation"], price:"$$$", tier:"premium" },
-    { id:9, name:"Green Renovations Co.", category:"General Contractor", phone:"(973) 555-1005", email:"build@greenreno.com", rating:4.6, reviews:73, licensed:true, insured:true, areas:["Newark","Essex County"], description:"Full renovations, kitchens, baths, additions, and investment property turnovers. Free design consultations.", services:["Kitchen Remodel","Bathroom Remodel","Full Renovations","Additions","Investor Turnover","Design-Build"], price:"$$$", tier:"standard" }
-  ],
+  vendors: [],   // real listings: vendors.html (Supabase `vendors`)
 
   // ── AI Virtual Assistant Engine ───────────────────────────
   ai: {
@@ -186,7 +172,7 @@ const EP = {
       // ── Schedule Showing ─────────────────────────────────
       if (msg.match(/schedul|showing|tour|visit|appointment|see the|view the/)) {
         EP.ai.showAppointmentModal();
-        return "I'm pulling up the appointment scheduler for you right now! Pick a date and time that works and I'll confirm it instantly with the agent. 📅";
+        return "I'm pulling up the appointment scheduler for you right now! Pick a date and time that works and the team will confirm it with you. 📅";
       }
 
       // ── Vendor Request ───────────────────────────────────
@@ -194,7 +180,7 @@ const EP = {
         const cat = msg.includes('plumb') ? 'Plumbing' : msg.includes('hvac') || msg.includes('heat') || msg.includes('ac') ? 'HVAC' : msg.includes('electric') ? 'Electrical' : msg.includes('mortgage') || msg.includes('loan') ? 'Mortgage' : msg.includes('insur') ? 'Insurance' : msg.includes('attorney') || msg.includes('lawyer') ? 'Real Estate Attorney' : msg.includes('inspect') ? 'Inspection' : 'General Contractor';
         const vendor = EP.vendors.find(v => v.category === cat);
         if (vendor) return `I found a top-rated **${cat}** provider:\n\n🏢 **${vendor.name}**\n⭐ ${vendor.rating}/5 (${vendor.reviews} reviews)\n📞 ${vendor.phone}\n\n${vendor.description}\n\nShould I connect you with them or get a quote?`;
-        return `I'll connect you with a ${cat} professional. Want me to send your contact info to our vetted vendors in that category?`;
+        return `You can browse local ${cat} pros in our free directory: <a href="vendors.html">emporionpros.com/vendors</a>. Pick a business and tap Request, and we'll pass your request along.`;
       }
 
       // ── Phone / Call ─────────────────────────────────────
@@ -214,7 +200,7 @@ const EP = {
 
       // ── Agent Request ────────────────────────────────────
       if (msg.match(/agent|realtor|broker/)) {
-        return `Our top agents are available now:\n\n👤 **Carlos Rivera** — (973) 555-0101 | Residential & Investment\n👤 **Priya Nair** — (973) 555-0202 | Luxury & Condos\n👤 **Marcus Webb** — (973) 555-0303 | Multi-Family & Commercial\n\nWant me to schedule a free consultation with one of them?`;
+        return `You can reach the Emporion Pros team at **(862) 369-0005** or **info@emporionpros.com**. Calls are answered by Aria, our AI assistant, who can take your details and connect you with the team.`;
       }
 
       // ── Default ──────────────────────────────────────────
@@ -222,44 +208,9 @@ const EP = {
     },
 
     simulatePhoneCall: function() {
-      EP.ai.phoneSimActive = true;
-      setTimeout(() => {
-        const overlay = document.createElement('div');
-        overlay.id = 'phone-overlay';
-        overlay.innerHTML = `
-          <div class="phone-modal">
-            <div class="phone-icon">📞</div>
-            <div class="phone-title">Aria is calling the agent...</div>
-            <div class="phone-sub">Emporion Pros AI is dialing on your behalf</div>
-            <div class="phone-animation">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="phone-transcript" id="phone-transcript">Connecting...</div>
-            <button onclick="this.closest('#phone-overlay').remove()" class="phone-end">End Call</button>
-          </div>`;
-        document.body.appendChild(overlay);
-        
-        const lines = [
-          "Connected to agent Carlos Rivera...",
-          'Aria: "Hello, I have a client interested in scheduling a showing."',
-          'Agent: "Sure, what property and when works for them?"',
-          'Aria: "They\'re flexible — earliest availability please."',
-          'Agent: "Tomorrow at 2pm or Thursday at 10am?"',
-          'Aria: "I\'ll confirm with the client and send a calendar invite."',
-          '✅ Call complete! Appointment options sent to your email.'
-        ];
-        
-        let i = 0;
-        const interval = setInterval(() => {
-          if (i < lines.length) {
-            document.getElementById('phone-transcript').innerHTML += `<br>${lines[i]}`;
-            i++;
-          } else {
-            clearInterval(interval);
-          }
-        }, 1500);
-      }, 500);
-      return "📞 I'm calling the agent now on your behalf! Watch the call simulation...";
+      // Real call to the Emporion Pros line (answered by Aria, our AI assistant).
+      window.location.href = 'tel:+18623690005';
+      return "Calling Emporion Pros at (862) 369-0005. Our AI assistant Aria answers and can connect you with the team.";
     },
 
     showAppointmentModal: function(propTitle, propAddress) {
@@ -271,7 +222,7 @@ const EP = {
         m.innerHTML = `
           <div class="modal-box">
             <h3>📅 Book a Showing</h3>
-            <p style="color:#6b7280;margin-bottom:12px">Pick a date and time — I'll confirm instantly</p>
+            <p style="color:#6b7280;margin-bottom:12px">Pick a date and time — the team will confirm with you</p>
             ${addr ? `<div style="background:#eff6ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px;margin-bottom:16px">
               <div style="font-size:12px;color:#6b7280;margin-bottom:2px">Property</div>
               <div style="font-weight:700;font-size:14px;color:#1e3a8a">${title}</div>
@@ -304,7 +255,7 @@ const EP = {
       // Also capture as a lead
       EP.leads.capture({ name, email, phone, message: `Showing request for ${propTitle || 'property'} at ${propAddress || 'TBD'} on ${date} at ${time}`, source: 'Appointment Booking' });
       document.getElementById('appt-modal')?.remove();
-      EP.ai.addMessage('assistant', `✅ Done! Showing booked for **${propTitle || 'property'}**${propAddress ? ' at **' + propAddress + '**' : ''} on **${date} at ${time}**. We'll contact you at ${phone} to confirm. See you then, ${name}!`);
+      EP.ai.addMessage('assistant', `✅ Request received for a showing of **${propTitle || 'property'}**${propAddress ? ' at **' + propAddress + '**' : ''} on **${date} at ${time}**. We'll contact you at ${phone} to confirm. See you then, ${name}!`);
     },
 
     addMessage: function(role, content) {
