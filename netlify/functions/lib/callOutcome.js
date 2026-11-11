@@ -77,7 +77,9 @@ function classifyCall({ transcript, endedReason, callAttempts = 1 } = {}) {
   }
   // Checked before the hang-up rule: a receptionist who takes a message and
   // then hangs up has still taken the message.
-  const realSaid = real.join('\n');
+  // Everything the caller side said: an answering service sounds like a
+  // recording ("leave a name and number") but a person is on the line.
+  const realSaid = real.length ? said : '';
   if (MESSAGE.test(realSaid)) return { status: 'message_left', reason: 'took a message' };
   if (EMAIL.test(realSaid)) return { status: 'email_asked', reason: 'asked for email' };
   if (hungUp && real.length <= 2) {
