@@ -65,6 +65,22 @@ exports.handler = async function (event) {
     serverUrl: (a.server && a.server.url) || a.serverUrl, updatedAt: a.updatedAt,
     otherKeys: Object.keys(a).filter((k) => /version|publish|draft|traffic/i.test(k))
   });
+  if (body.action === 'numbers') {
+    const nums = await (await fetch('https://api.vapi.ai/phone-number?limit=100', { headers: H })).json();
+    return json(200, (nums || []).map((n) => ({ id: n.id, number: n.number, name: n.name, provider: n.provider })));
+  }
+  if (body.action === 'testcall') {
+    // Internal test only: calls the Emporion Pros main line (answered by inbound Aria).
+    const r = await fetch('https://api.vapi.ai/call', { method: 'POST', headers: H, body: JSON.stringify({
+      assistantId: ASSISTANT_ID, phoneNumberId: String(body.fromId || ''),
+      customer: { number: '+18623690005', name: 'Emporion test' },
+      assistantOverrides: { variableValues: { business_name: 'Emporion Pros', category: 'real estate platform' } } }) });
+    const j = await r.json(); return json(r.status, { id: j.id, status: j.status, error: j.message });
+  }
+  if (body.action === 'getcall') {
+    const c = await (await fetch('https://api.vapi.ai/call/' + encodeURIComponent(String(body.id || '')), { headers: H })).json();
+    return json(200, { status: c.status, endedReason: c.endedReason, cost: c.cost, startedAt: c.startedAt, endedAt: c.endedAt, transcript: (c.artifact && c.artifact.transcript) || c.transcript, tools: (c.messages || []).filter((m) => m.role === 'tool_calls' || m.toolCalls).map((m) => JSON.stringify(m.toolCalls || m).slice(0, 200)) });
+  }
   if (body.action !== 'apply') return json(200, summarize(cur));
 
   const tools = (cur.model.tools || []).filter((t) => t.type !== 'endCall' && t.type !== 'dtmf');
