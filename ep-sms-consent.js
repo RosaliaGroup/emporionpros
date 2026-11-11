@@ -13,7 +13,7 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '.ep-sms{display:flex;gap:8px;align-items:flex-start;margin:8px 0 12px;font-size:11.5px;line-height:1.45;color:#64748b;text-align:left}' +
+    '.ep-sms{grid-column:1/-1;flex-basis:100%;width:100%;display:flex;gap:8px;align-items:flex-start;margin:8px 0 12px;font-size:11.5px;line-height:1.45;color:#64748b;text-align:left}' +
     '.ep-sms input{margin-top:2px;flex-shrink:0;width:15px;height:15px;accent-color:#c8622a}' +
     '.ep-sms a{color:#c8622a;text-decoration:underline}';
   document.head.appendChild(css);
