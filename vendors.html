@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EmporionPros — Vendor Marketplace | Find Real Estate Professionals Near You</title>
-<meta name="description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search, compare, chat.">
+<meta name="description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search and request a quote.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://emporionpros.com/vendors.html">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://emporionpros.com/vendors.html">
 <meta property="og:title" content="EmporionPros — Vendor Marketplace | Find Real Estate Professionals Near You">
-<meta property="og:description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search, compare, chat.">
+<meta property="og:description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search and request a quote.">
 <meta property="og:site_name" content="EmporionPros">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="EmporionPros — Vendor Marketplace | Find Real Estate Professionals Near You">
-<meta name="twitter:description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search, compare, chat.">
-<meta name="description" content="Find plumbers, inspectors, title companies, electricians, movers, mortgage lenders and more. For agents, homeowners, property managers, landlords, buyers, and renters. Connect and chat directly.">
+<meta name="twitter:description" content="Find trusted NJ vendors. Plumbers, inspectors, title companies, electricians, movers, mortgage lenders. Search and request a quote.">
+<meta name="description" content="Find plumbers, inspectors, title companies, electricians, movers, mortgage lenders and more. For agents, homeowners, property managers, landlords, buyers, and renters. Request a quote in one step.">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0a0f1a;--paper:#f7f5f0;--copper:#c8622a;--copper-light:#e8813f;--gold:#c9a96e;--slate:#64748b;--border:rgba(10,15,26,.08);--card:#fff;--green:#0e9f6e;--blue:#1a56db}
@@ -43,7 +43,7 @@
 .search-bar select{width:160px;cursor:pointer}
 .search-bar button{padding:12px 24px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
 .search-bar button:hover{background:var(--copper-light)}
-@media(max-width:600px){.search-bar{flex-wrap:wrap}.search-bar input,.search-bar select{width:100%}}
+@media(max-width:600px){.search-bar{flex-wrap:wrap}.search-bar input,.search-bar select,.search-bar button{width:100%}}
 
 /* CATEGORIES */
 .cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:20px;position:relative}
@@ -150,7 +150,7 @@
 <!-- HERO + SEARCH -->
 <section class="hero">
   <h1 class="sr">Find <em>trusted pros</em> for every real estate need.</h1>
-  <p>Plumbers, inspectors, title companies, electricians, movers, mortgage lenders — whether you're an agent, homeowner, property manager, landlord, buyer, or renter. Search, connect, and chat directly.</p>
+  <p>Plumbers, inspectors, title companies, electricians, movers, mortgage lenders — whether you're an agent, homeowner, property manager, landlord, buyer, or renter. Search local pros and request a quote.</p>
   <div class="search-wrap">
     <div class="search-bar">
       <input type="text" id="search-input" placeholder="Search by name, service, or keyword..." oninput="filterVendors()">
@@ -184,10 +184,7 @@
   <div class="results-header">
     <div class="results-count" id="results-count"></div>
     <select class="sort-sel" id="sort-sel" onchange="filterVendors()">
-      <option value="featured">Featured First</option>
-      <option value="rating">Highest Rated</option>
-      <option value="reviews">Most Reviews</option>
-      <option value="name">A-Z</option>
+      <option value="name">A–Z</option>
     </select>
   </div>
   <div class="vendors-grid" id="vendors-grid"></div>
@@ -200,19 +197,26 @@
   </div>
 </div>
 
-<!-- CHAT MODAL -->
+<!-- CONTACT REQUEST MODAL -->
 <div id="chat-modal">
   <div class="chat-box">
     <div class="chat-header">
       <div class="chat-header-av" id="chat-av"></div>
-      <div class="chat-header-info"><h4 id="chat-name"></h4><p id="chat-status">Online · Typically replies in 5 min</p></div>
-      <button class="chat-close" onclick="closeChat()">✕</button>
+      <div class="chat-header-info"><h4 id="chat-name"></h4><p>Send a request &mdash; Emporion Pros will pass it along</p></div>
+      <button class="chat-close" onclick="closeChat()" aria-label="Close">✕</button>
     </div>
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
-      <button onclick="sendMsg()">Send</button>
-    </div>
+    <form id="req-form" class="chat-messages" style="min-height:0" onsubmit="return sendRequest(event)">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Your name</label>
+      <input name="name" required maxlength="80" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:inherit">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Email</label>
+      <input name="email" type="email" required maxlength="120" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:inherit">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Phone (optional)</label>
+      <input name="phone" type="tel" maxlength="30" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:inherit">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">What do you need?</label>
+      <textarea name="message" required maxlength="1000" rows="4" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:12px;font-family:inherit"></textarea>
+      <button type="submit" style="width:100%;padding:12px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">Send request</button>
+      <p id="req-status" role="status" style="font-size:12px;margin-top:10px;color:var(--slate)"></p>
+    </form>
   </div>
 </div>
 
@@ -222,222 +226,170 @@
 </div>
 
 <footer class="ft">
-  <p>© 2026 EmporionPros · <a href="platform.html">Platform</a> · <a href="for-agents.html">Agents</a> · <a href="for-managers.html">Managers</a> · <a href="for-owners.html">Owners</a> · <a href="for-vendors.html">Vendors</a> · <a href="neighborhood.html">Neighborhood</a></p>
+  <p>© 2026 EmporionPros · <a href="platform.html">Platform</a> · <a href="for-agents.html">Agents</a> · <a href="for-managers.html">Managers</a> · <a href="for-owners.html">Owners</a> · <a href="for-vendors.html">Vendors</a> · <a href="neighborhood.html">Neighborhood</a> · <a href="privacy.html">Privacy</a></p>
+  <p style="margin-top:6px">Listings are provided by the businesses or confirmed with them by phone. Emporion Pros does not endorse or guarantee any provider &mdash; please check licenses and insurance before hiring.</p>
 </footer>
 
 <script>
-// ===== DEMO VENDOR DATA =====
-const vendors = [
-  {id:1,name:"Garden State Home Inspections",cat:"Inspection",icon:"🔍",color:"#dbeafe",services:["Pre-Purchase Inspection","Radon Testing","Mold Testing","Termite Inspection"],desc:"Licensed NJ home inspectors with 15+ years experience. Same-day reports. Serving Essex, Hudson, Union & Passaic counties.",phone:"(973) 555-0142",email:"info@gsinspections.com",area:"Essex, Hudson, Union, Passaic",rating:4.9,reviews:127,featured:true,
-    reviewList:[{stars:5,text:"Thorough inspection, found issues the seller didn't disclose. Saved us $12k in repairs.",author:"Maria T., Home Buyer"},{stars:5,text:"Professional, on time, detailed report within 24 hours.",author:"James K., Agent"},{stars:4,text:"Great service. Would have liked the report a bit sooner.",author:"Lisa M., Home Buyer"}]},
-  {id:2,name:"Liberty Title Group",cat:"Title",icon:"📜",color:"#fef3c7",services:["Title Search","Title Insurance","Closing Services","Escrow"],desc:"Full-service title company handling residential and commercial closings across New Jersey. Fast, accurate, affordable.",phone:"(201) 555-0298",email:"closings@libertytitle.com",area:"All of New Jersey",rating:4.8,reviews:89,featured:true,
-    reviewList:[{stars:5,text:"Smoothest closing I've ever had. Team was responsive and caught a lien the other company missed.",author:"David R., Agent"},{stars:5,text:"Handled our commercial closing perfectly. Highly recommend.",author:"Sarah P., Property Manager"}]},
-  {id:3,name:"Ironbound Plumbing Co.",cat:"Plumbing",icon:"🔧",color:"#dcfce7",services:["Emergency Repairs","Drain Cleaning","Water Heater","Pipe Installation","Bathroom Remodel"],desc:"Family-owned since 1998. 24/7 emergency service. Licensed, bonded, insured. The Ironbound's most trusted plumber.",phone:"(862) 555-0177",email:"service@ironboundplumbing.com",area:"Newark, East Orange, Irvington",rating:4.7,reviews:203,featured:false,
-    reviewList:[{stars:5,text:"Called at midnight with a burst pipe. They were here in 30 minutes. Lifesaver.",author:"Tom H., Homeowner"},{stars:4,text:"Good work, fair price. Will use again.",author:"Ana S., Property Manager"}]},
-  {id:4,name:"PowerLine Electric LLC",cat:"Electrical",icon:"⚡",color:"#fef9c3",services:["Panel Upgrades","Rewiring","EV Charger Install","Lighting","Code Compliance"],desc:"Master electricians serving North Jersey. Specializing in new construction and renovations. Free estimates.",phone:"(973) 555-0331",email:"info@powerlineelectric.com",area:"Essex, Bergen, Passaic, Morris",rating:4.8,reviews:156,featured:false,
-    reviewList:[{stars:5,text:"Installed EV charger at our building. Clean work, great communication.",author:"Mike D., Property Manager"},{stars:5,text:"Upgraded our panel from 100 to 200 amp. Professional crew.",author:"Jennifer L., Homeowner"}]},
-  {id:5,name:"First National Mortgage",cat:"Mortgage",icon:"🏦",color:"#ede9fe",services:["Conventional Loans","FHA Loans","VA Loans","Refinancing","Pre-Approval"],desc:"Local mortgage lender with competitive rates. Pre-approvals in 24 hours. Bilingual team (English/Spanish/Portuguese).",phone:"(201) 555-0445",email:"apply@firstnatmortgage.com",area:"New Jersey & New York",rating:4.6,reviews:78,featured:true,
-    reviewList:[{stars:5,text:"Got pre-approved in hours, not days. Portuguese-speaking team was a huge plus for my clients.",author:"Carlos M., Agent"},{stars:4,text:"Good rates, smooth process. Communication could be slightly better.",author:"Rachel W., Home Buyer"}]},
-  {id:6,name:"SafeGuard Insurance Group",cat:"Insurance",icon:"🛡️",color:"#fce7f3",services:["Homeowner Insurance","Renter Insurance","Landlord Insurance","Flood Insurance","Umbrella Policies"],desc:"Independent agency shopping 20+ carriers for the best rates. Specializing in real estate insurance for owners, landlords, and renters.",phone:"(973) 555-0562",email:"quote@safeguardins.com",area:"New Jersey",rating:4.5,reviews:64,featured:false,
-    reviewList:[{stars:5,text:"Saved me $800/year on my landlord policy by shopping multiple carriers.",author:"Robert K., Property Owner"},{stars:5,text:"Quick quote turnaround for my rental property clients.",author:"Ana G., Agent"}]},
-  {id:7,name:"EZ Move NJ",cat:"Moving",icon:"📦",color:"#e0f2fe",services:["Local Moving","Long Distance","Packing Services","Storage","Junk Removal"],desc:"Affordable, reliable moving company. Flat-rate pricing, no hidden fees. Full packing service available. Licensed & insured.",phone:"(862) 555-0688",email:"book@ezmove.com",area:"NJ, NY, PA, CT",rating:4.4,reviews:312,featured:false,
-    reviewList:[{stars:5,text:"Moved my entire 2BR in 3 hours flat. Careful with furniture, reasonable price.",author:"Priya S., Renter"},{stars:4,text:"Good overall but showed up 30 min late. Moving itself was excellent.",author:"Mark T., Homeowner"}]},
-  {id:8,name:"Sparkle Clean Services",cat:"Cleaning",icon:"🧹",color:"#ecfdf5",services:["Move-In/Out Cleaning","Deep Clean","Regular Service","Post-Construction","Airbnb Turnover"],desc:"Professional cleaning for real estate. Move-in/out specialists. Same-day availability. We make properties show-ready.",phone:"(973) 555-0734",email:"book@sparkleclean.com",area:"Newark, Jersey City, Hoboken",rating:4.7,reviews:189,featured:false,
-    reviewList:[{stars:5,text:"They cleaned our 80-unit building turnover in one weekend. Incredible team.",author:"Property Manager, Iron Pointe"},{stars:5,text:"My listing photos looked 10x better after their deep clean.",author:"Lisa A., Agent"}]},
-  {id:9,name:"NJ Renovation Pros",cat:"Renovation",icon:"🔨",color:"#fff7ed",services:["Kitchen Remodel","Bathroom Remodel","Flooring","Painting","General Contracting"],desc:"Full-service renovation contractor. From kitchens to full gut rehabs. Licensed GC. Free estimates. Financing available.",phone:"(201) 555-0891",email:"projects@njrenovation.com",area:"Essex, Hudson, Bergen, Union",rating:4.6,reviews:97,featured:false,
-    reviewList:[{stars:5,text:"Transformed a dated 1970s kitchen into modern luxury. On time and on budget.",author:"Steven R., Homeowner"},{stars:4,text:"Great quality work. Had to follow up a few times on scheduling.",author:"Maria C., Property Manager"}]},
-  {id:10,name:"Torres & Associates Law",cat:"Legal",icon:"⚖️",color:"#f5f3ff",services:["Real Estate Closings","Contract Review","Eviction","Landlord-Tenant","Title Issues"],desc:"Real estate attorneys specializing in NJ residential and commercial transactions. Bilingual (English/Spanish). Flat-fee closings.",phone:"(862) 555-0923",email:"intake@torreslaw.com",area:"New Jersey",rating:4.8,reviews:56,featured:true,
-    reviewList:[{stars:5,text:"Caught a title issue that could have cost us the deal. Worth every penny.",author:"David L., Home Buyer"},{stars:5,text:"Handles all our eviction cases. Fast, professional, knows NJ law inside out.",author:"PM Client"}]},
-  {id:11,name:"Lens & Light RE Photography",cat:"Photography",icon:"📸",color:"#fdf2f8",services:["Listing Photos","Drone/Aerial","Virtual Tours","Video Walkthrough","Floor Plans"],desc:"Professional real estate photography that sells. HDR, drone, 3D tours. 24-hour turnaround. Serving all of North Jersey.",phone:"(973) 555-1045",email:"book@lensandlight.com",area:"North New Jersey",rating:4.9,reviews:142,featured:false,
-    reviewList:[{stars:5,text:"My listings sell 40% faster since switching to Lens & Light. The drone shots are incredible.",author:"Top Agent, Keller Williams"},{stars:5,text:"24-hour turnaround as promised. Beautiful HDR photos.",author:"Jessica M., Agent"}]},
-  {id:12,name:"Green Thumb Landscaping",cat:"Landscaping",icon:"🌿",color:"#ecfdf5",services:["Lawn Care","Garden Design","Snow Removal","Tree Service","Hardscaping"],desc:"Commercial and residential landscaping. Weekly maintenance, seasonal cleanups, and full landscape design. Serving Newark metro.",phone:"(862) 555-1167",email:"info@greenthumbscape.com",area:"Newark, East Orange, Bloomfield",rating:4.5,reviews:83,featured:false,
-    reviewList:[{stars:5,text:"They maintain all our common areas. Properties look pristine.",author:"Property Manager"},{stars:4,text:"Good seasonal cleanup service. Responsive to requests.",author:"Homeowner"}]},
-  {id:13,name:"Comfort Zone HVAC",cat:"HVAC",icon:"🌡️",color:"#fff1f2",services:["AC Install/Repair","Heating","Furnace","Ductwork","Maintenance Plans"],desc:"Heating and cooling experts. 24/7 emergency service. Energy-efficient installations. Licensed NJ HVAC contractor.",phone:"(973) 555-1289",email:"service@comfortzonehvac.com",area:"Essex, Union, Morris, Passaic",rating:4.6,reviews:118,featured:false,
-    reviewList:[{stars:5,text:"Replaced all HVAC units in our 5-story building. Excellent project management.",author:"Building Owner"}]},
-  {id:14,name:"Shield Pest Solutions",cat:"Pest Control",icon:"🐜",color:"#fefce8",services:["Termite Treatment","Rodent Control","Bed Bugs","General Pest","Commercial"],desc:"Licensed NJ pest control. Eco-friendly options available. Termite inspections for real estate closings. Same-day service.",phone:"(201) 555-1312",email:"service@shieldpest.com",area:"Northern New Jersey",rating:4.7,reviews:95,featured:false,
-    reviewList:[{stars:5,text:"Fast termite inspection for our closing. Report within 2 hours.",author:"Real Estate Agent"}]},
-  {id:15,name:"QuickLock Locksmith",cat:"Locksmith",icon:"🔑",color:"#f0fdf4",services:["Rekey","Lock Change","Smart Locks","Access Control","Emergency Lockout"],desc:"24/7 locksmith service. Rekey for move-ins, smart lock installation, commercial access control. 15-minute response time.",phone:"(862) 555-1434",email:"help@quicklock247.com",area:"Newark metro area",rating:4.4,reviews:67,featured:false,
-    reviewList:[{stars:5,text:"Rekeyed 12 units in one day for our new building. Great pricing for bulk jobs.",author:"Property Manager"}]},
-  {id:16,name:"Stage & Sell Interiors",cat:"Staging",icon:"🪴",color:"#faf5ff",services:["Full Home Staging","Vacant Staging","Virtual Staging","Consultation","Furniture Rental"],desc:"Professional home staging that transforms listings. Vacant and occupied staging. Proven to sell homes 73% faster.",phone:"(973) 555-1556",email:"hello@stageandsell.com",area:"NJ & NYC metro",rating:4.9,reviews:71,featured:true,
-    reviewList:[{stars:5,text:"Staged my $800K listing and it sold in 4 days — $30K over asking.",author:"Listing Agent"},{stars:5,text:"The virtual staging option is incredible for the price. Buyers couldn't tell it was virtual.",author:"Agent"}]}
+// ===== LIVE VENDOR DIRECTORY (Supabase `vendors`, status = active) =====
+const SB_URL = 'https://nfwxruzhgzkhklvzmfsw.supabase.co';
+const SB_KEY = 'sb_publishable_jN2I8tqw1-RmXEdB6wsPCg_dP6ImgNG';
+const CAT_STYLE = [
+  [/inspect/i,'🔍','#dbeafe','Inspection'], [/title/i,'📜','#fef3c7','Title'], [/plumb/i,'🔧','#dcfce7','Plumbing'],
+  [/electric/i,'⚡','#fef9c3','Electrical'], [/mortgage|lend|apprais/i,'🏦','#ede9fe','Mortgage & Appraisal'],
+  [/insur/i,'🛡️','#fce7f3','Insurance'], [/mov|junk/i,'📦','#e0f2fe','Moving & Junk Removal'], [/clean/i,'🧹','#ecfdf5','Cleaning'],
+  [/contract|renov|roof|paint|floor|handyman/i,'🔨','#fff7ed','Contractors & Repairs'], [/attorney|legal|law/i,'⚖️','#f5f3ff','Legal'],
+  [/photo/i,'📸','#fdf2f8','Photography'], [/landscap/i,'🌿','#ecfdf5','Landscaping'], [/hvac/i,'🌡️','#fff1f2','HVAC'],
+  [/pest/i,'🐜','#fefce8','Pest Control'], [/lock/i,'🔑','#f0fdf4','Locksmith'], [/stag/i,'🪴','#faf5ff','Staging'],
+  [/property manag/i,'🏢','#e2e8f0','Property Management']
 ];
+function styleFor(cat){ for (const [rx,icon,color,label] of CAT_STYLE) if (rx.test(cat||'')) return {icon,color,label}; return {icon:'🏠',color:'#f1f5f9',label:'Other Services'}; }
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const telHref = p => 'tel:' + String(p||'').replace(/[^0-9+]/g,'');
+const fmtPhone = p => { const d=String(p||'').replace(/\D/g,'').replace(/^1(?=\d{10}$)/,''); return d.length===10?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:esc(p); };
+const safeUrl = u => { try { const x=new URL(/^https?:/i.test(u)?u:'https://'+u); return /^https?:$/.test(x.protocol)?x.href:''; } catch(e){ return ''; } };
 
-// ===== RENDER =====
-function renderVendors(list) {
+let vendors = [];
+async function loadVendors(){
   const grid = document.getElementById('vendors-grid');
-  const count = document.getElementById('results-count');
-  count.innerHTML = `<strong>${list.length}</strong> professionals found`;
-  
-  if (!list.length) {
-    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No vendors found</h3><p>Try a different search term or category.</p></div>`;
-    return;
-  }
-  
-  grid.innerHTML = list.map(v => `
-    <div class="v-card ${v.featured?'featured':''}">
-      <div class="v-header">
-        <div class="v-avatar" style="background:${v.color}">${v.icon}</div>
-        <div class="v-info">
-          <div class="v-name">${v.name}</div>
-          <div class="v-cat">${v.cat}</div>
-        </div>
-      </div>
-      <div class="v-body">
-        <div class="v-desc">${v.desc}</div>
-        <div class="v-tags">${v.services.slice(0,4).map(s=>`<span class="v-tag">${s}</span>`).join('')}</div>
-        <div class="v-meta">
-          <span class="v-rating">⭐ ${v.rating}</span>
-          <span>${v.reviews} reviews</span>
-          <span>📍 ${v.area.split(',')[0]}</span>
-        </div>
-      </div>
-      <div class="v-footer">
-        <button class="v-btn v-btn-chat" onclick="openChat(${v.id})">💬 Chat</button>
-        <button class="v-btn v-btn-primary" onclick="openVendor(${v.id})">View Profile</button>
-        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="v-btn v-btn-outline">📞 Call</a>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterVendors() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const cat = document.getElementById('search-cat').value;
-  const sort = document.getElementById('sort-sel').value;
-  
-  let list = vendors.filter(v => {
-    const matchQ = !q || v.name.toLowerCase().includes(q) || v.cat.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q) || v.services.some(s => s.toLowerCase().includes(q));
-    const matchCat = !cat || v.cat === cat;
-    return matchQ && matchCat;
-  });
-  
-  // Update active pill
-  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
-  
-  // Sort
-  if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
-  else if (sort === 'reviews') list.sort((a,b) => b.reviews - a.reviews);
-  else if (sort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
-  else list.sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.rating - a.rating);
-  
-  renderVendors(list);
-}
-
-// Category pills
-const cats = [...new Set(vendors.map(v => v.cat))].sort();
-document.getElementById('cat-pills').innerHTML = 
-  `<span class="cat-pill active" data-cat="" onclick="pickCat(this,'')">All</span>` +
-  cats.map(c => {
-    const v = vendors.find(x => x.cat === c);
-    return `<span class="cat-pill" data-cat="${c}" onclick="pickCat(this,'${c}')">${v.icon} ${c}</span>`;
-  }).join('');
-
-function pickCat(el, cat) {
-  document.getElementById('search-cat').value = cat;
+  grid.innerHTML = '<div class="no-results" style="grid-column:1/-1"><p>Loading local pros…</p></div>';
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,phone,website,verified,created_at&status=eq.active&order=business_name.asc&limit=1000',
+      { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
+    const rows = r.ok ? await r.json() : [];
+    vendors = rows.map(v => ({ ...v, ...styleFor(v.category) }));
+  } catch (e) { vendors = []; }
+  buildFilters();
   filterVendors();
 }
 
-// ===== CHAT =====
-let chatVendor = null;
+function buildFilters(){
+  const labels = [...new Set(vendors.map(v => v.label))].sort();
+  document.getElementById('search-cat').innerHTML = '<option value="">All Categories</option>' +
+    labels.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('');
+  document.getElementById('cat-pills').innerHTML = labels.length ?
+    `<span class="cat-pill active" data-cat="" onclick="pickCat('')">All</span>` +
+    labels.map(l => { const v = vendors.find(x => x.label === l); return `<span class="cat-pill" data-cat="${esc(l)}" onclick="pickCat(this.dataset.cat)">${v.icon} ${esc(l)}</span>`; }).join('') : '';
+  const sort = document.getElementById('sort-sel');
+  sort.innerHTML = '<option value="name">A–Z</option><option value="new">Newest</option><option value="city">By town</option>';
+}
+
+function renderVendors(list) {
+  const grid = document.getElementById('vendors-grid');
+  document.getElementById('results-count').innerHTML = `<strong>${list.length}</strong> local ${list.length===1?'pro':'pros'} listed`;
+  if (!vendors.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>We're adding North &amp; Central NJ pros now</h3><p>Our team is reaching out to local inspectors, movers, plumbers, electricians, title companies, attorneys and more. New listings appear here as businesses are added.<br><br>Own a business? <a href="vendor-signup.html" style="color:var(--copper);font-weight:700">List it free →</a></p></div>`;
+    return;
+  }
+  if (!list.length) { grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No matches</h3><p>Try a different search term or category.</p></div>`; return; }
+  grid.innerHTML = list.map(v => {
+    const site = safeUrl(v.website || '');
+    return `
+    <div class="v-card">
+      <div class="v-header">
+        <div class="v-avatar" style="background:${v.color}">${v.icon}</div>
+        <div class="v-info">
+          <div class="v-name">${esc(v.business_name)}</div>
+          <div class="v-cat">${esc(v.category || v.label)}</div>
+        </div>
+      </div>
+      <div class="v-body">
+        ${v.description ? `<div class="v-desc">${esc(v.description)}</div>` : ''}
+        <div class="v-meta">
+          ${v.city ? `<span>📍 ${esc(v.city)}, NJ</span>` : ''}
+          ${v.service_area ? `<span>Serves: ${esc(v.service_area)}</span>` : ''}
+          ${v.verified ? '<span style="color:var(--green);font-weight:700">✓ Verified</span>' : ''}
+        </div>
+      </div>
+      <div class="v-footer">
+        <button class="v-btn v-btn-chat" onclick="openChat(${Number(v.id)})">✉️ Request</button>
+        <button class="v-btn v-btn-primary" onclick="openVendor(${Number(v.id)})">View Profile</button>
+        ${v.phone ? `<a href="${telHref(v.phone)}" class="v-btn v-btn-outline">📞 Call</a>` : site ? `<a href="${esc(site)}" target="_blank" rel="noopener nofollow" class="v-btn v-btn-outline">🌐 Site</a>` : ''}
+      </div>
+    </div>`; }).join('');
+}
+
+function filterVendors() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const cat = document.getElementById('search-cat').value;
+  const sort = document.getElementById('sort-sel').value || 'name';
+  let list = vendors.filter(v => {
+    const hay = [v.business_name, v.category, v.description, v.city, v.service_area].join(' ').toLowerCase();
+    return (!q || hay.includes(q)) && (!cat || v.label === cat);
+  });
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+  if (sort === 'new') list.sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)));
+  else if (sort === 'city') list.sort((a,b) => String(a.city||'~').localeCompare(String(b.city||'~')) || a.business_name.localeCompare(b.business_name));
+  else list.sort((a,b) => a.business_name.localeCompare(b.business_name));
+  renderVendors(list);
+}
+function pickCat(cat) { document.getElementById('search-cat').value = cat; filterVendors(); }
+
+// ===== CONTACT REQUEST (saved as a lead for Emporion Pros to pass along) =====
+let reqVendor = null;
 function openChat(id) {
-  chatVendor = vendors.find(v => v.id === id);
-  if (!chatVendor) return;
-  document.getElementById('chat-av').textContent = chatVendor.icon;
-  document.getElementById('chat-av').style.background = chatVendor.color;
-  document.getElementById('chat-name').textContent = chatVendor.name;
-  document.getElementById('chat-messages').innerHTML = `
-    <div class="chat-msg them">
-      <div class="chat-bubble">Hi! Thanks for reaching out to ${chatVendor.name}. How can we help you today?</div>
-      <div class="chat-time">Just now</div>
-    </div>`;
+  reqVendor = vendors.find(v => Number(v.id) === id);
+  if (!reqVendor) return;
+  document.getElementById('chat-av').textContent = reqVendor.icon;
+  document.getElementById('chat-av').style.background = reqVendor.color;
+  document.getElementById('chat-name').textContent = reqVendor.business_name;
+  document.getElementById('req-form').reset();
+  document.getElementById('req-status').textContent = '';
   document.getElementById('chat-modal').classList.add('open');
-  document.getElementById('chat-input').focus();
-  
-  // Log as lead
-  const leads = JSON.parse(localStorage.getItem('ep_vendor_chats') || '[]');
-  leads.push({vendor: chatVendor.name, cat: chatVendor.cat, time: new Date().toISOString(), source: 'Vendor Marketplace Chat'});
-  localStorage.setItem('ep_vendor_chats', JSON.stringify(leads));
 }
 function closeChat() { document.getElementById('chat-modal').classList.remove('open'); }
-function sendMsg() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const container = document.getElementById('chat-messages');
-  const now = new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-  container.innerHTML += `<div class="chat-msg me"><div class="chat-bubble">${msg}</div><div class="chat-time" style="text-align:right">${now}</div></div>`;
-  input.value = '';
-  container.scrollTop = container.scrollHeight;
-  
-  // Auto-reply
-  setTimeout(() => {
-    const replies = [
-      `Thanks for your message! Let me check on that for you. Can you share your property address or more details?`,
-      `Great question! We serve the entire ${chatVendor.area} area. Would you like to schedule a free estimate?`,
-      `We'd be happy to help. For the fastest service, you can also call us directly at ${chatVendor.phone}. What's your timeline?`
-    ];
-    const reply = replies[Math.floor(Math.random()*replies.length)];
-    container.innerHTML += `<div class="chat-msg them"><div class="chat-bubble">${reply}</div><div class="chat-time">${now}</div></div>`;
-    container.scrollTop = container.scrollHeight;
-  }, 1200);
+async function sendRequest(e) {
+  e.preventDefault();
+  const f = e.target, st = document.getElementById('req-status'), btn = f.querySelector('button');
+  btn.disabled = true; st.textContent = 'Sending…';
+  const lead = { name: f.name.value.trim(), email: f.email.value.trim(), phone: f.phone.value.trim() || null,
+    source: 'vendor-directory', page: 'Vendor directory (' + location.pathname + ')', role: 'customer', status: 'new',
+    message: 'Request for ' + reqVendor.business_name + ' (vendor #' + reqVendor.id + ', ' + (reqVendor.category||'') + '): ' + f.message.value.trim() };
+  let ok = false;
+  try { const r = await fetch(SB_URL + '/rest/v1/leads', { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(lead) }); ok = r.ok; } catch (err) {}
+  if (ok) { st.style.color = 'var(--green)'; st.textContent = 'Thanks! We received your request and will connect you with ' + reqVendor.business_name + ' within one business day.'; f.querySelectorAll('input,textarea').forEach(i => i.disabled = true); }
+  else { st.style.color = '#b91c1c'; st.textContent = 'Something went wrong. Please email info@emporionpros.com.'; btn.disabled = false; }
+  return false;
 }
 
 // ===== VENDOR PROFILE =====
 function openVendor(id) {
-  const v = vendors.find(x => x.id === id);
+  const v = vendors.find(x => Number(x.id) === id);
   if (!v) return;
+  const site = safeUrl(v.website || '');
   document.getElementById('vm-content').innerHTML = `
     <div style="position:relative">
-      <button class="vm-close" onclick="closeVendor()">✕</button>
+      <button class="vm-close" onclick="closeVendor()" aria-label="Close">✕</button>
       <div class="vm-header">
         <div class="vm-av" style="background:${v.color}">${v.icon}</div>
         <div>
-          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:800">${v.name}</div>
-          <div style="font-size:12px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${v.cat}</div>
-          <div style="font-size:12px;color:var(--slate);margin-top:4px">⭐ ${v.rating} · ${v.reviews} reviews · 📍 ${v.area}</div>
+          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:800">${esc(v.business_name)}</div>
+          <div style="font-size:12px;color:var(--copper);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${esc(v.category || v.label)}</div>
+          ${v.city ? `<div style="font-size:12px;color:var(--slate);margin-top:4px">📍 ${esc(v.city)}, NJ</div>` : ''}
         </div>
       </div>
       <div class="vm-body">
-        <div class="vm-section">
-          <h4>About</h4>
-          <p style="font-size:13px;color:var(--slate);line-height:1.7">${v.desc}</p>
-        </div>
-        <div class="vm-section">
-          <h4>Services</h4>
-          <div class="vm-services">${v.services.map(s=>`<span class="vm-service">${s}</span>`).join('')}</div>
-        </div>
+        ${v.description ? `<div class="vm-section"><h4>Services</h4><p style="font-size:13px;color:var(--slate);line-height:1.7">${esc(v.description)}</p></div>` : ''}
         <div class="vm-section">
           <h4>Contact</h4>
-          <p style="font-size:13px">📞 <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" style="color:var(--copper);font-weight:600">${v.phone}</a></p>
-          <p style="font-size:13px">📧 <a href="mailto:${v.email}" style="color:var(--copper);font-weight:600">${v.email}</a></p>
-          <p style="font-size:13px">📍 Service area: ${v.area}</p>
+          ${v.phone ? `<p style="font-size:13px">📞 <a href="${telHref(v.phone)}" style="color:var(--copper);font-weight:600">${fmtPhone(v.phone)}</a></p>` : ''}
+          ${site ? `<p style="font-size:13px">🌐 <a href="${esc(site)}" target="_blank" rel="noopener nofollow" style="color:var(--copper);font-weight:600">${esc(site.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a></p>` : ''}
+          ${v.service_area ? `<p style="font-size:13px">📍 Service area: ${esc(v.service_area)}</p>` : ''}
         </div>
-        <div class="vm-section vm-reviews">
-          <h4>Reviews (${v.reviewList.length})</h4>
-          ${v.reviewList.map(r=>`
-            <div class="vm-review">
-              <div class="vm-review-stars">${'⭐'.repeat(r.stars)}</div>
-              <div class="vm-review-text">"${r.text}"</div>
-              <div class="vm-review-author">— ${r.author}</div>
-            </div>`).join('')}
-        </div>
+        <p style="font-size:11px;color:var(--slate)">Is this your business? <a href="mailto:info@emporionpros.com?subject=${encodeURIComponent('Update my listing: ' + v.business_name)}" style="color:var(--copper)">Update or remove this listing</a>.</p>
       </div>
       <div class="vm-actions">
-        <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${v.id})">💬 Chat Now</button>
-        <a href="tel:${v.phone.replace(/[^0-9]/g,'')}" class="vm-btn" style="background:var(--copper);color:white">📞 Call</a>
-        <a href="mailto:${v.email}" class="vm-btn" style="background:transparent;border:1.5px solid var(--border);color:var(--ink)">📧 Email</a>
+        <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${Number(v.id)})">✉️ Send Request</button>
+        ${v.phone ? `<a href="${telHref(v.phone)}" class="vm-btn" style="background:var(--copper);color:white">📞 Call</a>` : ''}
       </div>
     </div>`;
   document.getElementById('vendor-modal').classList.add('open');
 }
 function closeVendor() { document.getElementById('vendor-modal').classList.remove('open'); }
-
-// Close modals on background click
 document.getElementById('chat-modal').addEventListener('click', e => { if (e.target.id === 'chat-modal') closeChat(); });
 document.getElementById('vendor-modal').addEventListener('click', e => { if (e.target.id === 'vendor-modal') closeVendor(); });
 
-// Init
-filterVendors();
+loadVendors();
 </script>
 <script src="social-proof.js"></script>
 <script src="ep-leads.js"></script>
