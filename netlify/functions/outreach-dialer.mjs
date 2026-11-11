@@ -12,6 +12,8 @@ const DEFAULT_PHONE_IDS = ['9fee0363-5837-401e-9a64-1f09ef92e95c']; // (862) 369
 const DAILY_CAP = Number(process.env.OUTREACH_DAILY_CAP || 150);
 const BATCH = Number(process.env.OUTREACH_BATCH || 5);
 const RETRY_AFTER_DAYS = 2;
+// Google listing names often carry SEO junk: "Tony's Moving | Moving NJ | 뉴저지" -> "Tony's Moving"
+const cleanName = (n) => String(n || '').split(/\s\|\s/)[0].replace(/[^\x20-\x7E’']/g, '').replace(/\s+/g, ' ').trim();
 const MAX_ATTEMPTS = 2;
 
 function nyParts(d = new Date()) {
@@ -73,8 +75,8 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
           body: JSON.stringify({
             assistantId: ASSISTANT_ID,
             phoneNumberId,
-            customer: { number: r.phone, name: String(r.business_name || '').slice(0, 40) },
-            assistantOverrides: { variableValues: { business_name: r.business_name || 'your business', category: r.category || 'local services' } }
+            customer: { number: r.phone, name: cleanName(r.business_name).slice(0, 40) },
+            assistantOverrides: { variableValues: { business_name: cleanName(r.business_name) || 'your business', category: r.category || 'local services' } }
           })
         });
         const body = await res.json().catch(() => ({}));
