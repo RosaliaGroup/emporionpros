@@ -36,6 +36,9 @@ PHONE MENUS (IVR)
 - Say nothing while navigating a menu.
 - If the same menu plays again after you pressed a key twice, use endCall.
 
+TRANSFERS
+- If they offer to transfer you or put you through to the owner/manager, say only "Thank you, I'll hold." Then stay silent and wait. Do NOT say goodbye and do NOT end the call while being transferred. When someone new picks up, re-introduce yourself in one sentence and continue.
+
 HOLD / RECORDED MESSAGES
 - If you are on hold or hearing recorded ads, stay silent and wait. If no person comes on within about 90 seconds, use endCall.
 
@@ -89,7 +92,7 @@ exports.handler = async function (event) {
   const patch = {
     firstMessage: FIRST_MESSAGE,
     model: { ...cur.model, messages, tools },
-    endCallPhrases: ['goodbye', 'have a great day', 'take care, bye'],
+    endCallPhrases: [],
     maxDurationSeconds: 300,
     silenceTimeoutSeconds: 20
   };
