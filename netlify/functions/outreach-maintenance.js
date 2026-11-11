@@ -14,6 +14,14 @@ const SUMMARY_PROMPT = 'You are summarizing a short sales call from Aria (Empori
   + 'In 1-2 plain sentences say who answered (person, receptionist, AI receptionist, voicemail or phone menu), what they said about joining the directory or a follow-up, '
   + 'and any email, contact name or better time they gave. If no person was reached, say so.';
 
+const MENU_RULES = `PHONE MENUS (IVR) — any recording that lists options to press
+- Stay completely silent while a menu or recording plays. Never introduce yourself to a recording.
+- Let the menu finish listing its options before you press anything. Then use the dtmf tool to press ONE key, choosing in this order: an option for vendors / partnerships / marketing; else sales / new customers / new clients / property owners; else operator / front desk / receptionist / "all other inquiries"; else 0.
+- Never use a dial-by-name or extension directory, and never enter a name or letters. If a recording asks for a name or extension, press 0.
+- After you press, stay silent until a live person speaks. Only then introduce yourself, in one sentence.
+- If the same menu repeats twice after you pressed, or you reach someone's voicemail box, use endCall.
+`;
+
 const json = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj, null, 1) });
 function secretOk(event) {
   const want = process.env.BUSINESS_SYNC_SECRET || '';
@@ -68,6 +76,25 @@ exports.handler = async (event) => {
       const a = await (await fetch('https://api.vapi.ai/assistant/' + ASSISTANT_ID, { headers: VAPI() })).json();
       return json(200, { endedReason: c.endedReason, model: a.model && { provider: a.model.provider, model: a.model.model, tools: a.model.tools, toolIds: a.model.toolIds },
         transcriber: a.transcriber, firstMessageMode: a.firstMessageMode, messages: msgs });
+    }
+
+    if (body.action === 'menu-rules') {
+      // Replace the PHONE MENUS section of the live system prompt (same text as
+      // outreach-assistant-admin's SYSTEM_PROMPT, so a later 'apply' keeps it).
+      const a = await (await fetch('https://api.vapi.ai/assistant/' + ASSISTANT_ID, { headers: VAPI() })).json();
+      const msgs = (a.model.messages || []).slice();
+      const i = msgs.findIndex((m) => m.role === 'system');
+      const cur = i >= 0 ? String(msgs[i].content) : '';
+      const s0 = cur.indexOf('PHONE MENUS (IVR)'); const s1 = cur.indexOf('TRANSFERS AND HOLD');
+      if (s0 < 0 || s1 < s0) return json(409, { error: 'menu section not found' });
+      msgs[i] = { ...msgs[i], content: cur.slice(0, s0) + MENU_RULES + '\n' + cur.slice(s1) };
+      // Wait a beat longer before answering, so a menu that pauses between
+      // options is heard to the end instead of interrupted.
+      const startSpeakingPlan = Object.assign({}, a.startSpeakingPlan || {}, { waitSeconds: 0.8 });
+      const res = await fetch('https://api.vapi.ai/assistant/' + ASSISTANT_ID, { method: 'PATCH', headers: VAPI(),
+        body: JSON.stringify({ model: { ...a.model, messages: msgs }, startSpeakingPlan }) });
+      const out = await res.json();
+      return json(res.ok ? 200 : res.status, res.ok ? { applied: true, startSpeakingPlan: out.startSpeakingPlan } : { error: out });
     }
 
     if (body.action === 'enable-summary') {
