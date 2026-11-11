@@ -36,7 +36,7 @@
 <div class="post-hero">
   <div class="ep-container">
     <h1>List Your Property</h1>
-    <p style="font-size:18px;opacity:.9">Reach thousands of buyers and renters. Flat fee. No commission.</p>
+    <p style="font-size:18px;opacity:.9">Turn your property into a campaign page. 14-day free trial.</p>
   </div>
 </div>
 
@@ -112,28 +112,28 @@
 
   <div class="sticky-sidebar">
     <div style="font-size:13px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Choose a Plan</div>
-    <div class="tier-card selected" onclick="selectTier(this,'basic',299)">
-      <h3>Basic</h3>
-      <div class="tier-price">$299</div>
-      <div class="tier-features">✓ 30-day listing<br>✓ Up to 10 photos<br>✓ Contact form<br>✓ AI lead capture</div>
+    <div class="tier-card selected" onclick="selectTier(this,'starter',49)">
+      <h3>Starter</h3>
+      <div class="tier-price">$49<span style="font-size:14px;font-weight:600">/mo</span></div>
+      <div class="tier-features">✓ 5 active campaign listings<br>✓ Aria AI chat widget<br>✓ Neighborhood guides<br>✓ Lead capture dashboard</div>
     </div>
-    <div class="tier-card" onclick="selectTier(this,'standard',449)">
-      <h3>Standard ⭐</h3>
-      <div class="tier-price">$449</div>
-      <div class="tier-features">✓ 60-day listing<br>✓ Up to 20 photos<br>✓ Featured placement<br>✓ Agent matching<br>✓ Open house tools</div>
+    <div class="tier-card" onclick="selectTier(this,'professional',99)">
+      <h3>Professional ⭐</h3>
+      <div class="tier-price">$99<span style="font-size:14px;font-weight:600">/mo</span></div>
+      <div class="tier-features">✓ 25 active campaign listings<br>✓ Aria AI phone + SMS + chat<br>✓ Social media post templates<br>✓ Full lead CRM dashboard</div>
     </div>
-    <div class="tier-card" onclick="selectTier(this,'premium',799)">
-      <h3>Premium 🔥</h3>
-      <div class="tier-price">$799</div>
-      <div class="tier-features">✓ 90-day listing<br>✓ Unlimited photos<br>✓ #1 placement<br>✓ Pro photography<br>✓ Video walkthrough<br>✓ Dedicated agent</div>
+    <div class="tier-card" onclick="selectTier(this,'enterprise',249)">
+      <h3>Enterprise</h3>
+      <div class="tier-price">$249<span style="font-size:14px;font-weight:600">/mo</span></div>
+      <div class="tier-features">✓ Unlimited campaign listings<br>✓ Custom domain per building<br>✓ Dedicated account manager</div>
     </div>
     <div class="summary-card" style="margin-top:16px">
       <div style="font-weight:700;font-size:16px;margin-bottom:12px">Order Summary</div>
-      <div class="summary-line"><span>Plan</span><span id="sum-plan">Basic</span></div>
-      <div class="summary-line"><span>Duration</span><span id="sum-dur">30 days</span></div>
-      <div class="summary-line" style="font-weight:700;font-size:16px;border:none;margin-top:8px"><span>Total</span><span id="sum-price">$299</span></div>
+      <div class="summary-line"><span>Plan</span><span id="sum-plan">Starter</span></div>
+      <div class="summary-line"><span>Trial</span><span id="sum-dur">14 days free</span></div>
+      <div class="summary-line" style="font-weight:700;font-size:16px;border:none;margin-top:8px"><span>After trial</span><span id="sum-price">$49/mo</span></div>
       <button class="ep-btn ep-btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:16px" onclick="document.getElementById('listing-form').dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))">Submit Listing →</button>
-      <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:10px">No commission. Flat fee only.</p>
+      <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:10px">14-day free trial · No credit card · Cancel anytime</p>
     </div>
   </div>
 </div>
@@ -156,8 +156,8 @@ function selectTier(card, name, price) {
   card.classList.add('selected');
   selectedTier = { name, price };
   document.getElementById('sum-plan').textContent = name.charAt(0).toUpperCase() + name.slice(1);
-  document.getElementById('sum-dur').textContent = name==='basic'?'30 days':name==='standard'?'60 days':'90 days';
-  document.getElementById('sum-price').textContent = '$' + price;
+  document.getElementById('sum-dur').textContent = '14 days free';
+  document.getElementById('sum-price').textContent = '$' + price + '/mo';
 }
 
 function handlePhotos(e) {
