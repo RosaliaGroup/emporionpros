@@ -53,5 +53,15 @@ exports.handler = async function (event) {
     headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
     body: JSON.stringify(update)
   });
+
+  // Show the outcome in the Business CRM (Abrevo) right away. Best-effort: the
+  // hourly business-crm-sync picks it up if this fails.
+  if (res.ok) {
+    try {
+      const crm = require('./lib/businessCrm');
+      const rows = await crm.readProspects('phone=eq.' + encodeURIComponent(phone));
+      if (rows.length) await crm.push(rows);
+    } catch (e) { console.warn('[outreach-webhook] business CRM push failed:', e.message); }
+  }
   return json(200, { ok: res.ok, status });
 };
