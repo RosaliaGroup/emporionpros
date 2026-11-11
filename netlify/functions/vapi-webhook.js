@@ -238,7 +238,7 @@ async function processCallReport(webhook, FUB_API_KEY, SUPABASE_URL, SUPABASE_SE
 
       var smsResponse = await fetch('https://emporionpros.com/.netlify/functions/send-tour-sms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-internal-secret': process.env.SMS_INTERNAL_SECRET || '' },
         body: JSON.stringify(smsPayload)
       });
 

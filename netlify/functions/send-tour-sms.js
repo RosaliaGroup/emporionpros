@@ -1,8 +1,9 @@
 // Send one SMS through Telnyx. Env: TELNYX_API_KEY, TELNYX_FROM_NUMBER (E.164, e.g. +18625551234),
 // optional TELNYX_MESSAGING_PROFILE_ID, SMS_DRY_RUN=true to log without sending.
-async function sendTelnyxSms(to, text) {
+// Sender: brand 'emporion' uses TELNYX_FROM_EMPORION, otherwise TELNYX_FROM_NUMBER (Rosalia).
+async function sendTelnyxSms(to, text, brand) {
   const apiKey = process.env.TELNYX_API_KEY;
-  const from = process.env.TELNYX_FROM_NUMBER;
+  const from = brand === 'emporion' ? process.env.TELNYX_FROM_EMPORION : process.env.TELNYX_FROM_NUMBER;
   if (!apiKey || !from) return { ok: false, status: 500, error: 'Telnyx not configured (TELNYX_API_KEY / TELNYX_FROM_NUMBER)' };
   let digits = String(to).replace(/\D/g, '');
   if (digits.length === 10) digits = '1' + digits;
@@ -33,6 +34,13 @@ exports.handler = async function(event, context) {
   
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
+  }
+
+  // Only Emporion Pros' own systems may send texts (shared secret in x-internal-secret).
+  const secret = process.env.SMS_INTERNAL_SECRET;
+  const given = (event.headers && (event.headers['x-internal-secret'] || event.headers['X-Internal-Secret'])) || '';
+  if (!secret || given !== secret) {
+    return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
   
   try {
