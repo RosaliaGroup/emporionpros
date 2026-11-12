@@ -89,6 +89,10 @@ exports.handler = async function (event) {
     const c = await (await fetch('https://api.vapi.ai/call/' + encodeURIComponent(String(body.id || '')), { headers: H })).json();
     return json(200, { status: c.status, endedReason: c.endedReason, cost: c.cost, startedAt: c.startedAt, endedAt: c.endedAt, transcript: (c.artifact && c.artifact.transcript) || c.transcript, tools: (c.messages || []).filter((m) => m.role === 'tool_calls' || m.toolCalls).map((m) => JSON.stringify(m.toolCalls || m).slice(0, 200)) });
   }
+  if (body.action === 'inspect_main') {
+    const m = await (await fetch('https://api.vapi.ai/assistant/f17ea5bb-4cbb-4a7d-b7b6-fb39645b0ec9', { headers: H })).json();
+    return json(200, { name: m.name, firstMessage: m.firstMessage, tools: (m.model && m.model.tools || []).map((t) => ({ type: t.type, name: t.function && t.function.name, destinations: t.destinations, server: t.server && t.server.url })), toolIds: m.model && m.model.toolIds, server: m.server && m.server.url, serverMessages: m.serverMessages, keypad: m.keypadInputPlan, prompt: ((m.model && m.model.messages || [])[0] || {}).content });
+  }
   if (body.action !== 'apply') return json(200, summarize(cur));
 
   const tools = (cur.model.tools || []).filter((t) => t.type !== 'endCall' && t.type !== 'dtmf');
