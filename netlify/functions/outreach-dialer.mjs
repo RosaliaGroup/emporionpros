@@ -13,6 +13,8 @@ const DAILY_CAP = Number(process.env.OUTREACH_DAILY_CAP || 150);
 const BATCH = Number(process.env.OUTREACH_BATCH || 5);
 const RETRY_AFTER_DAYS = 2;
 // Google listing names often carry SEO junk: "Tony's Moving | Moving NJ | 뉴저지" -> "Tony's Moving"
+// National chains/franchise call centers: they don't decide local listings by phone.
+const CHAIN = /\b(orkin|terminix|western pest|rentokil|truly nolen|ehrlich|aptive|rollins|two men and a truck|allied van|united van|mayflower|north american van|atlas van|u-?haul|pods\b|roto-?rooter|mr\.? rooter|benjamin franklin plumbing|mister sparky|one hour heating|servpro|servicemaster|servicemaster|molly maid|merry maids|the maids|jan-?pro|coverall|stanley steemer|chemdry|chem-dry|paul davis|belfor|home depot|lowe'?s|sears|abc home|aire serv|mr\.? handyman|handyman connection|certapro|five star painting|sherwin|pillar to post|hometeam inspection|amerispec|wini?\b|world inspection network|keller williams|re\/?max|coldwell|century 21|berkshire hathaway|compass\b|fidelity national|first american title|old republic|stewart title|chicago title|rocket mortgage|wells fargo|chase\b|bank of america)\b/i;
 const cleanName = (n) => String(n || '').split(/\s\|\s/)[0].replace(/[^\x20-\x7E’']/g, '').replace(/\s+/g, ' ').trim();
 const MAX_ATTEMPTS = 2;
 
@@ -52,7 +54,25 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
     if (n <= 0) return { skipped: 'daily cap reached', done };
 
     // New prospects first, then one retry for earlier no-answers.
-    let rows = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.queued&ai_call_allowed=is.true&call_attempts=eq.0&order=created_at.asc&limit=${n}`)).json();
+    // New prospects: skip national chains, and mix categories so a round isn't all one trade.
+    const pool = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.queued&ai_call_allowed=is.true&call_attempts=eq.0&order=created_at.asc&limit=300`)).json();
+    const chains = (Array.isArray(pool) ? pool : []).filter((r) => CHAIN.test(r.business_name || ''));
+    if (chains.length) {
+      await sb(`outreach_prospects?id=in.(${chains.map((r) => r.id).join(',')})`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'skipped_chain', updated_at: now().toISOString() }) });
+    }
+    const byCat = new Map();
+    for (const r of (Array.isArray(pool) ? pool : []).filter((r) => !CHAIN.test(r.business_name || ''))) {
+      const k = r.category || 'other'; if (!byCat.has(k)) byCat.set(k, []); byCat.get(k).push(r);
+    }
+    const cats = [...byCat.keys()];
+    const start = Math.floor(now().getTime() / 900000) % Math.max(1, cats.length); // rotate starting trade each round
+    let rows = [];
+    for (let i = 0; rows.length < n && byCat.size; i++) {
+      const k = cats[(start + i) % cats.length];
+      const list = byCat.get(k);
+      if (list && list.length) rows.push(list.shift());
+      if (i > n * cats.length + cats.length) break;
+    }
     if (rows.length < n) {
       const before = new Date(now().getTime() - RETRY_AFTER_DAYS * 864e5).toISOString();
       const more = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.no_answer&ai_call_allowed=is.true&call_attempts=lt.${MAX_ATTEMPTS}&last_called_at=lt.${encodeURIComponent(before)}&order=last_called_at.asc&limit=${n - rows.length}`)).json();
