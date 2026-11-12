@@ -91,7 +91,7 @@ exports.handler = async function (event) {
     };
   }));
 
-  let added = 0;
+  let added = 0, listed = 0;
   if (rows.length) {
     const res = await fetch(SB + '/rest/v1/outreach_prospects?on_conflict=phone', {
       method: 'POST',
@@ -101,7 +101,20 @@ exports.handler = async function (event) {
     const out = await res.json().catch(() => []);
     if (!res.ok) return json(500, { error: 'insert failed', detail: out });
     added = out.length;
+    // List every new business in the free directory right away (contact details stay hidden; calls route via Emporion).
+    const vrows = (Array.isArray(out) ? out : []).map((r) => ({
+      business_name: String(r.business_name || '').split(' | ')[0].slice(0, 120), category: r.category, phone: r.phone, city: r.city,
+      website: r.website, description: (r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : 'Local') + ' services',
+      status: 'active', verified: false, source: 'google_listing', outreach_id: r.id }));
+    if (vrows.length) {
+      const vr = await fetch(SB + '/rest/v1/vendors', { method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(vrows) });
+      const vout = await vr.json().catch(() => []);
+      for (const v of Array.isArray(vout) ? vout : []) {
+        await fetch(SB + '/rest/v1/outreach_prospects?id=eq.' + Number(v.outreach_id), { method: 'PATCH', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify({ vendor_id: v.id }) });
+      }
+      listed = Array.isArray(vout) ? vout.length : 0;
+    }
   }
   const ai = rows.filter((r) => r.ai_call_allowed).length;
-  return json(200, { received: places.length, already_on_file: items.length - fresh.length, added, ai_callable: ai, manual_only: rows.length - ai });
+  return json(200, { listed, received: places.length, already_on_file: items.length - fresh.length, added, ai_callable: ai, manual_only: rows.length - ai });
 };
