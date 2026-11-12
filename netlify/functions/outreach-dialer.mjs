@@ -55,7 +55,7 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
 
     // New prospects first, then one retry for earlier no-answers.
     // New prospects: skip national chains, and mix categories so a round isn't all one trade.
-    const pool = await (await sb(`outreach_prospects?select=id,business_name,category,phone,call_attempts&status=eq.queued&ai_call_allowed=is.true&call_attempts=eq.0&order=created_at.asc&limit=300`)).json();
+    const pool = await (await sb(`outreach_prospects?select=id,business_name,category,phone,city,website,call_attempts,vendor_id&status=eq.queued&ai_call_allowed=is.true&call_attempts=eq.0&order=created_at.asc&limit=300`)).json();
     const chains = (Array.isArray(pool) ? pool : []).filter((r) => CHAIN.test(r.business_name || ''));
     if (chains.length) {
       await sb(`outreach_prospects?id=in.(${chains.map((r) => r.id).join(',')})`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'skipped_chain', updated_at: now().toISOString() }) });
@@ -101,6 +101,22 @@ export function makeDialer({ fetchFn = fetch, env = process.env, now = () => new
     const phoneIds = (env.OUTREACH_PHONE_IDS || DEFAULT_PHONE_IDS.join(',')).split(',').map((s) => s.trim()).filter(Boolean);
     const results = [];
     let failsInRow = 0;
+    // Free directory listing is created before the call (Aria tells them they're listed).
+    for (const r of rows) {
+      if (r.vendor_id || r.call_attempts) continue;
+      try {
+        const ex = await (await sb(`vendors?select=id&outreach_id=eq.${r.id}`)).json();
+        let vid = Array.isArray(ex) && ex[0] ? ex[0].id : null;
+        if (!vid) {
+          const ins = await (await sb('vendors', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({
+            business_name: cleanName(r.business_name), category: r.category, phone: r.phone, city: r.city || null, website: r.website || null,
+            description: (r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : 'Local') + ' services',
+            status: 'active', verified: false, source: 'outreach_call', outreach_id: r.id }) })).json();
+          vid = Array.isArray(ins) && ins[0] ? ins[0].id : null;
+        }
+        if (vid) await sb(`outreach_prospects?id=eq.${r.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ vendor_id: vid }) });
+      } catch (e) { /* listing is best-effort; the call still goes ahead */ }
+    }
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       const phoneNumberId = phoneIds[(done + i) % phoneIds.length];
