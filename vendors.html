@@ -245,7 +245,9 @@ const CAT_STYLE = [
 ];
 function styleFor(cat){ for (const [rx,icon,color,label] of CAT_STYLE) if (rx.test(cat||'')) return {icon,color,label}; return {icon:'🏠',color:'#f1f5f9',label:'Other Services'}; }
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const telHref = p => 'tel:' + String(p||'').replace(/[^0-9+]/g,'');
+// All calls go through Emporion Pros: main line, then 5 = directory (dialed automatically on phones).
+const EP_LINE = '(862) 369-0005';
+const callHref = () => 'tel:+18623690005,,5';
 const fmtPhone = p => { const d=String(p||'').replace(/\D/g,'').replace(/^1(?=\d{10}$)/,''); return d.length===10?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:esc(p); };
 const safeUrl = u => { try { const x=new URL(/^https?:/i.test(u)?u:'https://'+u); return /^https?:$/.test(x.protocol)?x.href:''; } catch(e){ return ''; } };
 
@@ -254,7 +256,7 @@ async function loadVendors(){
   const grid = document.getElementById('vendors-grid');
   grid.innerHTML = '<div class="no-results" style="grid-column:1/-1"><p>Loading local pros…</p></div>';
   try {
-    const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,phone,website,verified,created_at&status=eq.active&order=business_name.asc&limit=1000',
+    const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,verified,created_at&status=eq.active&order=business_name.asc&limit=1000',
       { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
     const rows = r.ok ? await r.json() : [];
     vendors = rows.map(v => ({ ...v, ...styleFor(v.category) }));
@@ -283,7 +285,6 @@ function renderVendors(list) {
   }
   if (!list.length) { grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No matches</h3><p>Try a different search term or category.</p></div>`; return; }
   grid.innerHTML = list.map(v => {
-    const site = safeUrl(v.website || '');
     return `
     <div class="v-card">
       <div class="v-header">
@@ -298,13 +299,14 @@ function renderVendors(list) {
         <div class="v-meta">
           ${v.city ? `<span>📍 ${esc(v.city)}, NJ</span>` : ''}
           ${v.service_area ? `<span>Serves: ${esc(v.service_area)}</span>` : ''}
+          <span>Ref #${Number(v.id)}</span>
           ${v.verified ? '<span style="color:var(--green);font-weight:700">✓ Verified</span>' : ''}
         </div>
       </div>
       <div class="v-footer">
         <button class="v-btn v-btn-chat" onclick="openChat(${Number(v.id)})">✉️ Request</button>
         <button class="v-btn v-btn-primary" onclick="openVendor(${Number(v.id)})">View Profile</button>
-        ${v.phone ? `<a href="${telHref(v.phone)}" class="v-btn v-btn-outline">📞 Call</a>` : site ? `<a href="${esc(site)}" target="_blank" rel="noopener nofollow" class="v-btn v-btn-outline">🌐 Site</a>` : ''}
+        <a href="${callHref()}" class="v-btn v-btn-outline" title="Call through Emporion Pros, then ask for ${esc(v.business_name)} (ref #${Number(v.id)})">📞 Call</a>
       </div>
     </div>`; }).join('');
 }
@@ -343,7 +345,7 @@ async function sendRequest(e) {
   const f = e.target, st = document.getElementById('req-status'), btn = f.querySelector('button');
   btn.disabled = true; st.textContent = 'Sending…';
   const lead = { name: f.name.value.trim(), email: f.email.value.trim(), phone: f.phone.value.trim() || null,
-    source: 'vendor-directory', page: 'Vendor directory (' + location.pathname + ')', role: 'customer', status: 'new',
+    source: 'vendor-directory', vendor_id: Number(reqVendor.id), page: 'Vendor directory (' + location.pathname + ')', role: 'customer', status: 'new',
     message: 'Request for ' + reqVendor.business_name + ' (vendor #' + reqVendor.id + ', ' + (reqVendor.category||'') + '): ' + f.message.value.trim() };
   let ok = false;
   try { const r = await fetch(SB_URL + '/rest/v1/leads', { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(lead) }); ok = r.ok; } catch (err) {}
@@ -356,7 +358,6 @@ async function sendRequest(e) {
 function openVendor(id) {
   const v = vendors.find(x => Number(x.id) === id);
   if (!v) return;
-  const site = safeUrl(v.website || '');
   document.getElementById('vm-content').innerHTML = `
     <div style="position:relative">
       <button class="vm-close" onclick="closeVendor()" aria-label="Close">✕</button>
@@ -372,15 +373,15 @@ function openVendor(id) {
         ${v.description ? `<div class="vm-section"><h4>Services</h4><p style="font-size:13px;color:var(--slate);line-height:1.7">${esc(v.description)}</p></div>` : ''}
         <div class="vm-section">
           <h4>Contact</h4>
-          ${v.phone ? `<p style="font-size:13px">📞 <a href="${telHref(v.phone)}" style="color:var(--copper);font-weight:600">${fmtPhone(v.phone)}</a></p>` : ''}
-          ${site ? `<p style="font-size:13px">🌐 <a href="${esc(site)}" target="_blank" rel="noopener nofollow" style="color:var(--copper);font-weight:600">${esc(site.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a></p>` : ''}
+          <p style="font-size:13px">📞 Call <a href="${callHref()}" style="color:var(--copper);font-weight:600">${EP_LINE}</a>, press 5, and ask for <strong>${esc(v.business_name)}</strong> (ref #${Number(v.id)}). We'll connect you.</p>
+          <p style="font-size:13px">✉️ Or tap <strong>Send Request</strong> below and we'll pass your message along.</p>
           ${v.service_area ? `<p style="font-size:13px">📍 Service area: ${esc(v.service_area)}</p>` : ''}
         </div>
         <p style="font-size:11px;color:var(--slate)">Is this your business? <a href="mailto:info@emporionpros.com?subject=${encodeURIComponent('Update my listing: ' + v.business_name)}" style="color:var(--copper)">Update or remove this listing</a>.</p>
       </div>
       <div class="vm-actions">
         <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${Number(v.id)})">✉️ Send Request</button>
-        ${v.phone ? `<a href="${telHref(v.phone)}" class="vm-btn" style="background:var(--copper);color:white">📞 Call</a>` : ''}
+        <a href="${callHref()}" class="vm-btn" style="background:var(--copper);color:white">📞 Call via Emporion Pros</a>
       </div>
     </div>`;
   document.getElementById('vendor-modal').classList.add('open');

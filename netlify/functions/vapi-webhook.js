@@ -44,6 +44,15 @@
     console.log('Top-level keys:', Object.keys(webhook).join(', '));
     console.log('Message keys:', Object.keys(message).join(', '));
     if (message.type) console.log('message.type:', message.type);
+
+    // Directory call routing: live-transfer a caller to the vendor they chose (verified call only).
+    if (message.type === 'transfer-destination-request') {
+      const dir = require('../lib/directory');
+      const callId = message.call && message.call.id;
+      const ok = await dir.verifyCall(callId);
+      const destination = ok ? await dir.transferDestination(callId) : null;
+      return { statusCode: 200, headers, body: JSON.stringify(destination ? { destination } : { error: 'No business selected for this call.' }) };
+    }
     if (message.status) console.log('message.status:', message.status);
     if (webhook.type) console.log('webhook.type:', webhook.type);
     if (webhook.status) console.log('webhook.status:', webhook.status);
