@@ -6,7 +6,14 @@ const html = (code, body, extra = {}) => ({ statusCode: code, headers: { 'Conten
 const notFound = () => html(404, page({ title: 'Not found — Emporion Pros', noindex: true, body: '<main><h1>Page not found</h1><p><a href="/">Go to Emporion Pros</a></p></main>' }));
 
 exports.handler = async function (event) {
-  const raw = String((event.queryStringParameters && event.queryStringParameters.p) || '').replace(/^\/+|\/+$/g, '');
+  let raw = String((event.queryStringParameters && event.queryStringParameters.p) || '');
+  if (!raw) {
+    // Rewritten requests keep the original path (/blog/{client}/{post}).
+    let path = String(event.path || '');
+    try { if (event.rawUrl) path = new URL(event.rawUrl).pathname; } catch (e) {}
+    raw = path.replace(/^\/(\.netlify\/functions\/)?blog\/?/, '');
+  }
+  raw = raw.replace(/^\/+|\/+$/g, '');
   const [clientSlug, postSlug] = raw.split('/');
   if (!clientSlug || !/^[a-z0-9-]{2,60}$/.test(clientSlug)) return notFound();
 
