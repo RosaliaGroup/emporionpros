@@ -1,1 +1,3 @@
+/blog/*  /.netlify/functions/blog?p=:splat  200!
+/blog-review  /.netlify/functions/blog-review  200!
 /* /index.html 200
