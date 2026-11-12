@@ -29,10 +29,10 @@ exports.handler = async function (event) {
       if (fn.name === 'find_vendor') {
         const m = await findVendors(args.query);
         result = m.length ? JSON.stringify({ matches: m, note: 'Confirm the right business with the caller using name and town. Never read out phone numbers.' })
-          : JSON.stringify({ matches: [], note: 'No match in the directory. Offer to take their details so the Emporion team can help.' });
+          : JSON.stringify({ matches: [], note: 'No match in the directory. Take their name, callback number and need, then call log_directory_lead WITHOUT vendor_ref (put what they asked for in business_asked).' });
       } else if (fn.name === 'log_directory_lead') {
         const r = await logLead(callId, args, callerNumber);
-        result = JSON.stringify(r.ok ? { saved: true, vendor: r.vendor, next: 'Tell the caller their request is saved, then use transferCall to connect them.' } : { saved: false, error: r.error });
+        result = JSON.stringify(r.ok ? (r.vendor ? { saved: true, vendor: r.vendor, next: 'Tell the caller their request is saved, then use transferCall to connect them.' } : { saved: true, vendor: null, next: 'Tell the caller the Emporion Pros team will follow up within one business day, then say goodbye and use endCall.' }) : { saved: false, error: r.error });
       } else {
         result = JSON.stringify({ error: 'unknown tool' });
       }

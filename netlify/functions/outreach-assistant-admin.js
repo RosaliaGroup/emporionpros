@@ -116,15 +116,19 @@ Callers from our website's vendor directory press 5. Say: "Sure — which busine
 2. Ask, one at a time: their name, the best callback number (offer to use the number they're calling from), and briefly what they need.
 3. Use log_directory_lead with vendor_ref, caller_name, callback_number and need.
 4. Say: "Thanks — I've passed your request to [business]. I'll connect you now; if they don't pick up, they'll call you back." Then use transferCall to connect them. Do not say goodbye before transferring.
-5. If find_vendor finds nothing, or the transfer fails, take their details anyway and say the Emporion Pros team will connect them within one business day.
+5. If find_vendor finds nothing, still collect their name, callback number and need, and use log_directory_lead WITHOUT vendor_ref (put the business they asked for in business_asked). Then say the Emporion Pros team will connect them within one business day.
+
+ENDING CALLS (all paths): once the caller's request is handled and you've said one short goodbye, use the endCall tool. Never keep exchanging goodbyes.
 Never promise prices, availability or results on the vendor's behalf.`;
     const prompt = ((m.model.messages || [])[0] || {}).content || '';
-    const newPrompt = prompt.includes('DIRECTORY CALLS') ? prompt : prompt.replace('0 or anything else:', '5 = reaching a business in our directory (see DIRECTORY CALLS). 0 or anything else:') + SECTION;
-    const keep = (m.model.tools || []).filter((t) => !(t.type === 'transferCall') && !(t.function && ['find_vendor', 'log_directory_lead'].includes(t.function.name)));
+    const base = prompt.includes('DIRECTORY CALLS') ? prompt.slice(0, prompt.indexOf('\n\nDIRECTORY CALLS')) : prompt;
+    const newPrompt = base.includes('5 = reaching a business') ? base + SECTION : base.replace('0 or anything else:', '5 = reaching a business in our directory (see DIRECTORY CALLS). 0 or anything else:') + SECTION;
+    const keep = (m.model.tools || []).filter((t) => !['transferCall', 'endCall'].includes(t.type) && !(t.function && ['find_vendor', 'log_directory_lead'].includes(t.function.name)));
     const tools = keep.concat([
       { type: 'function', function: { name: 'find_vendor', description: 'Look up a business in the Emporion Pros vendor directory by name, type of service, or reference number.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Business name, service type, or reference number the caller gave' } }, required: ['query'] } }, server: { url: TOOLS_URL } },
-      { type: 'function', function: { name: 'log_directory_lead', description: 'Save the caller as a lead for the chosen directory business before transferring.', parameters: { type: 'object', properties: { vendor_ref: { type: 'number', description: 'ref from find_vendor' }, caller_name: { type: 'string' }, callback_number: { type: 'string' }, need: { type: 'string', description: 'What the caller needs, in one or two sentences' } }, required: ['vendor_ref', 'caller_name', 'need'] } }, server: { url: TOOLS_URL } },
-      { type: 'transferCall', destinations: [] }
+      { type: 'function', function: { name: 'log_directory_lead', description: 'Save the caller as a lead for the chosen directory business before transferring.', parameters: { type: 'object', properties: { vendor_ref: { type: 'number', description: 'ref from find_vendor (omit if no match)' }, business_asked: { type: 'string', description: 'business the caller asked for, when there was no match' }, caller_name: { type: 'string' }, callback_number: { type: 'string' }, need: { type: 'string', description: 'What the caller needs, in one or two sentences' } }, required: ['caller_name', 'need'] } }, server: { url: TOOLS_URL } },
+      { type: 'transferCall', destinations: [] },
+      { type: 'endCall' }
     ]);
     const msgs = [{ role: 'system', content: newPrompt }].concat((m.model.messages || []).filter((x) => x.role !== 'system'));
     const res = await fetch(MAIN, { method: 'PATCH', headers: H, body: JSON.stringify({ model: { ...m.model, messages: msgs, tools } }) });

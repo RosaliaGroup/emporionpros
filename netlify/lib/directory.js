@@ -34,22 +34,21 @@ async function findVendors(query) {
 async function logLead(callId, args, callerNumber) {
   const vid = Number(args.vendor_ref);
   const v = (await sb(`vendors?select=id,business_name,category&status=in.(active,test)&id=eq.${vid}`)).data;
-  const vendor = v && v[0];
-  if (!vendor) return { ok: false, error: 'vendor not found' };
+  const vendor = (v && v[0]) || null; // no match: still save the caller as a general directory lead
   const phone = e164(args.callback_number) || e164(callerNumber) || null;
   const lead = {
     name: String(args.caller_name || '').slice(0, 120) || 'Directory caller',
     phone, email: args.email ? String(args.email).slice(0, 160) : null,
-    source: 'directory-call', page: 'Phone (862) 369-0005 · directory', role: 'customer', status: 'new', vendor_id: vendor.id,
-    message: `Call for ${vendor.business_name} (vendor #${vendor.id}, ${vendor.category || ''}): ${String(args.need || '').slice(0, 1500)}`
+    source: 'directory-call', page: 'Phone (862) 369-0005 · directory', role: 'customer', status: 'new', vendor_id: vendor ? vendor.id : null,
+    message: (vendor ? `Call for ${vendor.business_name} (vendor #${vendor.id}, ${vendor.category || ''}): ` : `Directory call, business not found (asked for: ${String(args.business_asked || args.vendor_ref || '').slice(0, 120)}): `) + String(args.need || '').slice(0, 1500)
   };
   const ins = await sb('leads', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(lead) });
   const leadId = ins.ok && ins.data && ins.data[0] ? ins.data[0].id : null;
-  if (callId) {
+  if (callId && vendor) {
     await sb('directory_calls?on_conflict=call_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify({ call_id: callId, vendor_id: vendor.id, lead_id: leadId, caller_number: phone }) });
   }
-  return { ok: true, lead_id: leadId, vendor: vendor.business_name };
+  return { ok: true, lead_id: leadId, vendor: vendor ? vendor.business_name : null };
 }
 
 // Destination for a live transfer: the vendor chosen earlier in this call (never read out to the caller).
