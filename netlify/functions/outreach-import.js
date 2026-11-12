@@ -53,7 +53,17 @@ exports.handler = async function (event) {
   const inList = items.map((i) => '"' + i.phone + '"').join(',');
   const existing = await (await fetch(SB + '/rest/v1/outreach_prospects?select=phone&phone=in.(' + encodeURIComponent(inList) + ')', { headers: H })).json();
   const have = new Set((existing || []).map((r) => r.phone));
-  const fresh = items.filter((i) => !have.has(i.phone));
+  // Same business under another number (Google often lists several) counts as already on file.
+  const nameKey = (n) => String(n || '').split(' | ')[0].toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const names = [...new Set(items.map((i) => String(i.name).split(' | ')[0].trim()))].slice(0, 60);
+  const exn = names.length ? await (await fetch(SB + '/rest/v1/outreach_prospects?select=business_name&or=(' + encodeURIComponent(names.map((n) => 'business_name.ilike.' + n.replace(/[,()*]/g, ' ').trim() + '*').join(',')) + ')&limit=500', { headers: H })).json().catch(() => []) : [];
+  const haveNames = new Set((Array.isArray(exn) ? exn : []).map((r) => nameKey(r.business_name)));
+  const seenNames = new Set();
+  const fresh = items.filter((i) => {
+    const k = nameKey(i.name);
+    if (have.has(i.phone) || (k.length >= 4 && (haveNames.has(k) || seenNames.has(k)))) return false;
+    seenNames.add(k); return true;
+  });
 
   const rows = await Promise.all(fresh.map(async (i) => {
     let type = 'unknown';
