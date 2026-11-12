@@ -85,6 +85,17 @@ exports.handler = async function (event) {
       assistantOverrides: { variableValues: { business_name: 'Emporion Pros', category: 'real estate platform' } } }) });
     const j = await r.json(); return json(r.status, { id: j.id, status: j.status, error: j.message });
   }
+  if (body.action === 'dirtest') {
+    // Internal test: a scripted caller dials the Emporion main line and asks for the hidden test vendor.
+    const r = await fetch('https://api.vapi.ai/call', { method: 'POST', headers: H, body: JSON.stringify({
+      phoneNumberId: '6cad7a1b-d99e-403e-a8e8-eb3c0b49c44e', customer: { number: '+18623690005', name: 'Directory test' },
+      assistant: {
+        name: 'Directory test caller', firstMessageMode: 'assistant-waits-for-user', maxDurationSeconds: 180,
+        voice: { provider: 'vapi', voiceId: 'Elliot' }, transcriber: { provider: 'deepgram', model: 'nova-3', language: 'en' },
+        model: { provider: 'openai', model: 'gpt-4o-mini', messages: [{ role: 'system', content: 'You are Tom, a person calling a business phone line to test it. Keep replies very short. When greeted, say: "Hi, I want to reach a business from your directory." When asked which business, say: "Emporion Test Vendor." Your name is Tom Tester. If asked for a callback number, say "use the number I\'m calling from". If asked what you need, say "Just testing the directory transfer, no action needed." If you are told you will be connected or put on hold, say "Thanks" and then stay silent. Never end the call yourself.' }] }
+      } }) });
+    const j = await r.json(); return json(r.status, { id: j.id, error: j.message });
+  }
   if (body.action === 'getcall') {
     const c = await (await fetch('https://api.vapi.ai/call/' + encodeURIComponent(String(body.id || '')), { headers: H })).json();
     return json(200, { status: c.status, endedReason: c.endedReason, cost: c.cost, startedAt: c.startedAt, endedAt: c.endedAt, transcript: (c.artifact && c.artifact.transcript) || c.transcript, tools: (c.messages || []).filter((m) => m.role === 'tool_calls' || m.toolCalls).map((m) => JSON.stringify(m.toolCalls || m).slice(0, 200)) });
