@@ -24,7 +24,9 @@ function stage(p) {
   // Since 2026-11-12 every business gets a directory listing before its first
   // call, so vendor_id no longer means anything was agreed. "Profile created"
   // = they confirmed their details on the call.
-  if (p.vendor_profile_interest === true) return 'profile_created';
+  // vendor_profile_interest is also set on some unanswered calls, so it only
+  // counts when a person was actually on the line.
+  if (p.vendor_profile_interest === true && ['called', 'completed'].includes(p.status)) return 'profile_created';
   // "Contacted" means a person was reached; a voicemail or phone menu is not.
   if (['called', 'completed', 'hung_up', 'message_left', 'email_asked'].includes(p.status)) return 'contacted';
   if (p.status === 'not_interested') return 'not_interested';
