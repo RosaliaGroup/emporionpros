@@ -21,8 +21,10 @@ function businessType(p) {
 
 function stage(p) {
   if (p.status === 'do_not_call') return 'do_not_contact';
-  if (p.vendor_id) return 'profile_created';
-  if (p.vendor_profile_interest) return 'interested';
+  // Since 2026-11-12 every business gets a directory listing before its first
+  // call, so vendor_id no longer means anything was agreed. "Profile created"
+  // = they confirmed their details on the call.
+  if (p.vendor_profile_interest === true) return 'profile_created';
   // "Contacted" means a person was reached; a voicemail or phone menu is not.
   if (['called', 'completed', 'hung_up', 'message_left', 'email_asked'].includes(p.status)) return 'contacted';
   if (p.status === 'not_interested') return 'not_interested';
@@ -41,7 +43,7 @@ function nextStep(p) {
     : 'Left messages twice with no reply. Call by hand.';
   if (p.status === 'email_asked') return `They asked for the details by email${p.email ? ' (' + p.email + ')' : ''}. Send the directory info.`;
   // Every conversation needs an owner unless it already ended in a listing.
-  if (['called', 'completed'].includes(p.status) && !p.vendor_id) return 'Talked to someone, no decision yet. Review the call and follow up.';
+  if (['called', 'completed'].includes(p.status) && p.vendor_profile_interest !== true) return 'Talked to someone, no decision yet. Review the call and follow up.';
   return null;
 }
 

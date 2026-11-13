@@ -51,7 +51,7 @@ exports.handler = async function (event) {
       { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } })).json();
     if (Array.isArray(cur) && cur[0]) attempts = cur[0].call_attempts || 1;
   } catch (e) { /* default 1 */ }
-  const { status } = classifyCall({ transcript, endedReason: ended, callAttempts: attempts });
+  const { status } = classifyCall({ transcript, endedReason: ended, callAttempts: attempts, summary });
 
   const update = {
     status,

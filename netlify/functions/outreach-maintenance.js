@@ -134,12 +134,12 @@ exports.handler = async (event) => {
       // Only calls saved as a conversation; nothing a person or another
       // process has moved on (do_not_call, manual, handed_off, vendor created).
       const rows = await sb('outreach_prospects?select=id,business_name,status,call_attempts,call_summary,vendor_id'
-        + '&status=in.(called,completed)&vendor_id=is.null&limit=1000');
+        + '&status=in.(called,completed)&or=(vendor_profile_interest.is.null,vendor_profile_interest.is.false)&limit=1000');
       const moves = {}; const samples = {}; const changed = [];
       for (const r of rows || []) {
         const saved = parseSaved(r.call_summary);
         if (!saved) continue;
-        const out = classifyCall({ transcript: saved.transcript, endedReason: saved.ended, callAttempts: r.call_attempts || 1 });
+        const out = classifyCall({ transcript: saved.transcript, endedReason: saved.ended, callAttempts: r.call_attempts || 1, summary: saved.summary });
         if (out.status === 'called') continue;
         const k = `${r.status} -> ${out.status} (${out.reason})`;
         moves[k] = (moves[k] || 0) + 1;

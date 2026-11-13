@@ -62,7 +62,19 @@ function substantive(lines) {
  * @param {object} c { transcript, endedReason, callAttempts }
  * @returns {{ status: string, reason: string }}
  */
-function classifyCall({ transcript, endedReason, callAttempts = 1 } = {}) {
+// The AI summary is more reliable than transcript rules for AI receptionists
+// ("enter your ZIP code") and menus that never reach a person.
+const SUMMARY_NO_PERSON = /\bno (live )?(person|one|human) was (reached|available)|did not (connect|reach) (with )?(anyone|a person)|was never connected to a person|reached (a |the )?voice ?mail/i;
+
+function classifyCall({ transcript, endedReason, callAttempts = 1, summary = '' } = {}) {
+  const out = classifyTranscript({ transcript, endedReason, callAttempts });
+  if (out.status === 'called' && SUMMARY_NO_PERSON.test(String(summary || ''))) {
+    return { status: 'no_answer', reason: 'no person reached (AI summary)' };
+  }
+  return out;
+}
+
+function classifyTranscript({ transcript, endedReason, callAttempts = 1 } = {}) {
   const lines = callerLines(transcript);
   const said = lines.join('\n');
   const ended = String(endedReason || '');
@@ -104,4 +116,4 @@ function fromStructured(sd, callAttempts = 1) {
   return map[o] ? { status: map[o], reason: o } : null;
 }
 
-module.exports = { classifyCall, fromStructured, callerLines, humanLines, substantive, MACHINE, MESSAGE, EMAIL, DNC };
+module.exports = { classifyCall, classifyTranscript, SUMMARY_NO_PERSON, fromStructured, callerLines, humanLines, substantive, MACHINE, MESSAGE, EMAIL, DNC };
