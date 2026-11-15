@@ -103,6 +103,12 @@
 /* VENDOR DETAIL MODAL */
 #vendor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center}
 #vendor-modal.open{display:flex}
+#review-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1001;align-items:center;justify-content:center}
+#review-modal.open{display:flex}
+#review-modal .chat-box{max-height:90vh}#rv-form{overflow-y:auto}
+.vm-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.vm-link{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1.5px solid var(--border);color:var(--ink);text-decoration:none}
+.vm-link:hover{border-color:var(--copper);color:var(--copper)}
 .vm-box{background:white;border-radius:16px;width:min(560px,95vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
 .vm-header{padding:24px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid var(--border)}
 .vm-av{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
@@ -220,6 +226,49 @@
   </div>
 </div>
 
+<!-- ADD REVIEWS MODAL (business owners) -->
+<div id="review-modal">
+  <div class="chat-box" style="width:min(520px,95vw)">
+    <div class="chat-header">
+      <div class="chat-header-info"><h4>Add your reviews</h4><p id="rv-name"></p></div>
+      <button class="chat-close" onclick="closeReviewForm()" aria-label="Close">✕</button>
+    </div>
+    <form id="rv-form" class="chat-messages" style="min-height:0" onsubmit="return sendReviews(event)">
+      <p style="font-size:12px;color:var(--slate);margin-bottom:10px;line-height:1.5">Link your review pages and paste a few real reviews. Our team checks every link and quote against the original site before it appears on your listing.</p>
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Your review pages</label>
+      <input name="link" type="url" placeholder="Google Business profile link" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      <input name="link" type="url" placeholder="Yelp, Facebook, Angi, BBB, Houzz, Nextdoor, Thumbtack…" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      <input name="link" type="url" placeholder="Another review site (optional)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      <label style="display:block;font-size:12px;font-weight:600;margin:8px 0 4px">Reviews to show (optional, up to 3)</label>
+      <div class="rv-item" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
+        <textarea name="quote" maxlength="600" rows="2" placeholder="Paste the review text exactly as written" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"></textarea>
+        <div style="display:flex;gap:8px"><input name="reviewer" maxlength="60" placeholder="Reviewer name as shown" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+        <select name="rating" style="width:110px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"><option value="">Stars</option><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+        <input name="source_url" type="url" placeholder="Link to this review (Google, Yelp…)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      </div>
+      <div class="rv-item" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
+        <textarea name="quote" maxlength="600" rows="2" placeholder="Paste the review text exactly as written" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"></textarea>
+        <div style="display:flex;gap:8px"><input name="reviewer" maxlength="60" placeholder="Reviewer name as shown" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+        <select name="rating" style="width:110px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"><option value="">Stars</option><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+        <input name="source_url" type="url" placeholder="Link to this review (Google, Yelp…)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      </div>
+      <div class="rv-item" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
+        <textarea name="quote" maxlength="600" rows="2" placeholder="Paste the review text exactly as written" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"></textarea>
+        <div style="display:flex;gap:8px"><input name="reviewer" maxlength="60" placeholder="Reviewer name as shown" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+        <select name="rating" style="width:110px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"><option value="">Stars</option><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+        <input name="source_url" type="url" placeholder="Link to this review (Google, Yelp…)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      </div>
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Your name</label>
+      <input name="contact_name" required maxlength="80" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px">
+      <div style="display:flex;gap:8px"><input name="contact_phone" type="tel" maxlength="30" placeholder="Phone" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"><input name="contact_email" type="email" maxlength="120" placeholder="Email" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-family:inherit;font-size:13px"></div>
+      <input name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-5000px">
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin:6px 0 12px"><input type="checkbox" name="owner_confirm" required style="margin-top:2px"> I own or manage this business, and these are real reviews copied exactly from the site linked.</label>
+      <button type="submit" style="width:100%;padding:12px;background:var(--copper);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">Send for review</button>
+      <p id="rv-status" role="status" style="font-size:12px;margin-top:10px;color:var(--slate)"></p>
+    </form>
+  </div>
+</div>
+
 <!-- VENDOR DETAIL MODAL -->
 <div id="vendor-modal">
   <div class="vm-box" id="vm-content"></div>
@@ -259,7 +308,7 @@ async function loadVendors(){
     // Load every page (the API returns at most 1000 rows per request); verified pros first.
     let rows = [];
     for (let from = 0; from < 20000; from += 1000) {
-      const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,verified,created_at&status=eq.active&order=verified.desc,business_name.asc,id.asc',
+      const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,verified,created_at,google_place_id,review_links&status=eq.active&order=verified.desc,business_name.asc,id.asc',
         { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Range: from + '-' + (from + 999) } });
       const page = r.ok ? await r.json() : [];
       rows = rows.concat(page);
@@ -307,6 +356,7 @@ function renderVendors(list) {
           ${v.service_area ? `<span>Serves: ${esc(v.service_area)}</span>` : ''}
           <span>Ref #${Number(v.id)}</span>
           ${v.verified ? '<span style="color:var(--green);font-weight:700">✓ Verified</span>' : ''}
+          ${v.google_place_id ? `<a href="${googleUrl(v)}" target="_blank" rel="noopener nofollow" style="color:var(--copper);font-weight:600">★ Google reviews ↗</a>` : ''}
         </div>
       </div>
       <div class="v-footer">
@@ -383,7 +433,12 @@ function openVendor(id) {
           <p style="font-size:13px">✉️ Or tap <strong>Send Request</strong> below and we'll pass your message along.</p>
           ${v.service_area ? `<p style="font-size:13px">📍 Service area: ${esc(v.service_area)}</p>` : ''}
         </div>
-        <p style="font-size:11px;color:var(--slate)">Is this your business? <a href="mailto:info@emporionpros.com?subject=${encodeURIComponent('Update my listing: ' + v.business_name)}" style="color:var(--copper)">Update or remove this listing</a>.</p>
+        <div class="vm-section vm-reviews">
+          <h4>Reviews</h4>
+          <div class="vm-links">${reviewLinks(v)}</div>
+          <div id="vm-review-list"></div>
+        </div>
+        <p style="font-size:11px;color:var(--slate)">Is this your business? <a href="#" onclick="closeVendor();openReviewForm(${Number(v.id)});return false" style="color:var(--copper);font-weight:600">Add your reviews from Google, Yelp and other sites</a> · <a href="mailto:info@emporionpros.com?subject=${encodeURIComponent('Update my listing: ' + v.business_name)}" style="color:var(--copper)">Update or remove this listing</a>.</p>
       </div>
       <div class="vm-actions">
         <button class="vm-btn" style="background:var(--ink);color:white" onclick="closeVendor();openChat(${Number(v.id)})">✉️ Send Request</button>
@@ -391,10 +446,63 @@ function openVendor(id) {
       </div>
     </div>`;
   document.getElementById('vendor-modal').classList.add('open');
+  loadReviews(v);
 }
 function closeVendor() { document.getElementById('vendor-modal').classList.remove('open'); }
 document.getElementById('chat-modal').addEventListener('click', e => { if (e.target.id === 'chat-modal') closeChat(); });
 document.getElementById('vendor-modal').addEventListener('click', e => { if (e.target.id === 'vendor-modal') closeVendor(); });
+
+// ===== REVIEWS (real reviews live on the original sites; we link to them and show quotes the team has checked) =====
+const googleUrl = v => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.business_name + (v.city ? ' ' + v.city + ' NJ' : ' NJ')) + (v.google_place_id ? '&query_place_id=' + encodeURIComponent(v.google_place_id) : '');
+function reviewLinks(v) {
+  const links = [];
+  if (v.google_place_id) links.push({ site: 'Google', url: googleUrl(v) });
+  for (const l of (Array.isArray(v.review_links) ? v.review_links : [])) if (l && l.url && !links.some(x => x.site === l.site)) links.push(l);
+  if (!links.length) return '<p style="font-size:12px;color:var(--slate)">No review pages added yet.</p>';
+  return links.map(l => { const u = safeUrl(l.url); return u ? `<a class="vm-link" href="${esc(u)}" target="_blank" rel="noopener nofollow">★ ${esc(l.site)} reviews ↗</a>` : ''; }).join('');
+}
+async function loadReviews(v) {
+  const box = document.getElementById('vm-review-list'); if (!box) return;
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/vendor_reviews?select=source,source_url,reviewer,rating,quote,review_date&vendor_id=eq.' + Number(v.id) + '&order=review_date.desc.nullslast,id.desc&limit=10',
+      { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
+    const rows = r.ok ? await r.json() : [];
+    if (!rows.length) return;
+    box.innerHTML = rows.map(x => { const u = safeUrl(x.source_url); return `<div class="vm-review">
+      ${x.rating ? `<div class="vm-review-stars" aria-label="${Number(x.rating)} out of 5">${'★'.repeat(Number(x.rating))}${'☆'.repeat(5 - Number(x.rating))}</div>` : ''}
+      <div class="vm-review-text">“${esc(x.quote)}”</div>
+      <div class="vm-review-author">${x.reviewer ? esc(x.reviewer) + ' · ' : ''}on ${esc(x.source)}${x.review_date ? ' · ' + esc(x.review_date) : ''}${u ? ` · <a href="${esc(u)}" target="_blank" rel="noopener nofollow" style="color:var(--copper)">view original ↗</a>` : ''}</div>
+    </div>`; }).join('') + '<p style="font-size:10px;color:var(--slate);margin-top:6px">Reviews shared by the business and checked against the original site by Emporion Pros.</p>';
+  } catch (e) {}
+}
+let rvVendor = null;
+function openReviewForm(id) {
+  rvVendor = vendors.find(v => Number(v.id) === id); if (!rvVendor) return;
+  document.getElementById('rv-name').textContent = rvVendor.business_name;
+  const f = document.getElementById('rv-form'); f.reset(); f.querySelectorAll('input,textarea,button').forEach(i => i.disabled = false);
+  document.getElementById('rv-status').textContent = '';
+  document.getElementById('review-modal').classList.add('open');
+}
+function closeReviewForm() { document.getElementById('review-modal').classList.remove('open'); }
+async function sendReviews(e) {
+  e.preventDefault();
+  const f = e.target, st = document.getElementById('rv-status'), btn = f.querySelector('button[type=submit]');
+  const links = [...f.querySelectorAll('input[name=link]')].map(i => i.value.trim()).filter(Boolean);
+  const reviews = [...f.querySelectorAll('.rv-item')].map(d => ({ quote: d.querySelector('[name=quote]').value.trim(), reviewer: d.querySelector('[name=reviewer]').value.trim(),
+    rating: d.querySelector('[name=rating]').value, source_url: d.querySelector('[name=source_url]').value.trim() })).filter(r => r.quote || r.source_url);
+  btn.disabled = true; st.style.color = 'var(--slate)'; st.textContent = 'Sending…';
+  let out = {};
+  try {
+    const r = await fetch('/.netlify/functions/vendor-reviews-submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      vendor_id: Number(rvVendor.id), contact_name: f.contact_name.value, contact_phone: f.contact_phone.value, contact_email: f.contact_email.value,
+      owner_confirm: f.owner_confirm.checked, website_url: f.website_url.value, links, reviews }) });
+    out = await r.json().catch(() => ({})); out.ok = r.ok && out.ok;
+  } catch (err) {}
+  if (out.ok) { st.style.color = 'var(--green)'; st.textContent = 'Thanks! Our team will check your links and reviews against the original sites, usually within one business day, then add them to your listing.'; f.querySelectorAll('input,textarea,select,button').forEach(i => i.disabled = true); }
+  else { st.style.color = '#b91c1c'; st.textContent = out.error || 'Something went wrong. Please email info@emporionpros.com.'; btn.disabled = false; }
+  return false;
+}
+document.getElementById('review-modal').addEventListener('click', e => { if (e.target.id === 'review-modal') closeReviewForm(); });
 
 loadVendors();
 </script>

@@ -105,7 +105,7 @@ exports.handler = async function (event) {
     const vrows = (Array.isArray(out) ? out : []).map((r) => ({
       business_name: String(r.business_name || '').split(' | ')[0].slice(0, 120), category: r.category, phone: r.phone, city: r.city,
       website: r.website, description: (r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : 'Local') + ' services',
-      status: 'active', verified: false, source: 'google_listing', outreach_id: r.id }));
+      status: 'active', verified: false, source: 'google_listing', outreach_id: r.id, google_place_id: r.google_place_id || null }));
     if (vrows.length) {
       const vr = await fetch(SB + '/rest/v1/vendors', { method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(vrows) });
       const vout = await vr.json().catch(() => []);
