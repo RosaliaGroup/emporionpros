@@ -256,9 +256,15 @@ async function loadVendors(){
   const grid = document.getElementById('vendors-grid');
   grid.innerHTML = '<div class="no-results" style="grid-column:1/-1"><p>Loading local pros…</p></div>';
   try {
-    const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,verified,created_at&status=eq.active&order=business_name.asc&limit=1000',
-      { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
-    const rows = r.ok ? await r.json() : [];
+    // Load every page (the API returns at most 1000 rows per request); verified pros first.
+    let rows = [];
+    for (let from = 0; from < 20000; from += 1000) {
+      const r = await fetch(SB_URL + '/rest/v1/vendors?select=id,business_name,category,city,service_area,description,verified,created_at&status=eq.active&order=verified.desc,business_name.asc,id.asc',
+        { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Range: from + '-' + (from + 999) } });
+      const page = r.ok ? await r.json() : [];
+      rows = rows.concat(page);
+      if (page.length < 1000) break;
+    }
     vendors = rows.map(v => ({ ...v, ...styleFor(v.category) }));
   } catch (e) { vendors = []; }
   buildFilters();
@@ -322,7 +328,7 @@ function filterVendors() {
   document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
   if (sort === 'new') list.sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)));
   else if (sort === 'city') list.sort((a,b) => String(a.city||'~').localeCompare(String(b.city||'~')) || a.business_name.localeCompare(b.business_name));
-  else list.sort((a,b) => a.business_name.localeCompare(b.business_name));
+  else list.sort((a,b) => (b.verified === true) - (a.verified === true) || a.business_name.localeCompare(b.business_name));
   renderVendors(list);
 }
 function pickCat(cat) { document.getElementById('search-cat').value = cat; filterVendors(); }
